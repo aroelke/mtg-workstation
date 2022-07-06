@@ -14,10 +14,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import editor.collection.CardList;
+import editor.collection.immutable.CardList;
 import editor.collection.CardListEntry;
-import editor.collection.Inventory;
-import editor.collection.deck.Category;
+import editor.collection.immutable.Inventory;
+import editor.collection.Categorization;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.filter.Filter;
@@ -170,11 +170,11 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
 
     /** Categories in a deck in which a card belongs.*/
     CATEGORIES("Categories", null, Set.class, (a, b) -> {
-        var first = CollectionUtils.convertToSet(a, Category.class).stream().sorted(Comparator.comparing(Category::getName)).collect(Collectors.toList());
-        var second = CollectionUtils.convertToSet(b, Category.class).stream().sorted(Comparator.comparing(Category::getName)).collect(Collectors.toList());
+        var first = CollectionUtils.convertToSet(a, Categorization.class).stream().sorted(Comparator.comparing(Categorization::name)).collect(Collectors.toList());
+        var second = CollectionUtils.convertToSet(b, Categorization.class).stream().sorted(Comparator.comparing(Categorization::name)).collect(Collectors.toList());
         for (int i = 0; i < Math.min(first.size(), second.size()); i++)
         {
-            int diff = first.get(i).getName().compareTo(second.get(i).getName());
+            int diff = first.get(i).name().compareTo(second.get(i).name());
             if (diff != 0)
                 return diff;
         }

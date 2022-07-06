@@ -1,6 +1,6 @@
 package editor.gui.ccp.data
 
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.database.card.Card
 import editor.gui.editor.EditorFrame
 
@@ -16,7 +16,7 @@ import java.awt.datatransfer.DataFlavor
  * 
  * @author Alec Roelke
  */
-class CategoryTransferData(val spec: Category, editor: EditorFrame = null, cards: Map[Card, Int] = Map.empty) extends EntryTransferData(editor, EditorFrame.MainDeck, cards) {
+class CategoryTransferData(val spec: Categorization, editor: EditorFrame = null, cards: Map[Card, Int] = Map.empty) extends EntryTransferData(editor, EditorFrame.MainDeck, cards) {
   override def getTransferDataFlavors = DataFlavors.categoryFlavor +: super.getTransferDataFlavors
   override def isDataFlavorSupported(flavor: DataFlavor) = getTransferDataFlavors.contains(flavor)
   override def getTransferData(flavor: DataFlavor) = if (flavor == DataFlavors.categoryFlavor) this else super.getTransferData(flavor)

@@ -1,7 +1,7 @@
 package editor.gui.display
 
-import editor.collection.deck.Category
-import editor.collection.deck.Deck
+import editor.collection.Categorization
+import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
@@ -120,7 +120,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
             panel
           case CardAttribute.CATEGORIES =>
             val categories = value match {
-              case s: java.util.Set[?] => s.asScala.toSeq.collect{ case category: Category => category }.sortBy(_.getName)
+              case s: Set[?] => s.toSeq.collect{ case category: Categorization => category }.sortBy(_.name)
               case _ => Seq.empty
             }
             val panel = tablePanel(new JPanel {
@@ -129,7 +129,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
                 for (i <- 0 until categories.size) {
                   val x = i*(getHeight + 1) + 1
                   val y = 1
-                  g.setColor(categories(i).getColor)
+                  g.setColor(categories(i).color)
                   g.fillRect(x, y, getHeight - 3, getHeight - 3)
                   g.setColor(Color.BLACK)
                   g.drawRect(x, y, getHeight - 3, getHeight - 3)
@@ -137,7 +137,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
               }
             })
             if (!categories.isEmpty) {
-              panel.setToolTipText(categories.map(_.getName).mkString(
+              panel.setToolTipText(categories.map(_.name).mkString(
                 s"<html>Categories:<br>${UnicodeSymbols.Bullet} ",
                 s"<br>${UnicodeSymbols.Bullet} ",
                 "</html>"

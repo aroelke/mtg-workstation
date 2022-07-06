@@ -1,12 +1,13 @@
 package editor.gui.editor
 
-import editor.gui.generic.ScrollablePanel
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.database.card.Card
+import editor.gui.generic.ScrollablePanel
 import editor.gui.generic.TristateCheckBox
 import editor.gui.generic.TristateCheckBoxState
-import javax.swing.BoxLayout
+
 import java.awt.Color
+import javax.swing.BoxLayout
 
 /**
  * Panel allowing the user to edit the category inclusion of cards.  It contains a list of check boxes whose labels
@@ -20,15 +21,15 @@ import java.awt.Color
  * 
  * @author Alec Roelke
  */
-class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends ScrollablePanel(ScrollablePanel.TrackWidth) {
+class IncludeExcludePanel(categories: Seq[Categorization], cards: Seq[Card]) extends ScrollablePanel(ScrollablePanel.TrackWidth) {
   private val MaxPreferredRows = 10
 
   setLayout(BoxLayout(this, BoxLayout.Y_AXIS))
   setBackground(Color.WHITE)
 
   private val categoryBoxes = categories.map((category) => {
-    val matches = cards.count(category.includes(_))
-    val categoryBox = TristateCheckBox(category.getName, 
+    val matches = cards.count(category)
+    val categoryBox = TristateCheckBox(category.name, 
       if (matches == 0)
         TristateCheckBoxState.Unselected
       else if (matches < cards.size)
@@ -41,11 +42,26 @@ class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends S
   }).toMap
   categories.foreach((c) => add(categoryBoxes(c)))
 
-  /** @return a mapping of cards onto the categories they should be included in */
-  def included = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Selected && !category.includes(c)) => category }.toSet).toMap
+  /**
+   * Get the categories that should have cards included in them. Categories are not actually updated.
+   * @return a mapping of cards onto the categories they should be included in
+   */
+  def toInclude = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Selected && !category(c)) => category }.toSet).toMap
 
-  /** @return a mapping of cards onto the categories they should be excluded from */
-  def excluded = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Unselected && category.includes(c)) => category }.toSet).toMap
+  /**
+   * Get the categories that should have cards excluded from them. Categories are not actually updated.
+   * @return a mapping of cards onto the categories they should be excluded from
+   */
+  def toExclude = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Unselected && category(c)) => category }.toSet).toMap
+
+  /** @return copies of the provided categories, updated to include or exclude cards as selected by the user. */
+  def updates = {
+    val inc = toInclude
+    val exc = toExclude
+    categories.collect{ case category if inc.values.exists(_.contains(category)) || exc.values.exists(_.contains(category)) =>
+      category ++ inc.collect{ case (card, in) if in.contains(category) => card } -- exc.collect{ case (card, ex) if ex.contains(category) => card }
+    }
+  }
 
   override def getPreferredScrollableViewportSize = {
     val size = getPreferredSize

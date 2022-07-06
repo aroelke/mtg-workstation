@@ -1,11 +1,13 @@
 package editor.gui.generic
 
+import editor.collection.CardListEntry
 import editor.database.card.Card
 import editor.gui.editor.EditorFrame
 import editor.gui.settings.SettingsDialog
 
 import java.awt.BorderLayout
 import java.awt.Container
+import java.time.LocalDate
 import javax.swing.JLabel
 import javax.swing.JMenuItem
 import javax.swing.JOptionPane
@@ -32,8 +34,8 @@ import scala.collection.immutable.ListMap
  * @author Alec Roelke
  */
 class CardMenuItems(monitor: => Option[EditorFrame], cards: => Iterable[? <: Card], main: Boolean) extends Iterable[JMenuItem] {
-  private val add = (n: Int) => monitor.foreach(f => (if (main) f.deck else f.sideboard) ++= (cards -> n))
-  private val remove = (n: Int) => monitor.foreach(f => (if (main) f.deck else f.sideboard) --= (cards -> n))
+  private val add = (n: Int) => monitor.foreach(f => (if (main) f.deck else f.sideboard) ++= cards.map(CardListEntry(_, n)))
+  private val remove = (n: Int) => monitor.foreach(f => (if (main) f.deck else f.sideboard) --= cards.map(CardListEntry(_, n)))
 
   private val items = Seq(
     JMenuItem("Add Single Copy"), JMenuItem("Fill Playset"), JMenuItem("Add Copies..."),
@@ -43,7 +45,10 @@ class CardMenuItems(monitor: => Option[EditorFrame], cards: => Iterable[? <: Car
   addOne.addActionListener(_ => add(1))
   fillPlayset.addActionListener(_ => monitor.foreach(f => {
     val l = if (main) f.deck else f.sideboard
-    l %%= ListMap.from(cards.map((c) => c -> (if (l.contains(c)) math.max(0, SettingsDialog.PlaysetSize - l.getEntry(c).count) else SettingsDialog.PlaysetSize)))
+    l ++= cards.map((c) => CardListEntry(
+      c,
+      math.max(SettingsDialog.PlaysetSize - l.find(_.card == c).map(_.count).getOrElse(0), SettingsDialog.PlaysetSize)
+    ))
   }))
   addN.addActionListener(_ => {
     val contentPanel = JPanel(BorderLayout());

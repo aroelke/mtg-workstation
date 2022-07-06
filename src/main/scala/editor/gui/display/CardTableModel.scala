@@ -1,6 +1,7 @@
 package editor.gui.display
 
 import editor.collection.CardList
+import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
 import editor.gui.editor.EditorFrame
 import editor.gui.editor.IncludeExcludePanel
@@ -19,19 +20,19 @@ import javax.swing.table.AbstractTableModel
  * 
  * @author Alec Roelke
  */
-class CardTableModel(private var cards: CardList, private var characteristics: Seq[CardAttribute], editor: Option[EditorFrame] = None) extends AbstractTableModel {
+class CardTableModel(private var cards: CardList, private var characteristics: IndexedSeq[CardAttribute], editor: Option[EditorFrame] = None) extends AbstractTableModel {
   override def getColumnCount = characteristics.size
   override def getColumnName(column: Int) = characteristics(column).toString
   override def getColumnClass(column: Int) = characteristics(column).dataType
   override def getRowCount = cards.size
-  override def getValueAt(row: Int, column: Int) = cards.getEntry(row)(characteristics(column))
+  override def getValueAt(row: Int, column: Int) = cards(row)(characteristics(column))
   override def isCellEditable(row: Int, column: Int) = editor.isDefined && (characteristics(column) == CardAttribute.COUNT || characteristics(column) == CardAttribute.CATEGORIES)
 
   override def setValueAt(value: Object, row: Int, column: Int) = if (isCellEditable(row, column)) {
-    (characteristics(column), value) match {
-      case (CardAttribute.COUNT, i: Integer) => cards.set(cards.get(row), i)
-      case (CardAttribute.CATEGORIES, ie: IncludeExcludePanel) => editor.foreach(_.editInclusion(ie.included, ie.excluded))
-      case _ => throw IllegalArgumentException(s"Cannot edit data type ${characteristics(column)} to $value")
+    (cards, characteristics(column), value) match {
+      case (deck: Deck, CardAttribute.COUNT, i: java.lang.Integer) => deck(row).count = i
+      case (deck: Deck, CardAttribute.CATEGORIES, ie: IncludeExcludePanel) => editor.foreach(_.categories.update(ie.updates.map((c) => c.name -> c).toMap))
+      case _ => throw IllegalArgumentException(s"cannot edit data type ${characteristics(column)} to $value")
     }
     fireTableDataChanged()
   } else throw UnsupportedOperationException("cells cannot be edited")
@@ -43,7 +44,7 @@ class CardTableModel(private var cards: CardList, private var characteristics: S
    * Change the characteristics to be displayed by the table.
    * @param c new characteristics to show
    */
-  def columns_=(c: Seq[CardAttribute]) = {
+  def columns_=(c: IndexedSeq[CardAttribute]) = {
     characteristics = c
     fireTableStructureChanged()
   }

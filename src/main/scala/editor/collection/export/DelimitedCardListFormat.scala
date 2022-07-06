@@ -2,7 +2,7 @@ package editor.collection.`export`
 
 import com.mdimension.jchronic.Chronic
 import editor.collection.CardList
-import editor.collection.deck.Deck
+import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 import editor.database.card.CardFormat
@@ -73,9 +73,9 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
 
   override def format(list: CardList) = {
     val columnFormats = attributes.map((a) => CardFormat(s"{$a}".toLowerCase))
-    list.map((card) => {
+    list.map((e) => {
       columnFormats.map((format) => {
-        val value = format.format(list.getEntry(card)).replace(Escape, UnicodeSymbols.Substitute.toString)
+        val value = format.format(e).replace(Escape, UnicodeSymbols.Substitute.toString)
         (if (value.contains(delimiter)) s"$Escape${value.replace(Escape, Escape*2)}$Escape" else value).replace(UnicodeSymbols.Substitute.toString, Escape*2)
       }).mkString(delimiter)
     }).mkString(System.lineSeparator)
@@ -111,9 +111,9 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
         try {
           val cells = split(delimiter, line.replace(Escape*2, Escape))
           val possibilities = MainFrame.inventory
-              .filter(_.name.equalsIgnoreCase(cells(name)))
-              .filter(expansion < 0 || _.expansion.name.equalsIgnoreCase(cells(expansion)))
-              .filter(number < 0 || _.faces.map(_.number).mkString(Card.FaceSeparator) == cells(number))
+              .filter(_.card.name.equalsIgnoreCase(cells(name)))
+              .filter(expansion < 0 || _.card.expansion.name.equalsIgnoreCase(cells(expansion)))
+              .filter(number < 0 || _.card.faces.map(_.number).mkString(Card.FaceSeparator) == cells(number))
           
           if (possibilities.size > 1)
             System.err.println(s"warning: cannot determine printing of \"${line.trim}\"")
@@ -121,7 +121,7 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
             throw ParseException(s"can't find card named ${cells(name)}", pos)
           
           extra.map(extras).getOrElse(deck).add(
-            possibilities.head,
+            possibilities.head.card,
             if (count < 0) 1 else cells(count).toInt,
             if (date < 0) LocalDate.now else try {
               Option(Chronic.parse(cells(date)))

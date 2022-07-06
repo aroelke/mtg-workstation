@@ -23,13 +23,10 @@ import java.lang.reflect.Type
 class CardAdapter extends JsonSerializer[Card] with JsonDeserializer[Card] {
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
     if (json.getAsJsonObject.has("scryfallid"))
-      MainFrame.inventory.find(json.getAsJsonObject.get("scryfallid").getAsString)
+      MainFrame.inventory(json.getAsJsonObject.get("scryfallid").getAsString).card
     else {
       val multiverseid = json.getAsJsonObject.get("multiverseid").getAsInt
-      if (MainFrame.inventory.contains(multiverseid))
-        MainFrame.inventory.find(multiverseid)
-      else
-        throw JsonParseException(s"no card with multiverseid $multiverseid exists")
+      MainFrame.inventory.find(_.card.faces.exists(_.multiverseid == multiverseid)).getOrElse(throw JsonParseException(s"no card with multiverseid $multiverseid exists")).card
     }
   }
 

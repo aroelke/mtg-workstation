@@ -21,7 +21,7 @@ import javax.swing.event.ListSelectionListener
 class TableSelectionListener(frame: MainFrame, table: CardTable, list: CardList) extends ListSelectionListener with MouseListener {
   override def valueChanged(e: ListSelectionEvent) = if (!e.getValueIsAdjusting) {
     if (table.getSelectedRow >= 0)
-      frame.setDisplayedCard(list.get(table.convertRowIndexToModel(table.getSelectedRow)))
+      frame.setDisplayedCard(list(table.convertRowIndexToModel(table.getSelectedRow)).card)
     else if (frame.getSelectedTable.exists(_ == table))
       frame.clearSelectedCard()
   }

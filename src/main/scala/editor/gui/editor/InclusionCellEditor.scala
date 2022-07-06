@@ -1,6 +1,6 @@
 package editor.gui.editor
 
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.gui.display.CardTable
 import editor.util.MouseListenerFactory
 
@@ -27,7 +27,7 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 class InclusionCellEditor(frame: EditorFrame) extends AbstractCellEditor with TableCellEditor {
-  private var included = Seq.empty[Category]
+  private var included = Seq.empty[Categorization]
   private var iePanel: Option[IncludeExcludePanel] = None
 
   private val editor = new JPanel {
@@ -36,7 +36,7 @@ class InclusionCellEditor(frame: EditorFrame) extends AbstractCellEditor with Ta
       included.zipWithIndex.foreach{ case (include, i) =>
         val x = i*(getHeight + 1) + 1
         val y = 1
-        g.setColor(include.getColor)
+        g.setColor(include.color)
         g.fillRect(x, y, getHeight - 3, getHeight - 3)
         g.setColor(Color.BLACK)
         g.drawRect(x, y, getHeight - 3, getHeight - 3)
@@ -56,9 +56,9 @@ class InclusionCellEditor(frame: EditorFrame) extends AbstractCellEditor with Ta
   override def getTableCellEditorComponent(table: JTable, value: AnyRef, isSelected: Boolean, row: Int, column: Int) = {
     table match {
       case cTable: CardTable =>
-        iePanel = Some(IncludeExcludePanel(frame.categories.toSeq.sortBy(_.getName.toLowerCase), Seq(frame.getCardAt(cTable, row))))
+        iePanel = Some(IncludeExcludePanel(frame.categories.toSeq.sortBy(_.name.toLowerCase), Seq(frame.getCardAt(cTable, row).card)))
         included = value match {
-          case c: java.util.Collection[?] => c.asScala.collect{ case category: Category => category }.toSeq
+          case c: java.util.Collection[?] => c.asScala.collect{ case category: Categorization => category }.toSeq
           case _ => Seq.empty
         }
         if (!cTable.isRowSelected(row))
@@ -68,7 +68,7 @@ class InclusionCellEditor(frame: EditorFrame) extends AbstractCellEditor with Ta
           if (cTable.hasFocus)
             editor.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"))
         }
-      case _ => iePanel = Some(IncludeExcludePanel(frame.categories.toSeq.sortBy(_.getName.toLowerCase), frame.getSelectedCards))
+      case _ => iePanel = Some(IncludeExcludePanel(frame.categories.toSeq.sortBy(_.name.toLowerCase), frame.getSelectedCards.map(_.card)))
     }
     editor
   }

@@ -8,8 +8,8 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import editor.collection.deck.Deck
 import editor.collection.`export`.CardListFormat
+import editor.collection.mutable.Deck
 import editor.gui.MainFrame
 import editor.util.ProgressInputStream
 
@@ -108,8 +108,6 @@ object DeckSerializer {
 case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = Map.empty, notes: String = "", changelog: String = "", file: Option[File] = None)
   extends JsonSerializer[DeckSerializer] with JsonDeserializer[DeckSerializer]
 {
-  @deprecated def this(d: Deck, s: java.util.Map[String, Deck], n: String, c: String) = this(d, s.asScala.toMap, n, c)
-
   /** Save the serialized deck to a JSON file, if the file is defined. */
   @throws[IOException]("if the file could not be saved")
   @throws[NoSuchFileException]("if there is no file to save to")

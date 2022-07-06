@@ -1,6 +1,6 @@
 package editor.gui.settings
 
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.database.FormatConstraints
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
@@ -35,6 +35,7 @@ import java.awt.Dialog
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Font
+import java.awt.Frame
 import java.awt.Graphics
 import java.awt.GridLayout
 import java.awt.event.ActionListener
@@ -42,6 +43,7 @@ import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.io.File
 import java.io.IOException
+import java.net.MalformedURLException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.text.ParseException
@@ -78,8 +80,6 @@ import javax.swing.tree.TreePath
 import javax.swing.tree.TreeSelectionModel
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
-import java.net.MalformedURLException
-import java.awt.Frame
 
 /**
  * Application-modal dialog that allows the user to make global changes to UI elements, including various colors,
@@ -351,7 +351,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   private val categoriesList = CategoryList("<html><i>&lt;Double-click to add or edit&gt;</i></html>")
   categoriesPanel.add(JScrollPane(categoriesList), BorderLayout.CENTER)
 
-  // Category modification buttons
+  // Categorization modification buttons
   private val categoryModPanel = VerticalButtonList(Seq("+", UnicodeSymbols.Ellipsis.toString, UnicodeSymbols.Minus.toString))
   categoryModPanel("+").addActionListener((e) => CategoryEditorPanel.showCategoryEditor(this).foreach(categoriesList.addCategory(_)))
   categoryModPanel(UnicodeSymbols.Ellipsis.toString).addActionListener((e) => {
@@ -432,7 +432,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   // Expected counts round mode
   private val expectedRoundPanel = Box(BoxLayout.X_AXIS)
   expectedRoundPanel.add(Box.createHorizontalStrut(5))
-  expectedRoundPanel.add(JLabel("Expected Category Count Round Mode:"))
+  expectedRoundPanel.add(JLabel("Expected Categorization Count Round Mode:"))
   expectedRoundPanel.add(Box.createHorizontalStrut(5))
   private val roundGroup = ButtonGroup()
   private val modeButtons = collection.mutable.ArrayBuffer[JRadioButton]()
@@ -725,7 +725,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
       rowsSpinner.commitEdit()
       startingSizeSpinner.commitEdit()
 
-      val presets = new ArrayBuffer[Category](categoriesList.getCount)
+      val presets = new ArrayBuffer[Categorization](categoriesList.getCount)
       for (i <- 0 until categoriesList.getCount)
         presets += categoriesList.categories(i)
       
@@ -740,7 +740,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
           imageLimit = limitImageSpinner.getValue.asInstanceOf[Int],
           update = updateBox.getItemAt(updateBox.getSelectedIndex),
           warn = suppressCheckBox.isSelected,
-          columns = inventoryColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toSeq.sortBy(_.ordinal),
+          columns = inventoryColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toIndexedSeq.sortBy(_.ordinal),
           background = scanBGChooser.getColor,
           stripe = inventoryStripeColor.getColor
         ),
@@ -763,7 +763,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
             sideboard = if (sideCheck.isSelected) sideField.getText else ""
           ),
           manaAnalysis = ManaAnalysisSettings(sectionChoosers.map{ case (s, c) => s -> c.getColor }.toMap).copy(line = landLineChooser.getColor),
-          columns = editorColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toSeq.sortBy(_.ordinal),
+          columns = editorColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toIndexedSeq.sortBy(_.ordinal),
           stripe = editorStripeColor.getColor,
           manaValue = manaValueBox.getItemAt(manaValueBox.getSelectedIndex),
           backFaceLands = landsCheckBoxes.filter(_.isSelected).map(b => editor.database.card.CardLayout.values.find(_.toString == b.getText).get).toSet
@@ -817,8 +817,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     explicitsSpinner.getModel.setValue(settings.editor.categories.explicits)
     manaValueBox.setSelectedIndex(Math.max(ManaValueOptions.indexOf(settings.editor.manaValue), 0))
     categoriesList.clear()
-    for (preset <- settings.editor.categories.presets)
-      categoriesList.addCategory(Category(preset))
+    settings.editor.categories.presets.foreach(categoriesList.addCategory)
     rowsSpinner.getModel().setValue(settings.editor.categories.rows)
     for ((a, b) <- editorColumnCheckBoxes)
       b.setSelected(settings.editor.columns.contains(a))
@@ -923,7 +922,7 @@ object SettingsDialog {
    * Add a new preset category.  Make sure its whitelist and blacklist are empty.
    * @param category specification for the category to add
    */
-  def addPresetCategory(category: Category): Unit = {
+  def addPresetCategory(category: Categorization): Unit = {
     settings = settings.copy(editor = settings.editor.copy(categories = settings.editor.categories.copy(presets = settings.editor.categories.presets :+ category)))
   }
 

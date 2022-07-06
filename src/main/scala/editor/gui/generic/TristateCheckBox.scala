@@ -28,6 +28,8 @@ enum TristateCheckBoxState { case Selected, Indeterminate, Unselected }
 class TristateCheckBox(text: String = "", private var s: TristateCheckBoxState = TristateCheckBoxState.Unselected) extends JCheckBox(text) {
   import TristateCheckBoxState._
 
+  state = s
+
   private class IndeterminateIcon(color: Color) extends Icon {
     private val BaseIcon = UIManager.getIcon("CheckBox.icon")
     private val IconFill = 2.0/3.0

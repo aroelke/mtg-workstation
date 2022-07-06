@@ -1,6 +1,6 @@
 package editor.gui.editor
 
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.gui.display.CardJList
 import editor.gui.filter.FilterGroupPanel
 import editor.gui.generic.ColorButton
@@ -41,7 +41,7 @@ object CategoryEditorPanel {
    * @param specification if defined, pre-populate the editor panel
    * @return the new specification created in the editor dialog, or None if the process was canceled
    */
-  def showCategoryEditor(parent: Container, specification: Option[Category] = None) = {
+  def showCategoryEditor(parent: Container, specification: Option[Categorization] = None) = {
     val editor = CategoryEditorPanel(specification)
     editor.filter.addChangeListener(_.getSource match {
       case c: Component => SwingUtilities.getWindowAncestor(c).pack()
@@ -56,14 +56,14 @@ object CategoryEditorPanel {
     }
     editorPanel.add(editor, BorderLayout.CENTER)
 
-    var spec: Option[Category] = None
+    var spec: Option[Categorization] = None
     var done = false
     while (!done) {
       val editorPane = JScrollPane(editorPanel)
       editorPane.setBorder(BorderFactory.createEmptyBorder)
-      if (JOptionPane.showConfirmDialog(parent, editorPane, "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
+      if (JOptionPane.showConfirmDialog(parent, editorPane, "Categorization Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
         if (editor.nameField.getText.isEmpty) {
-          JOptionPane.showMessageDialog(editor, "Category must have a name.", "Error", JOptionPane.ERROR_MESSAGE)
+          JOptionPane.showMessageDialog(editor, "Categorization must have a name.", "Error", JOptionPane.ERROR_MESSAGE)
         } else {
           spec = Some(editor.spec)
           done = true
@@ -86,10 +86,10 @@ object CategoryEditorPanel {
  * 
  * @author Alec Roelke
  */
-class CategoryEditorPanel(specification: Option[Category] = None) extends JPanel(BorderLayout()) {
+class CategoryEditorPanel(specification: Option[Categorization] = None) extends JPanel(BorderLayout()) {
   private val namePanel = Box(BoxLayout.X_AXIS)
   namePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5))
-  namePanel.add(JLabel("Category Name: "))
+  namePanel.add(JLabel("Categorization Name: "))
   private val nameField = JTextField()
   namePanel.add(nameField)
   namePanel.add(Box.createHorizontalStrut(5))
@@ -117,17 +117,17 @@ class CategoryEditorPanel(specification: Option[Category] = None) extends JPanel
   specification.foreach(spec = _)
 
   /** @return the categorization as currently defined by the GUI elements in the panel. */
-  def spec = Category(nameField.getText, whitelist.cards.asJava, blacklist.cards.asJava, colorButton.color, filter.filter)
+  def spec = Categorization(nameField.getText, filter.filter, whitelist.cards.toSet, blacklist.cards.toSet, colorButton.color)
 
   /**
    * Set the contents of the panel based on a given categorization.
    * @param s categorization to use to populate the panel
    */
-  def spec_=(s: Category) = {
-    nameField.setText(s.getName)
-    colorButton.color = s.getColor
-    filter.setContents(s.getFilter)
-    whitelist.cards = s.getWhitelist.asScala.toSeq.sortBy(_.name)
-    blacklist.cards = s.getBlacklist.asScala.toSeq.sortBy(_.name)
+  def spec_=(s: Categorization) = {
+    nameField.setText(s.name)
+    colorButton.color = s.color
+    filter.setContents(s.filter)
+    whitelist.cards = s.whitelist.toSeq.sortBy(_.name)
+    blacklist.cards = s.blacklist.toSeq.sortBy(_.name)
   }
 }

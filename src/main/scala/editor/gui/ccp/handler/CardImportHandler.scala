@@ -1,11 +1,13 @@
 package editor.gui.ccp.handler
 
+import editor.collection.CardListEntry
 import editor.database.card.Card
 import editor.gui.ccp.data.DataFlavors
 import editor.gui.editor.EditorFrame
 
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.io.IOException
+import java.time.LocalDate
 import javax.swing.TransferHandler
 
 /**
@@ -25,7 +27,8 @@ class CardImportHandler(editor: EditorFrame, id: Int) extends TransferHandler wi
         case a: Array[?] => a.toSeq.collect{ case c: Card => c }
         case x => throw ClassCastException(s"needed ${classOf[Card]}, got ${x.getClass}")
       }
-      editor.lists(id) ++= data -> 1
+      editor.lists(id) ++= data.map(CardListEntry(_))
+      true
     } catch {
       case _: UnsupportedFlavorException => false
       case _: IOException => false

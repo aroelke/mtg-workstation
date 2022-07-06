@@ -1,6 +1,6 @@
 package editor.gui.ccp.data
 
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.database.card.Card
 
 import java.awt.datatransfer.DataFlavor
@@ -17,5 +17,5 @@ object DataFlavors {
   lazy val entryFlavor = DataFlavor(s"${DataFlavor.javaJVMLocalObjectMimeType};class=\"${classOf[EntryTransferData].getName}\"", "Deck Entries")
 
   /** Data flavor used for copying categorizations and (TBD) cards in catgories. */
-  lazy val categoryFlavor = DataFlavor(s"${DataFlavor.javaJVMLocalObjectMimeType};class=\"${classOf[Category].getName}\"", "Categorization")
+  lazy val categoryFlavor = DataFlavor(s"${DataFlavor.javaJVMLocalObjectMimeType};class=\"${classOf[Categorization].getName}\"", "Categorization")
 }
