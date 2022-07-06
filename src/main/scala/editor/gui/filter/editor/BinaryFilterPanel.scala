@@ -23,7 +23,7 @@ class BinaryFilterPanel(allow: Boolean) extends FilterEditorPanel[FilterLeaf] {
   setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0))
   add(JLabel(if (allow) All else None))
 
-  protected override val attribute = if (allow) CardAttribute.ANY else CardAttribute.NONE
-  override lazy val filter = CardAttribute.createFilter(if (allow) CardAttribute.ANY else CardAttribute.NONE)
+  protected override val attribute = if (allow) CardAttribute.AnyCard else CardAttribute.NoCard
+  override lazy val filter = (if (allow) CardAttribute.AnyCard else CardAttribute.NoCard).filter.get
   override def setFields(filter: FilterLeaf) = {}
 }

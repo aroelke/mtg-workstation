@@ -16,4 +16,4 @@ object SubtypeFilter {
  * Filter for grouping cards by subtype.
  * @author Alec Roelke
  */
-class SubtypeFilter extends MultiOptionsFilter[String](CardAttribute.SUBTYPE, false, _.subtypes)
+class SubtypeFilter extends MultiOptionsFilter[String](CardAttribute.Subtype, false, _.subtypes)

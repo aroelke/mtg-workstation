@@ -264,7 +264,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   // Columns
   private val inventoryColumnsPanel = JPanel(GridLayout(0, 5))
   inventoryColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"))
-  private val inventoryColumnCheckBoxes = collection.mutable.HashMap[CardAttribute, JCheckBox]()
+  private val inventoryColumnCheckBoxes = collection.mutable.HashMap[CardAttribute[?], JCheckBox]()
   private val inventoryAttributes = CardAttribute.inventoryValues.sortBy(_.toString).toSeq
   for (characteristic <- inventoryAttributes) {
     val checkBox = JCheckBox(characteristic.toString())
@@ -385,7 +385,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   // Editor table columns
   private val editorColumnsPanel = JPanel(GridLayout(0, 5))
   editorColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"))
-  private val editorColumnCheckBoxes = collection.mutable.HashMap[CardAttribute, JCheckBox]()
+  private val editorColumnCheckBoxes = collection.mutable.HashMap[CardAttribute[?], JCheckBox]()
   private val editorAttributes = CardAttribute.displayableValues.sortBy(_.toString)
   for (characteristic <- editorAttributes) {
     val checkBox = JCheckBox(characteristic.toString())

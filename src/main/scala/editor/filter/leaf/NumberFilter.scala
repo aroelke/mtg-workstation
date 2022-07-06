@@ -17,14 +17,14 @@ import scala.annotation.targetName
  * 
  * @author Alec Roelke
  */
-class NumberFilter(t: CardAttribute, unified: Boolean, value: (Card) => Double) extends FilterLeaf(t, unified) {
+class NumberFilter(t: CardAttribute[?], unified: Boolean, value: (Card) => Double) extends FilterLeaf(t, unified) {
   var operation = Comparison.EQ
   var operand = 0.0
 
   override protected def testFace(c: Card) = { val v = value(c); !v.isNaN && operation(v, operand) }
 
   override protected def copyLeaf = {
-    val filter = CardAttribute.createFilter(attribute).asInstanceOf[NumberFilter]
+    val filter = attribute.filter.get.asInstanceOf[NumberFilter]
     filter.operation = operation
     filter.operand = operand
     filter

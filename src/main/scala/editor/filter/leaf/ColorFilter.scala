@@ -16,7 +16,7 @@ import java.util.Objects
  * 
  * @author Alec Roelke
  */
-class ColorFilter(t: CardAttribute, value: (Card) => Seq[ManaType]) extends FilterLeaf(t, false) {
+class ColorFilter(t: CardAttribute[?], value: (Card) => Seq[ManaType]) extends FilterLeaf(t, false) {
   /** Function to use to compare colors. */
   var contain = Containment.AnyOf
   /** Colors to compare cards with. */
@@ -27,7 +27,7 @@ class ColorFilter(t: CardAttribute, value: (Card) => Seq[ManaType]) extends Filt
   override protected def testFace(c: Card) = contain(value(c), colors) && (!multicolored || value(c).size > 1)
 
   override protected def copyLeaf = {
-    val filter = CardAttribute.createFilter(attribute).asInstanceOf[ColorFilter]
+    val filter = attribute.filter.get.asInstanceOf[ColorFilter]
     filter.contain = contain
     filter.colors = colors
     filter.multicolored = multicolored

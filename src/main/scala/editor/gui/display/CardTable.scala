@@ -32,9 +32,9 @@ object CardTable {
    * @param attr attribute to be edited by the editor
    * @return a component that can edit the value of the specified attribute
    */
-  def createCellEditor(frame: EditorFrame, attr: CardAttribute) = attr match {
-    case CardAttribute.COUNT => SpinnerCellEditor()
-    case CardAttribute.CATEGORIES => InclusionCellEditor(frame)
+  def createCellEditor(frame: EditorFrame, attr: CardAttribute[?]) = attr match {
+    case CardAttribute.Count => SpinnerCellEditor()
+    case CardAttribute.Categories => InclusionCellEditor(frame)
     case _ => throw IllegalArgumentException(s"values of type $attr can't be edited")
   }
 }
@@ -83,7 +83,7 @@ class CardTable(model: TableModel) extends JTable(model) {
         prepareRenderer(getCellRenderer(row, col), row, col) match {
           case c: Component if c.getPreferredSize.width > bounds.width => model match {
             case m: CardTableModel =>
-              if (m.columns(col) == CardAttribute.MANA_COST)
+              if (m.columns(col) == CardAttribute.ManaCost)
                 s"""<html>${getValueAt(row, col) match {
                   case s: java.util.List[?] => s.asScala.collect{ case cost: ManaCost => cost.toHTMLString }.mkString(Card.FaceSeparator)
                   case _ => ""
@@ -116,18 +116,18 @@ class CardTable(model: TableModel) extends JTable(model) {
  * with other values the row could have.
  */
 private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[TableModel](model) {
-  private val NoString = Set(
-    CardAttribute.MANA_COST,
-    CardAttribute.EFF_MANA_VALUE,
-    CardAttribute.COLORS,
-    CardAttribute.COLOR_IDENTITY,
-    CardAttribute.TYPE_LINE,
-    CardAttribute.POWER,
-    CardAttribute.TOUGHNESS,
-    CardAttribute.LOYALTY,
-    CardAttribute.LEGAL_IN,
-    CardAttribute.TAGS,
-    CardAttribute.CATEGORIES
+  private val NoString: Set[CardAttribute[?]] = Set(
+    CardAttribute.ManaCost,
+    CardAttribute.EffManaValue,
+    CardAttribute.Colors,
+    CardAttribute.ColorIdentity,
+    CardAttribute.TypeLine,
+    CardAttribute.Power,
+    CardAttribute.Toughness,
+    CardAttribute.Loyalty,
+    CardAttribute.LegalIn,
+    CardAttribute.Tags,
+    CardAttribute.Categories
   )
 
   override def getComparator(column: Int) = model match {
@@ -135,7 +135,7 @@ private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[Tabl
       val ascending = getSortKeys.get(0).getSortOrder == SortOrder.ASCENDING
       val attribute = m.columns(column)
       attribute match {
-        case CardAttribute.POWER | CardAttribute.TOUGHNESS | CardAttribute.LOYALTY => (a: AnyRef, b: AnyRef) => {
+        case CardAttribute.Power | CardAttribute.Toughness | CardAttribute.Loyalty => (a: AnyRef, b: AnyRef) => {
           val first = a match {
             case s: Seq[?] => s.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
             case l: java.util.List[?] => l.asScala.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
@@ -153,7 +153,7 @@ private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[Tabl
           else if (!second.exists)
             if (ascending) -1 else 1
           else
-            attribute.compare(first, second)
+            attribute.any_compare(first, second)
         }
         case _ => m.columns(column)
       }

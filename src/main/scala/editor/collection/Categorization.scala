@@ -22,7 +22,7 @@ import java.awt.Color
  */
 case class Categorization(
   name: String = "All Cards",
-  filter: Filter = CardAttribute.createFilter(CardAttribute.ANY),
+  filter: Filter = CardAttribute.AnyCard.filter.get,
   whitelist: Set[Card] = Set.empty,
   blacklist: Set[Card] = Set.empty,
   color: Color = Color.BLACK

@@ -7,4 +7,4 @@ import editor.database.attributes.Expansion
  * Filter that groups cards by expansion.
  * @author Alec Roelke
  */
-class ExpansionFilter extends SingletonOptionsFilter[Expansion](CardAttribute.EXPANSION, true, _.expansion)
+class ExpansionFilter extends SingletonOptionsFilter[Expansion](CardAttribute.Expansion, true, _.expansion)

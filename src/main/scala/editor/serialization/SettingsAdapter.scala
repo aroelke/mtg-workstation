@@ -24,6 +24,7 @@ import editor.gui.settings.Settings
 import java.awt.Color
 import java.lang.reflect.Type
 import scala.jdk.CollectionConverters._
+import com.google.gson.reflect.TypeToken
 
 /**
  * JSON serializer/deserializer for [[Settings]].
@@ -48,7 +49,7 @@ class SettingsAdapter extends JsonSerializer[Settings] with JsonDeserializer[Set
       val imageLimit = if (inventory.has("imageLimit")) inventory.get("imageLimit").getAsInt else defaults.inventory.imageLimit
       val tags = if (inventory.has("tags")) inventory.get("tags").getAsString else defaults.inventory.tags
       val update = if (inventory.has("update")) context.deserialize(inventory.get("update"), classOf[UpdateFrequency]) else defaults.inventory.update
-      val columns = if (inventory.has("columns")) inventory.get("columns").getAsJsonArray.asScala.map((c) => context.deserialize[CardAttribute](c, classOf[CardAttribute])).toIndexedSeq else defaults.inventory.columns
+      val columns = if (inventory.has("columns")) inventory.get("columns").getAsJsonArray.asScala.map((c) => context.deserialize[CardAttribute[?]](c, classOf[CardAttribute[?]])).toIndexedSeq else defaults.inventory.columns
       val background = if (inventory.has("background")) context.deserialize(inventory.get("background"), classOf[Color]) else defaults.inventory.background
       val stripe = if (inventory.has("stripe")) context.deserialize(inventory.get("stripe"), classOf[Color]) else defaults.inventory.stripe
       val warn = if (inventory.has("warn")) inventory.get("warn").getAsBoolean else defaults.inventory.warn
@@ -116,7 +117,7 @@ class SettingsAdapter extends JsonSerializer[Settings] with JsonDeserializer[Set
         LegalitySettings(search, main, all, list, sideboard)
       } else defaults.editor.legality
 
-      val columns = if (editor.has("columns")) editor.get("columns").getAsJsonArray.asScala.map((c) => context.deserialize[CardAttribute](c, classOf[CardAttribute])).toIndexedSeq else defaults.editor.columns
+      val columns = if (editor.has("columns")) editor.get("columns").getAsJsonArray.asScala.map((c) => context.deserialize[CardAttribute[?]](c, classOf[CardAttribute[?]])).toIndexedSeq else defaults.editor.columns
       val stripe = if (editor.has("stripe")) context.deserialize(editor.get("stripe"), classOf[Color]) else defaults.editor.stripe
       val mv = if (editor.has("manaValue")) editor.get("manaValue").getAsString else defaults.editor.manaValue
       val backFaceLands = if (editor.has("backFaceLands")) editor.get("backFaceLands").getAsJsonArray.asScala.map((l) => CardLayout.values.filter(_.toString == l.getAsString)(0)).toSeq else defaults.editor.backFaceLands
@@ -167,6 +168,8 @@ class SettingsAdapter extends JsonSerializer[Settings] with JsonDeserializer[Set
   }
 
   override def serialize(src: Settings, typeOfSrc: Type, context: JsonSerializationContext) = {
+    val attributeType = (new TypeToken[CardAttribute[?]] {}).getType
+
     val settings = JsonObject()
 
     val inventory = JsonObject()
@@ -182,7 +185,7 @@ class SettingsAdapter extends JsonSerializer[Settings] with JsonDeserializer[Set
     inventory.addProperty("tags", src.inventory.tags)
     inventory.add("update", context.serialize(src.inventory.update))
     val inventoryColumns = JsonArray()
-    src.inventory.columns.foreach((c) => inventoryColumns.add(context.serialize(c)))
+    src.inventory.columns.foreach((c) => inventoryColumns.add(context.serialize(c, attributeType)))
     inventory.add("columns", inventoryColumns)
     inventory.add("background", context.serialize(src.inventory.background))
     inventory.add("stripe", context.serialize(src.inventory.stripe))
@@ -203,7 +206,7 @@ class SettingsAdapter extends JsonSerializer[Settings] with JsonDeserializer[Set
     categories.addProperty("explicits", src.editor.categories.explicits)
     editor.add("categories", categories)
     val editorColumns = JsonArray()
-    src.editor.columns.foreach((c) => editorColumns.add(context.serialize(c)))
+    src.editor.columns.foreach((c) => editorColumns.add(context.serialize(c, attributeType)))
     editor.add("columns", editorColumns)
     editor.add("stripe", context.serialize(src.editor.stripe))
     val hand = JsonObject()

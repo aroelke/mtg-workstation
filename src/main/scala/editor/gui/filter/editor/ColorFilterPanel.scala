@@ -82,9 +82,9 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
 
   add(Box.createHorizontalStrut(2))
 
-  protected override var attribute = CardAttribute.COLORS
+  protected override var attribute = CardAttribute.Colors
 
-  override def filter = CardAttribute.createFilter(attribute) match {
+  override def filter = attribute.filter.get match {
     case filter: ColorFilter =>
       filter.faces = selector.faces
       filter.contain = contain.getSelectedItem

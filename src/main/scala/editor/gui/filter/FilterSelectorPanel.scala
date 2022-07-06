@@ -54,11 +54,11 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
   // Filter type selector
-  private val filterTypes = ComboBoxPanel(CardAttribute.filterableValues)
+  private val filterTypes = ComboBoxPanel(CardAttribute.filterableValues.toArray)
   filterTypes.setToolTipText(filterTypes.getSelectedItem.description)
   private val renderer = filterTypes.getRenderer
-  filterTypes.setRenderer(new ListCellRenderer[CardAttribute] {
-    override def getListCellRendererComponent(list: JList[? <: CardAttribute], value: CardAttribute, index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
+  filterTypes.setRenderer(new ListCellRenderer[CardAttribute[?]] {
+    override def getListCellRendererComponent(list: JList[? <: CardAttribute[?]], value: CardAttribute[?], index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
       val component = renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
       component match { case j: JComponent => j.setToolTipText(value.description) }
       component
@@ -67,15 +67,15 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   add(filterTypes)
 
   // Panel containing each editor panel
-  private val filterPanels = collection.mutable.Map[CardAttribute, FilterEditorPanel[?]]()
+  private val filterPanels = collection.mutable.Map[CardAttribute[?], FilterEditorPanel[?]]()
   private val filtersPanel = JPanel(java.awt.CardLayout())
   add(filtersPanel)
   CardAttribute.filterableValues.foreach((attribute) => {
     val panel = attribute match {
-      case CardAttribute.ANY => BinaryFilterPanel(true)
-      case CardAttribute.NONE => BinaryFilterPanel(false)
-      case CardAttribute.DEFAULTS => DefaultsFilterPanel()
-      case _ => attribute.get match {
+      case CardAttribute.AnyCard => BinaryFilterPanel(true)
+      case CardAttribute.NoCard => BinaryFilterPanel(false)
+      case CardAttribute.Defaults => DefaultsFilterPanel()
+      case _ => attribute.filter.get match {
         case text: TextFilter => TextFilterPanel(text, this)
         case variable: VariableNumberFilter => VariableNumberFilterPanel(variable, this)
         case number: NumberFilter => NumberFilterPanel(number, this)
@@ -129,16 +129,13 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
     case cards: java.awt.CardLayout =>
       cards.show(filtersPanel, filterTypes.getSelectedItem.toString)
       filterTypes.setToolTipText(filterTypes.getSelectedItem.description)
-      facesLabel.setVisible(CardAttribute.createFilter(filterTypes.getSelectedItem) match {
-        case l: FilterLeaf => !l.unified
-        case _ => false
-      })
+      facesLabel.setVisible(!filterTypes.getSelectedItem.filter.get.unified)
   })
 
   /** @return the current selection for which faces the filter should search */
   def faces = _faces
   private def faces_=(f: FaceSearchOptions) = {
-    _faces = FaceSearchOptions.values.apply((f.ordinal + 1) % FaceSearchOptions.values.size)
+    _faces = f
     facesLabel.setIcon(f.scaled((if (getHeight == 0) getPreferredSize.height else getHeight)/2))
     facesLabel.setToolTipText(f.tooltip)
   }

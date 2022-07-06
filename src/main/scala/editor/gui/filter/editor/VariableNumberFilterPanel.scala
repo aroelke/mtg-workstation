@@ -35,7 +35,7 @@ object VariableNumberFilterPanel {
    * from its attribute
    */
   def apply(filter: VariableNumberFilter, selector: FilterSelectorPanel) = {
-    val panel = new VariableNumberFilterPanel(if (filter.attribute == CardAttribute.LOYALTY) "X or *" else "*", selector)
+    val panel = new VariableNumberFilterPanel(if (filter.attribute == CardAttribute.Loyalty) "X or *" else "*", selector)
     panel.setContents(filter)
     panel
   }
@@ -67,9 +67,9 @@ class VariableNumberFilterPanel(v: String, selector: FilterSelectorPanel) extend
   variable.addActionListener(_ => spinner.setEnabled(!variable.isSelected))
   add(variable)
 
-  protected override var attribute = CardAttribute.POWER
+  protected override var attribute = CardAttribute.Power
 
-  override def filter = (CardAttribute.createFilter(attribute), spinner.getValue) match {
+  override def filter = (attribute.filter.get, spinner.getValue) match {
     case (number: VariableNumberFilter, value: Double) =>
       number.operation = comparison.getSelectedItem
       number.operand = value

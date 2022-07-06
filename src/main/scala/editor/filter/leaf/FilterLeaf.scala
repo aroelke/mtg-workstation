@@ -16,7 +16,7 @@ import editor.filter.Filter
  * 
  * @author Alec Roelke
  */
-abstract class FilterLeaf(t: CardAttribute, val unified: Boolean) extends Filter(t) {
+abstract class FilterLeaf(t: CardAttribute[?], val unified: Boolean) extends Filter(t) {
   /** If the filter is not unified, which faces to consider when applying the filter. */
   var faces = FaceSearchOptions.ANY
 

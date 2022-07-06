@@ -9,4 +9,4 @@ import scala.jdk.CollectionConverters._
  * Filter that groups cards by user-defined tags.
  * @author Alec Roelke
  */
-class TagsFilter extends MultiOptionsFilter[String](CardAttribute.TAGS, true, Card.tags.get(_).map(_.toSet).getOrElse(Set.empty))
+class TagsFilter extends MultiOptionsFilter[String](CardAttribute.Tags, true, Card.tags.get(_).map(_.toSet).getOrElse(Set.empty))

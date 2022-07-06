@@ -17,14 +17,14 @@ import java.util.Objects
  * 
  * @author Alec Roelke
  */
-abstract class OptionsFilter[T](t: CardAttribute, unified: Boolean) extends FilterLeaf(t, unified) {
+abstract class OptionsFilter[T](t: CardAttribute[?], unified: Boolean) extends FilterLeaf(t, unified) {
   /** Function to use to compare card attributes. */
   var contain = Containment.AnyOf
   /** Set of items to look for in cards. */
   var selected = Set[T]() // Using an immutable var guarantees that changing this in a copy doesn't change this filter's version
 
   override protected def copyLeaf = {
-    val filter = CardAttribute.createFilter(attribute).asInstanceOf[OptionsFilter[T]]
+    val filter = attribute.filter.get.asInstanceOf[OptionsFilter[T]]
     filter.contain = contain
     filter.selected = selected
     filter

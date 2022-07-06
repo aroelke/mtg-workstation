@@ -44,9 +44,9 @@ class TypeLineFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPan
   private val line = JTextField()
   add(line)
 
-  protected override val attribute = CardAttribute.TYPE_LINE
+  protected override val attribute = CardAttribute.TypeLine
 
-  override def filter = CardAttribute.createFilter(CardAttribute.TYPE_LINE) match {
+  override def filter = CardAttribute.TypeLine.filter.get match {
     case typeline: TypeLineFilter =>
       typeline.faces = selector.faces
       typeline.contain = contain.getSelectedItem

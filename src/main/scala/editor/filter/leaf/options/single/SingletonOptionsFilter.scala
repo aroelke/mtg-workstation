@@ -15,6 +15,6 @@ import editor.filter.leaf.options.OptionsFilter
  * 
  * @author Alec Roelke
  */
-abstract class SingletonOptionsFilter[T](t: CardAttribute, unified: Boolean, value: (Card) => T) extends OptionsFilter[T](t, unified) {
+abstract class SingletonOptionsFilter[T](t: CardAttribute[?], unified: Boolean, value: (Card) => T) extends OptionsFilter[T](t, unified) {
   override protected def testFace(c: Card) = contain(selected, Seq(value(c)))
 }

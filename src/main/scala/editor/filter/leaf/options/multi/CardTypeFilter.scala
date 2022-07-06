@@ -17,4 +17,4 @@ object CardTypeFilter {
  * Filter that groups cards based on card types.
  * @author Alec Roelke
  */
-class CardTypeFilter extends MultiOptionsFilter[String](CardAttribute.CARD_TYPE, false, _.types)
+class CardTypeFilter extends MultiOptionsFilter[String](CardAttribute.CardType, false, _.types)

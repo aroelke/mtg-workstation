@@ -68,7 +68,7 @@ case class InventorySettings(
   tags: String = SettingsDialog.EditorHome.resolve("tags.json").toString(),
   update: UpdateFrequency = UpdateFrequency.Daily,
   warn: Boolean = true,
-  columns: IndexedSeq[CardAttribute] = IndexedSeq(NAME, MANA_COST, TYPE_LINE, EXPANSION),
+  columns: IndexedSeq[CardAttribute[?]] = IndexedSeq(Name, ManaCost, TypeLine, Expansion),
   background: Color = Color.WHITE,
   stripe: Color = Color(0xCC, 0xCC, 0xCC, 0xFF)
 ) {
@@ -102,7 +102,7 @@ case class InventorySettings(
 case class EditorSettings(
   recents: RecentsSettings = RecentsSettings(),
   categories: CategoriesSettings = CategoriesSettings(),
-  columns: IndexedSeq[CardAttribute] = IndexedSeq(NAME, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, COUNT, DATE_ADDED),
+  columns: IndexedSeq[CardAttribute[?]] = IndexedSeq(Name, ManaCost, TypeLine, Expansion, Categories, Count, DateAdded),
   stripe: Color = Color(0xCC, 0xCC, 0xCC, 0xFF),
   hand: HandSettings = HandSettings(),
   legality: LegalitySettings = LegalitySettings(),
@@ -171,7 +171,7 @@ case class CategoriesSettings(
     "Lands" -> Seq("Land"),
     "Instants/Sorceries" -> Seq("Instant", "Sorcery")
   ).map{ case (name, types) => {
-    val filter = CardAttribute.createFilter(CardAttribute.CARD_TYPE).asInstanceOf[CardTypeFilter]
+    val filter = CardAttribute.CardType.filter.get.asInstanceOf[CardTypeFilter]
     filter.selected ++= types
     Categorization(name, filter, Set.empty, Set.empty, Color.WHITE)
   }}.toSeq,

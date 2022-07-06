@@ -37,7 +37,7 @@ object LegalityFilterPanel {
  * 
  * @author Alec Roelke
  */
-class LegalityFilterPanel(selector: FilterSelectorPanel) extends OptionsFilterPanel(CardAttribute.LEGAL_IN, FormatConstraints.FormatNames.toArray, selector) {
+class LegalityFilterPanel(selector: FilterSelectorPanel) extends OptionsFilterPanel(CardAttribute.LegalIn, FormatConstraints.FormatNames.toArray, selector) {
   private val restricted = JCheckBox("Restricted")
   add(restricted, BorderLayout.EAST)
 

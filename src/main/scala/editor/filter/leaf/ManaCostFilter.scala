@@ -11,7 +11,7 @@ import java.util.Objects
  * Filter that groups cards by mana cost.
  * @author Alec Roelke
  */
-class ManaCostFilter extends FilterLeaf(CardAttribute.MANA_COST, false) {
+class ManaCostFilter extends FilterLeaf(CardAttribute.ManaCost, false) {
   import Containment._
 
   /** Function used for comparing costs. */
@@ -29,7 +29,7 @@ class ManaCostFilter extends FilterLeaf(CardAttribute.MANA_COST, false) {
   }
 
   override def copyLeaf = {
-    val filter = CardAttribute.createFilter(CardAttribute.MANA_COST).asInstanceOf[ManaCostFilter]
+    val filter = CardAttribute.ManaCost.filter.get.asInstanceOf[ManaCostFilter]
     filter.contain = contain
     filter.cost = cost
     filter

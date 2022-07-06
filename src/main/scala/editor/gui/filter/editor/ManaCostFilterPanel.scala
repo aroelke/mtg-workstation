@@ -55,7 +55,7 @@ class ManaCostFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPan
   })
   add(cost)
 
-  protected override val attribute = CardAttribute.MANA_COST
+  protected override val attribute = CardAttribute.ManaCost
 
   override def filter = {
     val filter = ManaCostFilter()

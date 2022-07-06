@@ -528,7 +528,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       }
 
       LoadedData(
-        Inventory(cards.toSet.toIndexedSeq.sortWith((a, b) => CardAttribute.NAME.comparingCard.compare(CardListEntry(a), CardListEntry(b)) < 0)),
+        Inventory(cards.toSet.toIndexedSeq.sortWith((a, b) => CardAttribute.Name.comparingCard.compare(CardListEntry(a), CardListEntry(b)) < 0)),
         expansions.toSeq.sorted,
         allSupertypes.values.toSeq.sorted,
         allTypes.values.toSeq.sorted,

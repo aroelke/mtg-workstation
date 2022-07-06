@@ -52,9 +52,9 @@ class NumberFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel
   spinner.setMaximumSize(Dimension(100, Int.MaxValue))
   add(spinner)
 
-  protected override var attribute = CardAttribute.CARD_NUMBER
+  protected override var attribute = CardAttribute.CardNumber
 
-  override def filter = (CardAttribute.createFilter(attribute), spinner.getValue) match {
+  override def filter = (attribute.filter.get, spinner.getValue) match {
     case (number: NumberFilter, value: Double) =>
       number.faces = selector.faces
       number.operation = comparison.getSelectedItem

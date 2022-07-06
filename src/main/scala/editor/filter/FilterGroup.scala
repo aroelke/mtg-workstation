@@ -43,7 +43,7 @@ object FilterGroup {
  * 
  * @author Alec Roelke
  */
-class FilterGroup(filters: Iterable[Filter] = Seq.empty) extends Filter(CardAttribute.GROUP) with Iterable[Filter] {
+class FilterGroup(filters: Iterable[Filter] = Seq.empty) extends Filter(CardAttribute.Group) with Iterable[Filter] {
   import FilterGroup._
 
   /** How filters in the group are combined. */

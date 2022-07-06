@@ -29,14 +29,14 @@ class CardFormat(pattern: String) {
     import CardAttribute._
 
     CardAttribute.displayableValues.foldLeft(pattern)((p, a) => p.replace(s"{$a}".toLowerCase, a match {
-      case MANA_COST | EFF_MANA_VALUE | TYPE_LINE | POWER | TOUGHNESS | LOYALTY => card(a) match { case l: java.util.List[?] => l.asScala.mkString(Card.FaceSeparator) }
-      case REAL_MANA_VALUE => card(a) match {
+      case ManaCost | EffManaValue | TypeLine | Power | Toughness | Loyalty => card(a) match { case l: java.util.List[?] => l.asScala.mkString(Card.FaceSeparator) }
+      case RealManaValue => card(a) match {
         case v: Double if v == v.intValue => v.intValue.toString
         case v: Double if v != v.intValue => v.toString
       }
-      case COLORS | COLOR_IDENTITY => card(a) match { case l: java.util.List[?] => l.asScala.mkString(",") }
-      case CATEGORIES => card(a) match { case s: java.util.Set[?] => s.asScala.collect{ case c: Categorization => c }.map(_.name).toSeq.sorted.mkString(",") }
-      case DATE_ADDED => card(a) match { case d: LocalDate => Deck.DateFormatter.format(d) }
+      case Colors | ColorIdentity => card(a) match { case l: java.util.List[?] => l.asScala.mkString(",") }
+      case Categories => card(a) match { case s: java.util.Set[?] => s.asScala.collect{ case c: Categorization => c }.map(_.name).toSeq.sorted.mkString(",") }
+      case DateAdded => card(a) match { case d: LocalDate => Deck.DateFormatter.format(d) }
       case _ => card(a).toString
     }))
   }

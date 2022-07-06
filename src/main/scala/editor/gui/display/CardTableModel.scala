@@ -20,18 +20,18 @@ import javax.swing.table.AbstractTableModel
  * 
  * @author Alec Roelke
  */
-class CardTableModel(private var cards: CardList, private var characteristics: IndexedSeq[CardAttribute], editor: Option[EditorFrame] = None) extends AbstractTableModel {
+class CardTableModel(private var cards: CardList, private var characteristics: IndexedSeq[CardAttribute[?]], editor: Option[EditorFrame] = None) extends AbstractTableModel {
   override def getColumnCount = characteristics.size
   override def getColumnName(column: Int) = characteristics(column).toString
   override def getColumnClass(column: Int) = characteristics(column).dataType
   override def getRowCount = cards.size
   override def getValueAt(row: Int, column: Int) = cards(row)(characteristics(column))
-  override def isCellEditable(row: Int, column: Int) = editor.isDefined && (characteristics(column) == CardAttribute.COUNT || characteristics(column) == CardAttribute.CATEGORIES)
+  override def isCellEditable(row: Int, column: Int) = editor.isDefined && (characteristics(column) == CardAttribute.Count || characteristics(column) == CardAttribute.Categories)
 
   override def setValueAt(value: Object, row: Int, column: Int) = if (isCellEditable(row, column)) {
     (cards, characteristics(column), value) match {
-      case (deck: Deck, CardAttribute.COUNT, i: java.lang.Integer) => deck(row).count = i
-      case (deck: Deck, CardAttribute.CATEGORIES, ie: IncludeExcludePanel) => editor.foreach(_.categories.update(ie.updates.map((c) => c.name -> c).toMap))
+      case (deck: Deck, CardAttribute.Count, i: java.lang.Integer) => deck(row).count = i
+      case (deck: Deck, CardAttribute.Categories, ie: IncludeExcludePanel) => editor.foreach(_.categories.update(ie.updates.map((c) => c.name -> c).toMap))
       case _ => throw IllegalArgumentException(s"cannot edit data type ${characteristics(column)} to $value")
     }
     fireTableDataChanged()
@@ -44,7 +44,7 @@ class CardTableModel(private var cards: CardList, private var characteristics: I
    * Change the characteristics to be displayed by the table.
    * @param c new characteristics to show
    */
-  def columns_=(c: IndexedSeq[CardAttribute]) = {
+  def columns_=(c: IndexedSeq[CardAttribute[?]]) = {
     characteristics = c
     fireTableStructureChanged()
   }

@@ -17,4 +17,4 @@ object SupertypeFilter {
  * Filter that groups cards by supertype.
  * @author Alec Roelke
  */
-class SupertypeFilter extends MultiOptionsFilter[String](CardAttribute.SUPERTYPE, false, _.supertypes)
+class SupertypeFilter extends MultiOptionsFilter[String](CardAttribute.Supertype, false, _.supertypes)

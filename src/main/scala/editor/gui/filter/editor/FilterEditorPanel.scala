@@ -16,14 +16,14 @@ import scala.reflect.ClassTag
  */
 trait FilterEditorPanel[L <: FilterLeaf : ClassTag] extends FilterPanel[FilterLeaf] {
   /** @return the card attribute filtered by the generated filter */
-  protected def attribute: CardAttribute
+  protected def attribute: CardAttribute[?]
 
   /**
    * Set the card attribute filtered by the generated filter, if it can be changed.
    * @param a new attribute to filter
    */
   @throws[UnsupportedOperationException]("if the attribute cannot be changed")
-  protected def attribute_=(a: CardAttribute): Unit = throw UnsupportedOperationException()
+  protected def attribute_=(a: CardAttribute[?]): Unit = throw UnsupportedOperationException()
 
   /**
    * Set the fields of the panel based on the contents of a filter.

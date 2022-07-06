@@ -63,7 +63,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
           setColors(panel)
         }
         m.columns(column) match {
-          case CardAttribute.MANA_COST =>
+          case CardAttribute.ManaCost =>
             val costs = value match {
               case s: java.util.List[?] => s.asScala.toSeq.collect{ case cost: ManaCost => cost }
               case _ => Seq.empty
@@ -79,7 +79,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
               }
             }
             panel
-          case CardAttribute.REAL_MANA_VALUE =>
+          case CardAttribute.RealManaValue =>
             val mv = Option(value) match {
               case Some(v: Double) => v
               case Some(v: Int) => v.toDouble
@@ -88,7 +88,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
             panel.add(setColors(tableLabel(if (mv == mv.toInt) mv.toInt.toString else mv.toString)))
             panel
-          case CardAttribute.EFF_MANA_VALUE =>
+          case CardAttribute.EffManaValue =>
             val mvs = value match {
               case s: java.util.List[?] => s.asScala.toSeq.collect{ case mv: Double => mv }
               case _ => Seq.empty
@@ -96,7 +96,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
             panel.add(setColors(tableLabel(mvs.map((mv) => if (mv == mv.toInt) mv.toInt.toString else mv.toString).mkString(Card.FaceSeparator))))
             panel
-          case CardAttribute.COLORS | CardAttribute.COLOR_IDENTITY =>
+          case CardAttribute.Colors | CardAttribute.ColorIdentity =>
             val panel = tablePanel()
             panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))
             value match {
@@ -104,21 +104,21 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
               case _ =>
             }
             panel
-          case CardAttribute.TYPE_LINE =>
+          case CardAttribute.TypeLine =>
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
             value match {
               case s: java.util.List[?] => panel.add(setColors(tableLabel(s.asScala.mkString(Card.FaceSeparator))))
               case _ => ""
             }
             panel
-          case CardAttribute.POWER | CardAttribute.TOUGHNESS | CardAttribute.LOYALTY =>
+          case CardAttribute.Power | CardAttribute.Toughness | CardAttribute.Loyalty =>
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
             value match {
               case s: java.util.List[?] => panel.add(setColors(tableLabel(s.asScala.mkString(Card.FaceSeparator))))
               case _ =>
             }
             panel
-          case CardAttribute.CATEGORIES =>
+          case CardAttribute.Categories =>
             val categories = value match {
               case s: Set[?] => s.toSeq.collect{ case category: Categorization => category }.sortBy(_.name)
               case _ => Seq.empty
@@ -144,7 +144,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
               ))
             }
             panel
-          case CardAttribute.DATE_ADDED =>
+          case CardAttribute.DateAdded =>
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
             value match {
               case d: LocalDate => panel.add(setColors(tableLabel(Deck.DateFormatter.format(d))))
