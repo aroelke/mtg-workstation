@@ -2,6 +2,7 @@ package editor.collection
 
 import editor.collection.Categorization
 import editor.database.attributes.CardAttribute
+import editor.database.attributes.ManaType
 import editor.database.card.Card
 
 import java.time.LocalDate
@@ -51,7 +52,7 @@ trait CardListEntry extends Equals {
     case ManaCost => card.faces.map(_.manaCost)
     case RealManaValue => card.manaValue
     case EffManaValue => card.faces.map(_.manaValue)
-    case Colors => card.colors.asJava
+    case Colors => ManaType.sorted(card.colors)
     case ColorIdentity => card.colorIdentity.asJava
     case TypeLine => card.faces.map(_.typeLine).asJava
     case Expansion => card.expansion.toString
