@@ -228,10 +228,10 @@ object CardAttribute {
     override def filter = None
   }
 
-  def values: IndexedSeq[CardAttribute[?]] = IndexedSeq(Name, RulesText, FlavorText, PrintedText, ManaCost, RealManaValue, EffManaValue, Colors, ColorIdentity, TypeLine, PrintedTypes, CardType, Subtype, Supertype, Power, Toughness, Loyalty, Layout, Expansion, Block, Rarity, Artist, CardNumber, LegalIn, Tags, Categories, Count, DateAdded, AnyCard, NoCard, Defaults, Group)
-  def filterableValues = values.filter(_.filter.isDefined)
-  def displayableValues = values.filter(_.dataType != classOf[Unit])
-  def inventoryValues = displayableValues // -- categories, count
+  val values: IndexedSeq[CardAttribute[?]] = IndexedSeq(Name, RulesText, FlavorText, PrintedText, ManaCost, RealManaValue, EffManaValue, Colors, ColorIdentity, TypeLine, PrintedTypes, CardType, Subtype, Supertype, Power, Toughness, Loyalty, Layout, Expansion, Block, Rarity, Artist, CardNumber, LegalIn, Tags, Categories, Count, DateAdded, AnyCard, NoCard, Defaults, Group)
+  lazy val filterableValues = values.filter(_.filter.isDefined)
+  lazy val displayableValues = values.filter(_.dataType != classOf[Unit])
+  lazy val inventoryValues = displayableValues.filter(!Seq(Categories, Count).contains(_))
 
   def parse(s: String) = {
     if (s.equalsIgnoreCase("cmc") || s.toLowerCase.contains("mana value"))
