@@ -186,8 +186,8 @@ object CardAttribute {
     override def filter = Some(LegalityFilter())
   }
 
-  case object Tags extends CardAttribute[java.util.Set[String]]("Tags", "Tags you have created and assigned") {
-    override def compare(x: java.util.Set[String], y: java.util.Set[String]) = Collator.getInstance.compare(x.asScala.mkString(","), y.asScala.mkString(","))
+  case object Tags extends CardAttribute[Set[String]]("Tags", "Tags you have created and assigned") {
+    override def compare(x: Set[String], y: Set[String]) = Collator.getInstance.compare(x.toSeq.sorted.mkString(","), y.toSeq.sorted.mkString(","))
     override def filter = Some(TagsFilter())
   }
 

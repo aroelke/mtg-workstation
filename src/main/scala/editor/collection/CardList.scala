@@ -7,6 +7,7 @@ import editor.database.card.Card
 
 import java.time.LocalDate
 import scala.jdk.CollectionConverters._
+import scala.collection.immutable.ListSet
 
 /**
  * Global data and functions for [[CardListEntry]]s.
@@ -67,7 +68,7 @@ trait CardListEntry extends Equals {
     case Count => count
     case Categories => categories
     case DateAdded => dateAdded
-    case Tags => java.util.LinkedHashSet(Card.tags(card).toSeq.sorted.asJava)
+    case Tags => Card.tags(card).toSet
   }
 
   override def canEqual(that: Any) = that.isInstanceOf[CardListEntry]
