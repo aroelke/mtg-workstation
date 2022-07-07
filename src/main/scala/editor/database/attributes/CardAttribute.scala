@@ -73,8 +73,8 @@ object CardAttribute {
     override def filter = Some(NumberFilter(this, true, _.manaValue))
   }
 
-  case object EffManaValue extends CardAttribute[java.util.List[Double]]("Eff. Mana Value", "Spell or permament mana value on the stack or battlefield of each face") {
-    override def compare(x: java.util.List[Double], y: java.util.List[Double]) = x.get(0).compare(y.get(0))
+  case object EffManaValue extends CardAttribute[Seq[Double]]("Eff. Mana Value", "Spell or permament mana value on the stack or battlefield of each face") {
+    override def compare(x: Seq[Double], y: Seq[Double]) = x(0).compare(y(0))
     override def filter = Some(NumberFilter(this, false, _.manaValue))
   }
 
@@ -234,8 +234,8 @@ object CardAttribute {
   lazy val inventoryValues = displayableValues.filter(!Seq(Categories, Count).contains(_))
 
   def parse(s: String) = {
-    if (s.equalsIgnoreCase("cmc") || s.toLowerCase.contains("mana value"))
-      None // real mana value
+    if (s.equalsIgnoreCase("cmc") || s.equalsIgnoreCase("mana value"))
+      Some(RealManaValue)
     else
       values.find(_.toString.equalsIgnoreCase(s)).headOption
   }

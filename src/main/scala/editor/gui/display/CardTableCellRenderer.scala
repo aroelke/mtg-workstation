@@ -90,7 +90,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
             panel
           case CardAttribute.EffManaValue =>
             val mvs = value match {
-              case s: java.util.List[?] => s.asScala.toSeq.collect{ case mv: Double => mv }
+              case s: Seq[?] => s.collect{ case mv: Double => mv }
               case _ => Seq.empty
             }
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))

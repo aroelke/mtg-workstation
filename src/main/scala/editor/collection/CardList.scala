@@ -50,7 +50,7 @@ trait CardListEntry extends Equals {
     case Layout => card.layout
     case ManaCost => card.faces.map(_.manaCost)
     case RealManaValue => card.manaValue
-    case EffManaValue => card.faces.map((f) => java.lang.Double(f.manaValue)).asJava
+    case EffManaValue => card.faces.map(_.manaValue)
     case Colors => card.colors.asJava
     case ColorIdentity => card.colorIdentity.asJava
     case TypeLine => card.faces.map(_.typeLine).asJava
