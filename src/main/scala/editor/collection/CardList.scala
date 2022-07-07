@@ -59,7 +59,7 @@ trait CardListEntry extends Equals {
     case Block => card.expansion.block
     case Rarity => card.rarity
     case Power => card.faces.map(_.power)
-    case Toughness => card.faces.map(_.toughness).asJava
+    case Toughness => card.faces.map(_.toughness)
     case Loyalty => card.faces.map(_.loyalty).asJava
     case Artist => card.faces(0).artist
     case CardNumber => card.faces.map(_.number).mkString(Card.FaceSeparator)

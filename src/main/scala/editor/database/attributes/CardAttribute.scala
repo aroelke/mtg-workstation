@@ -137,8 +137,8 @@ object CardAttribute {
     override def filter = Some(VariableNumberFilter(this, _.power.value, _.powerVariable))
   }
 
-  case object Toughness extends CardAttribute[java.util.List[CombatStat]]("Toughness", "Creature toughness") {
-    override def compare(x: java.util.List[CombatStat], y: java.util.List[CombatStat]) = x.get(0).compare(y.get(0))
+  case object Toughness extends CardAttribute[Seq[CombatStat]]("Toughness", "Creature toughness") {
+    override def compare(x: Seq[CombatStat], y: Seq[CombatStat]) = x(0).compare(y(0))
     override def filter = Some(VariableNumberFilter(this, _.toughness.value, _.toughnessVariable))
   }
 
