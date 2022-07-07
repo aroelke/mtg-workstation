@@ -26,8 +26,8 @@ abstract class MultiCard(layout: CardLayout, override val faces: IndexedSeq[Card
   override def minManaValue = faces.map(_.manaValue).min
   override def maxManaValue = faces.map(_.manaValue).max
   override def avgManaValue = faces.map(_.manaValue).sum/faces.size
-  override lazy val colors = faces.flatMap(_.colors).distinct
-  override lazy val colorIdentity = faces.flatMap(_.colorIdentity)
+  override lazy val colors = faces.flatMap(_.colors).toSet
+  override lazy val colorIdentity = faces.flatMap(_.colorIdentity).toSet
   override lazy val typeLine = faces.map(_.typeLine).reduce(_ ++ _)
   override lazy val printedTypes = faces.map(_.printedTypes).mkString(Card.FaceSeparator)
   override lazy val oracleText = faces.map(_.oracleText).mkString(s"\n${Card.TextSeparator}\n")

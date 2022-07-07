@@ -282,7 +282,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       // We don't use String.intern() here because the String pool that is maintained must include extra data that adds several MB
       // to the overall memory consumption of the inventory
       val costs = collection.mutable.Map[String, ManaCost]()
-      val colorLists = collection.mutable.Map[String, Seq[ManaType]]()
+      val colorSets = collection.mutable.Map[String, Set[ManaType]]()
       val allSupertypes = collection.mutable.Map[String, String]()
       val supertypeSets = collection.mutable.Map[String, ListSet[String]]()
       val allTypes = collection.mutable.Map[String, String]()
@@ -407,15 +407,15 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               layout,
               name,
               costs.getOrElseUpdate(cost, ManaCost.parse(cost).get),
-              colorLists.getOrElseUpdate(colors.toString, {
+              colorSets.getOrElseUpdate(colors.toString, {
                 val col = collection.mutable.ArrayBuffer[ManaType]()
                 colors.asScala.foreach((e) => col += ManaType.parse(e.getAsString).get)
-                col.toSeq
+                col.toSet
               }),
-              colorLists.getOrElseUpdate(identity.toString, {
+              colorSets.getOrElseUpdate(identity.toString, {
                 val col = collection.mutable.ArrayBuffer[ManaType]()
                 identity.asScala.foreach((e) => col += ManaType.parse(e.getAsString).get)
-                col.toSeq
+                col.toSet
               }),
               supertypeSets.getOrElseUpdate(supers.toString, {
                 val s = collection.mutable.Buffer[String]()

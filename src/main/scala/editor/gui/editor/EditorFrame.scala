@@ -1744,11 +1744,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
             case ByNothing => true
             case ByColor => s match {
               case "Colorless"    => e.card.colors.size == 0
-              case "White"        => e.card.colors.size == 1 && e.card.colors(0) == ManaType.White
-              case "Blue"         => e.card.colors.size == 1 && e.card.colors(0) == ManaType.Blue
-              case "Black"        => e.card.colors.size == 1 && e.card.colors(0) == ManaType.Black
-              case "Red"          => e.card.colors.size == 1 && e.card.colors(0) == ManaType.Red
-              case "Green"        => e.card.colors.size == 1 && e.card.colors(0) == ManaType.Green
+              case "White"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.White)
+              case "Blue"         => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Blue)
+              case "Black"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Black)
+              case "Red"          => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Red)
+              case "Green"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Green)
               case "Multicolored" => e.card.colors.size > 1
               case _ => true
             }

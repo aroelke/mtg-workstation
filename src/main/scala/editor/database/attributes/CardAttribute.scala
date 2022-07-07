@@ -89,11 +89,11 @@ object CardAttribute {
     override def filter = Some(ColorFilter(this, _.colors))
   }
 
-  case object ColorIdentity extends CardAttribute[java.util.List[ManaType]]("Color Identity", "Card colors plus the colors of any mana symbols that appear in its Oracle text") {
-    override def compare(x: java.util.List[ManaType], y: java.util.List[ManaType]) = {
-      val diff = x.size() - y.size()
+  case object ColorIdentity extends CardAttribute[Seq[ManaType]]("Color Identity", "Card colors plus the colors of any mana symbols that appear in its Oracle text") {
+    override def compare(x: Seq[ManaType], y: Seq[ManaType]) = {
+      val diff = x.size - y.size
       if (diff == 0)
-        (x.asScala zip y.asScala).map{ case (a, b) => a.compare(b) }.zipWithIndex.map{ case (d, i) => d*math.pow(10, x.size() - i).toInt }.reduce(_ + _)
+        (x zip y).map{ case (a, b) => a.compare(b) }.zipWithIndex.map{ case (d, i) => d*math.pow(10, x.size - i).toInt }.reduce(_ + _)
       else
         diff
     }

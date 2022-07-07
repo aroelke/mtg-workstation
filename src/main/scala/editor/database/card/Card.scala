@@ -160,10 +160,10 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def avgManaValue: Double
 
   /** @return the colors of the card. */
-  def colors: Seq[ManaType]
+  def colors: Set[ManaType]
 
   /** @return the color identity of the card, which is the set of colors across all of its faces plus those of any mana symbols in its text boxes. */
-  def colorIdentity: Seq[ManaType]
+  def colorIdentity: Set[ManaType]
 
   /** @return the card's type line. */
   def typeLine: TypeLine
