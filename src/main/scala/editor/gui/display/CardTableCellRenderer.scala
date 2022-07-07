@@ -107,7 +107,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
           case CardAttribute.TypeLine =>
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
             value match {
-              case s: java.util.List[?] => panel.add(setColors(tableLabel(s.asScala.mkString(Card.FaceSeparator))))
+              case s: Seq[?] => panel.add(setColors(tableLabel(s.mkString(Card.FaceSeparator))))
               case _ => ""
             }
             panel

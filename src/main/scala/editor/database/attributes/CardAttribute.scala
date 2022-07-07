@@ -100,14 +100,14 @@ object CardAttribute {
     override def filter = Some(ColorFilter(this, _.colorIdentity))
   }
 
-  case object TypeLine extends CardAttribute[java.util.List[TypeLine]]("Type Line", "Full type line, including supertypes, card types, and subtypes") {
-    override def compare(x: java.util.List[TypeLine], y: java.util.List[TypeLine]) = {
-      if (x.size() > y.size())
+  case object TypeLine extends CardAttribute[Seq[TypeLine]]("Type Line", "Full type line, including supertypes, card types, and subtypes") {
+    override def compare(x: Seq[TypeLine], y: Seq[TypeLine]) = {
+      if (x.size > y.size)
         1
-      else if (y.size() > x.size())
+      else if (y.size > x.size)
         -1
       else
-        (x.asScala zip y.asScala).map(_.compare(_)).find(_ > 0).headOption.getOrElse(0)
+        (x zip y).map(_.compare(_)).find(_ > 0).headOption.getOrElse(0)
     }
     override def filter = Some(TypeLineFilter())
   }
