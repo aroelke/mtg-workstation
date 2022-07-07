@@ -142,8 +142,8 @@ object CardAttribute {
     override def filter = Some(VariableNumberFilter(this, _.toughness.value, _.toughnessVariable))
   }
 
-  case object Loyalty extends CardAttribute[java.util.List[Loyalty]]("Loyalty", "Planeswalker starting loyalty") {
-    override def compare(x: java.util.List[Loyalty], y: java.util.List[Loyalty]) = x.get(0).compare(y.get(0))
+  case object Loyalty extends CardAttribute[Seq[Loyalty]]("Loyalty", "Planeswalker starting loyalty") {
+    override def compare(x: Seq[Loyalty], y: Seq[Loyalty]) = x(0).compare(y(0))
     override def filter = Some(VariableNumberFilter(this, _.loyalty.value, _.loyaltyVariable))
   }
 
