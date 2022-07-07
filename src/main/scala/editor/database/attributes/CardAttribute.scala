@@ -181,8 +181,8 @@ object CardAttribute {
     }))
   }
 
-  case object LegalIn extends CardAttribute[java.util.List[String]]("Format Legality", "Formats a card can be legally be played in and if it is restricted") {
-    override def compare(x: java.util.List[String], y: java.util.List[String]) = Collator.getInstance.compare(x.asScala.mkString(","), y.asScala.mkString(","))
+  case object LegalIn extends CardAttribute[Seq[String]]("Format Legality", "Formats a card can be legally be played in and if it is restricted") {
+    override def compare(x: Seq[String], y: Seq[String]) = Collator.getInstance.compare(x.mkString(","), y.mkString(","))
     override def filter = Some(LegalityFilter())
   }
 

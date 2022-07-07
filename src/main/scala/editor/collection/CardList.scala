@@ -63,7 +63,7 @@ trait CardListEntry extends Equals {
     case Loyalty => card.faces.map(_.loyalty)
     case Artist => card.faces(0).artist
     case CardNumber => card.faces.map(_.number).mkString(Card.FaceSeparator)
-    case LegalIn => card.legalIn.toSeq.sorted.asJava
+    case LegalIn => card.legalIn.toSeq.sorted
     case Count => count
     case Categories => categories
     case DateAdded => dateAdded
