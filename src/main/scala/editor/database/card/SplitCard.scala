@@ -13,7 +13,7 @@ import CardLayout._
  * @author Alec Roelke
  */
 @throws[IllegalArgumentException]("if any face isn't a type of split card or all faces are not the same type")
-class SplitCard(faces: Seq[Card]) extends MultiCard(faces(0).layout, faces) {
+class SplitCard(faces: Seq[Card]) extends MultiCard(faces(0).layout, faces.toIndexedSeq) {
   if (!faces.forall((f) => Seq(SPLIT, AFTERMATH, ADVENTURE).contains(f.layout)))
     throw IllegalArgumentException("can't create split cards out of non-split cards")
   if (!faces.forall((f) => f.layout == faces(0).layout))

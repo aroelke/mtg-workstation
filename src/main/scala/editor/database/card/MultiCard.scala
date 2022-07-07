@@ -17,7 +17,7 @@ import scala.jdk.CollectionConverters._
  * @param faces single-faced cards making up the faces
  * @author Alec Roelke
  */
-abstract class MultiCard(layout: CardLayout, override val faces: Seq[Card]) extends Card(faces(0).expansion, layout) {
+abstract class MultiCard(layout: CardLayout, override val faces: IndexedSeq[Card]) extends Card(faces(0).expansion, layout) {
   if (faces.exists(_.isInstanceOf[MultiCard]))
     throw IllegalArgumentException("only normal, single-faced cards can be joined into a multi-faced card")
 

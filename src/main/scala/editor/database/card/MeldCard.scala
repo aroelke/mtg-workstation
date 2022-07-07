@@ -21,7 +21,7 @@ import CardLayout.MELD
  * @author Alec Roelke
  */
 @throws[IllegalArgumentException]("if any of the faces aren't part of a meld card")
-class MeldCard(front: Card, other: Card, back: Card) extends MultiCard(MELD, Seq(front, back)) {
+class MeldCard(front: Card, other: Card, back: Card) extends MultiCard(MELD, IndexedSeq(front, back)) {
   if (front.layout != MELD || other.layout != MELD || back.layout != MELD)
     throw IllegalArgumentException("can't join non-meld cards into meld cards")
   

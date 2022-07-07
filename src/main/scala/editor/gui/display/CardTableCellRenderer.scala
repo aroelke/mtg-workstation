@@ -65,7 +65,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
         m.columns(column) match {
           case CardAttribute.ManaCost =>
             val costs = value match {
-              case s: java.util.List[?] => s.asScala.toSeq.collect{ case cost: ManaCost => cost }
+              case s: Seq[?] => s.collect{ case cost: ManaCost => cost }
               case _ => Seq.empty
             }
             val icons = cache.getOrElseUpdate(costs, costs.map(_.map(_.getIcon(ComponentUtils.TextSize))))
