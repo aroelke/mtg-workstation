@@ -48,7 +48,7 @@ trait CardListEntry extends Equals {
   def apply(data: CardAttribute[?]) = data match {
     case Name => card.name
     case Layout => card.layout
-    case ManaCost => card.faces.map(_.manaCost).asJava
+    case ManaCost => card.faces.map(_.manaCost)
     case RealManaValue => card.manaValue
     case EffManaValue => card.faces.map((f) => java.lang.Double(f.manaValue)).asJava
     case Colors => card.colors.asJava

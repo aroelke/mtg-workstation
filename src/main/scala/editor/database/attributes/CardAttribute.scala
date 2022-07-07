@@ -63,8 +63,8 @@ object CardAttribute {
     override def filter = Some(TextFilter(this, _.normalizedPrinted))
   }
 
-  case object ManaCost extends CardAttribute[java.util.List[ManaCost]]("Mana Cost", "Mana cost, including symbols") {
-    override def compare(x: java.util.List[ManaCost], y: java.util.List[ManaCost]) = x.get(0).compare(y.get(0))
+  case object ManaCost extends CardAttribute[Seq[ManaCost]]("Mana Cost", "Mana cost, including symbols") {
+    override def compare(x: Seq[ManaCost], y: Seq[ManaCost]) = x(0).compare(y(0))
     override def filter = Some(ManaCostFilter())
   }
 
