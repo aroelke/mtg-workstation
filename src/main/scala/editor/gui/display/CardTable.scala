@@ -85,7 +85,7 @@ class CardTable(model: TableModel) extends JTable(model) {
             case m: CardTableModel =>
               if (m.columns(col) == CardAttribute.ManaCost)
                 s"""<html>${getValueAt(row, col) match {
-                  case s: java.util.List[?] => s.asScala.collect{ case cost: ManaCost => cost.toHTMLString }.mkString(Card.FaceSeparator)
+                  case s: Seq[?] => s.collect{ case cost: ManaCost => cost.toHTMLString }.mkString(Card.FaceSeparator)
                   case _ => ""
                 }}</html>"""
               else
