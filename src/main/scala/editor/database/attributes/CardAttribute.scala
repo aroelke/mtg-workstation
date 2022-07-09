@@ -24,6 +24,7 @@ import editor.collection.Categorization
 import scala.jdk.CollectionConverters._
 import java.time.LocalDate
 import editor.filter.leaf.BinaryFilter
+import editor.database.card.Card
 
 // D: type returned from CardTableEntry.apply
 sealed trait CardAttribute[D : ClassTag](name: String, val description: String) extends Ordering[D] {
@@ -46,25 +47,25 @@ sealed trait CantBeFiltered { this: CardAttribute[?] =>
   override def filter = throw UnsupportedOperationException(s"$toString can't be filtered")
 }
 
+sealed trait HasTextFilter(text: (Card) => Iterable[String]) { this: CardAttribute[?] =>
+  override def filter = TextFilter(this, text)
+}
+
 object CardAttribute {
-  case object Name extends CardAttribute[String]("Name", "Card Name") {
+  case object Name extends CardAttribute[String]("Name", "Card Name") with HasTextFilter(_.normalizedName) {
     override def compare(x: String, y: String) = Collator.getInstance.compare(x, y)
-    override def filter = TextFilter(this, _.normalizedName)
   }
 
-  case object RulesText extends CardAttribute[Unit]("Rules Text", "Up-to-date Oracle text") {
+  case object RulesText extends CardAttribute[Unit]("Rules Text", "Up-to-date Oracle text") with HasTextFilter(_.normalizedOracle) {
     override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
-    override def filter = TextFilter(this, _.normalizedOracle)
   }
 
-  case object FlavorText extends CardAttribute[Unit]("Flavor Text", "Flavor text") {
+  case object FlavorText extends CardAttribute[Unit]("Flavor Text", "Flavor text") with HasTextFilter(_.normalizedFlavor) {
     override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
-    override def filter = TextFilter(this, _.normalizedFlavor)
   }
 
-  case object PrintedText extends CardAttribute[Unit]("Printed Text", "Rules text as printed on the card") {
+  case object PrintedText extends CardAttribute[Unit]("Printed Text", "Rules text as printed on the card") with HasTextFilter(_.normalizedPrinted) {
     override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
-    override def filter = TextFilter(this, _.normalizedPrinted)
   }
 
   case object ManaCost extends CardAttribute[Seq[ManaCost]]("Mana Cost", "Mana cost, including symbols") {
@@ -116,9 +117,8 @@ object CardAttribute {
     override def filter = TypeLineFilter()
   }
 
-  case object PrintedTypes extends CardAttribute[Unit]("Printed Type Line", "Type line as printed on the card") {
+  case object PrintedTypes extends CardAttribute[Unit]("Printed Type Line", "Type line as printed on the card") with HasTextFilter(_.faces.map(_.printedTypes)) {
     override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
-    override def filter = TextFilter(this, _.faces.map(_.printedTypes))
   }
 
   case object CardType extends CardAttribute[Unit]("Card Type", "Card types only") {
@@ -171,9 +171,8 @@ object CardAttribute {
     override def filter = RarityFilter()
   }
 
-  case object Artist extends CardAttribute[String]("Artist", "Credited artist") {
+  case object Artist extends CardAttribute[String]("Artist", "Credited artist") with HasTextFilter(_.faces.map(_.artist)) {
     override def compare(x: String, y: String) = Collator.getInstance.compare(x, y)
-    override def filter = TextFilter(this, _.faces.map(_.artist))
   }
 
   case object CardNumber extends CardAttribute[String]("Card Number", "Collector number in expansion") {
@@ -219,7 +218,7 @@ object CardAttribute {
     override def filter = BinaryFilter(false)
   }
 
-  case object Defaults extends CardAttribute[Unit]("Defaults", "Filters of predefined categories") with CantBeFiltered{
+  case object Defaults extends CardAttribute[Unit]("Defaults", "Filters of predefined categories") with CantBeFiltered {
     override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
   }
 
