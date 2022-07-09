@@ -37,7 +37,7 @@ sealed trait CardAttribute[D : ClassTag](name: String, val description: String) 
     case (a, b: D) => throw ClassCastException(s"$a: ${a.getClass} is not an instance of ${dataType}")
     case (a, b) => throw ClassCastException(s"$a: ${a.getClass} is not an instance of ${dataType} and $b: ${b.getClass} is not an instance of ${dataType}")
   }
-  def comparingCard: Ordering[CardListEntry] = (a: CardListEntry, b: CardListEntry) => compare(a(this) match { case v: D => v }, b(this) match { case v: D => v})
+  def comparingEntry: Ordering[CardListEntry] = (a: CardListEntry, b: CardListEntry) => compare(a(this) match { case v: D => v }, b(this) match { case v: D => v})
   def dataType = implicitly[ClassTag[D]].runtimeClass.asInstanceOf[Class[D]]
 
   override def toString = name

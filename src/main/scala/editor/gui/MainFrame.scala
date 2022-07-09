@@ -679,7 +679,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             None
           }
           format.foreach((fmt) => {
-            val sorted = new Ordering[CardListEntry] { def compare(a: CardListEntry, b: CardListEntry) = sortBox.getItemAt(sortBox.getSelectedIndex).comparingCard.compare(a, b) }
+            val sorted = new Ordering[CardListEntry] { def compare(a: CardListEntry, b: CardListEntry) = sortBox.getItemAt(sortBox.getSelectedIndex).comparingEntry.compare(a, b) }
             val unsorted = new Ordering[CardListEntry] { def compare(a: CardListEntry, b: CardListEntry) = 0 }
             f.exportList(fmt, if (sortCheck.isSelected) sorted else unsorted, extras.collect{ case (e, s) if s => e }.toSeq, exportChooser.getSelectedFile) match {
               case Success(_) =>
