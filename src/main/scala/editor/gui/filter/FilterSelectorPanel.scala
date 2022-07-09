@@ -75,7 +75,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
       case CardAttribute.AnyCard => BinaryFilterPanel(true)
       case CardAttribute.NoCard => BinaryFilterPanel(false)
       case CardAttribute.Defaults => DefaultsFilterPanel()
-      case _ => attribute.filter.get match {
+      case _ => attribute.filter match {
         case text: TextFilter => TextFilterPanel(text, this)
         case variable: VariableNumberFilter => VariableNumberFilterPanel(variable, this)
         case number: NumberFilter => NumberFilterPanel(number, this)
@@ -129,7 +129,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
     case cards: java.awt.CardLayout =>
       cards.show(filtersPanel, filterTypes.getSelectedItem.toString)
       filterTypes.setToolTipText(filterTypes.getSelectedItem.description)
-      facesLabel.setVisible(!filterTypes.getSelectedItem.filter.get.unified)
+      facesLabel.setVisible(!filterTypes.getSelectedItem.filter.unified)
   })
 
   /** @return the current selection for which faces the filter should search */

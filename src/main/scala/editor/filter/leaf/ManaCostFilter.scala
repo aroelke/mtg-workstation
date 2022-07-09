@@ -29,7 +29,7 @@ class ManaCostFilter extends FilterLeaf(CardAttribute.ManaCost, false) {
   }
 
   override def copyLeaf = {
-    val filter = CardAttribute.ManaCost.filter.get.asInstanceOf[ManaCostFilter]
+    val filter = CardAttribute.ManaCost.filter.asInstanceOf[ManaCostFilter]
     filter.contain = contain
     filter.cost = cost
     filter

@@ -51,7 +51,7 @@ object TextFilter {
    */
   def apply(t: CardAttribute[?], s: String) = {
     try {
-      val filter = t.filter.get.asInstanceOf[TextFilter]
+      val filter = t.filter.asInstanceOf[TextFilter]
       filter.text = Regex.quote(s)
       filter.regex = true
       filter
@@ -144,7 +144,7 @@ class TextFilter(t: CardAttribute[?], value: (Card) => Iterable[String]) extends
   }
 
   override protected def copyLeaf = {
-    val filter = attribute.filter.get.asInstanceOf[TextFilter]
+    val filter = attribute.filter.asInstanceOf[TextFilter]
     filter.current = current.copy()
     filter
   }

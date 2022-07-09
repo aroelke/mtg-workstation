@@ -54,7 +54,7 @@ class NumberFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel
 
   protected override var attribute = CardAttribute.CardNumber
 
-  override def filter = (attribute.filter.get, spinner.getValue) match {
+  override def filter = (attribute.filter, spinner.getValue) match {
     case (number: NumberFilter, value: Double) =>
       number.faces = selector.faces
       number.operation = comparison.getSelectedItem

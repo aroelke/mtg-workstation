@@ -17,7 +17,7 @@ class TypeLineFilter extends FilterLeaf(CardAttribute.TypeLine, false) {
   override protected def testFace(c: Card) = !line.isEmpty && contain(c.typeLine.toSet.map(_.toLowerCase), line.toLowerCase.split("\\s").toSeq)
 
   override protected def copyLeaf = {
-    val filter = CardAttribute.TypeLine.filter.get.asInstanceOf[TypeLineFilter]
+    val filter = CardAttribute.TypeLine.filter.asInstanceOf[TypeLineFilter]
     filter.contain = contain
     filter.line = line
     filter

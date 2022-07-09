@@ -1128,15 +1128,15 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   // Action to be taken when the clear button is pressed (reset the filter)
   clearButton.addActionListener(_ => {
     nameFilterField.setText("")
-    inventory.filter = CardAttribute.AnyCard.filter.get
+    inventory.filter = CardAttribute.AnyCard.filter
     inventoryModel.fireTableDataChanged()
   })
 
   // Action to be taken when the advanced filter button is pressed (show the advanced filter dialog)
   advancedFilterButton.addActionListener(_ => {
     val panel = FilterGroupPanel()
-    if (inventory.filter.equals(CardAttribute.AnyCard.filter.get))
-      panel.setContents(CardAttribute.Name.filter.get)
+    if (inventory.filter.equals(CardAttribute.AnyCard.filter))
+      panel.setContents(CardAttribute.Name.filter)
     else
       panel.setContents(inventory.filter)
     panel.addChangeListener((c) => SwingUtilities.getWindowAncestor(c.getSource.asInstanceOf[Component]).pack())

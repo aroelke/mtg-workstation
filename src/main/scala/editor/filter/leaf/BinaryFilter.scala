@@ -16,7 +16,7 @@ import java.util.Objects
 class BinaryFilter(all: Boolean) extends FilterLeaf(if (all) CardAttribute.AnyCard else CardAttribute.NoCard, true) {
   override protected def testFace(c: Card) = all
 
-  override protected def copyLeaf = attribute.filter.get.asInstanceOf[BinaryFilter]
+  override protected def copyLeaf = attribute.filter.asInstanceOf[BinaryFilter]
 
   override def leafEquals(other: Any) = other match {
     case o: BinaryFilter => o.attribute == attribute

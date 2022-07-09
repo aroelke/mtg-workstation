@@ -27,7 +27,7 @@ class ColorFilter(t: CardAttribute[?], value: (Card) => Set[ManaType]) extends F
   override protected def testFace(c: Card) = contain(value(c), colors) && (!multicolored || value(c).size > 1)
 
   override protected def copyLeaf = {
-    val filter = attribute.filter.get.asInstanceOf[ColorFilter]
+    val filter = attribute.filter.asInstanceOf[ColorFilter]
     filter.contain = contain
     filter.colors = colors
     filter.multicolored = multicolored

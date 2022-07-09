@@ -24,7 +24,7 @@ abstract class OptionsFilter[T](t: CardAttribute[?], unified: Boolean) extends F
   var selected = Set[T]() // Using an immutable var guarantees that changing this in a copy doesn't change this filter's version
 
   override protected def copyLeaf = {
-    val filter = attribute.filter.get.asInstanceOf[OptionsFilter[T]]
+    val filter = attribute.filter.asInstanceOf[OptionsFilter[T]]
     filter.contain = contain
     filter.selected = selected
     filter

@@ -135,7 +135,7 @@ class OptionsFilterPanel[T <: AnyRef : ClassTag](protected override val attribut
     optionsPanel.add(boxPanel)
   }
 
-  override def filter = attribute.filter.get match {
+  override def filter = attribute.filter match {
     case of: OptionsFilter[T] =>
       of.faces = selector.faces
       of.contain = contain.getSelectedItem

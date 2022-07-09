@@ -46,7 +46,7 @@ class TypeLineFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPan
 
   protected override val attribute = CardAttribute.TypeLine
 
-  override def filter = CardAttribute.TypeLine.filter.get match {
+  override def filter = CardAttribute.TypeLine.filter match {
     case typeline: TypeLineFilter =>
       typeline.faces = selector.faces
       typeline.contain = contain.getSelectedItem

@@ -24,6 +24,6 @@ class BinaryFilterPanel(allow: Boolean) extends FilterEditorPanel[FilterLeaf] {
   add(JLabel(if (allow) All else None))
 
   protected override val attribute = if (allow) CardAttribute.AnyCard else CardAttribute.NoCard
-  override lazy val filter = (if (allow) CardAttribute.AnyCard else CardAttribute.NoCard).filter.get
+  override lazy val filter = (if (allow) CardAttribute.AnyCard else CardAttribute.NoCard).filter
   override def setFields(filter: FilterLeaf) = {}
 }

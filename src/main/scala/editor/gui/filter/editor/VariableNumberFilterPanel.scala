@@ -69,7 +69,7 @@ class VariableNumberFilterPanel(v: String, selector: FilterSelectorPanel) extend
 
   protected override var attribute = CardAttribute.Power
 
-  override def filter = (attribute.filter.get, spinner.getValue) match {
+  override def filter = (attribute.filter, spinner.getValue) match {
     case (number: VariableNumberFilter, value: Double) =>
       number.operation = comparison.getSelectedItem
       number.operand = value

@@ -25,7 +25,7 @@ class LegalityFilter extends MultiOptionsFilter[String](CardAttribute.LegalIn, t
   }
 
   override protected def copyLeaf = {
-    val filter = CardAttribute.LegalIn.filter.get.asInstanceOf[LegalityFilter]
+    val filter = CardAttribute.LegalIn.filter.asInstanceOf[LegalityFilter]
     filter.contain = contain
     filter.selected = selected
     filter.restricted = restricted
