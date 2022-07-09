@@ -51,22 +51,26 @@ sealed trait HasTextFilter(text: (Card) => Iterable[String]) { this: CardAttribu
   override def filter = TextFilter(this, text)
 }
 
+sealed trait CantCompare { this: CardAttribute[Unit] =>
+  override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException(s"$toString can't be used to compare attributes")
+}
+
 object CardAttribute {
   case object Name extends CardAttribute[String]("Name", "Card Name") with HasTextFilter(_.normalizedName) {
     override def compare(x: String, y: String) = Collator.getInstance.compare(x, y)
   }
 
-  case object RulesText extends CardAttribute[Unit]("Rules Text", "Up-to-date Oracle text") with HasTextFilter(_.normalizedOracle) {
-    override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
-  }
+  case object RulesText extends CardAttribute[Unit]("Rules Text", "Up-to-date Oracle text")
+      with HasTextFilter(_.normalizedOracle)
+      with CantCompare
 
-  case object FlavorText extends CardAttribute[Unit]("Flavor Text", "Flavor text") with HasTextFilter(_.normalizedFlavor) {
-    override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
-  }
+  case object FlavorText extends CardAttribute[Unit]("Flavor Text", "Flavor text")
+    with HasTextFilter(_.normalizedFlavor)
+    with CantCompare
 
-  case object PrintedText extends CardAttribute[Unit]("Printed Text", "Rules text as printed on the card") with HasTextFilter(_.normalizedPrinted) {
-    override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
-  }
+  case object PrintedText extends CardAttribute[Unit]("Printed Text", "Rules text as printed on the card")
+    with HasTextFilter(_.normalizedPrinted)
+    with CantCompare
 
   case object ManaCost extends CardAttribute[Seq[ManaCost]]("Mana Cost", "Mana cost, including symbols") {
     override def compare(x: Seq[ManaCost], y: Seq[ManaCost]) = x(0).compare(y(0))
@@ -117,22 +121,19 @@ object CardAttribute {
     override def filter = TypeLineFilter()
   }
 
-  case object PrintedTypes extends CardAttribute[Unit]("Printed Type Line", "Type line as printed on the card") with HasTextFilter(_.faces.map(_.printedTypes)) {
-    override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
-  }
+  case object PrintedTypes extends CardAttribute[Unit]("Printed Type Line", "Type line as printed on the card")
+    with HasTextFilter(_.faces.map(_.printedTypes))
+    with CantCompare
 
-  case object CardType extends CardAttribute[Unit]("Card Type", "Card types only") {
-    override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
+  case object CardType extends CardAttribute[Unit]("Card Type", "Card types only") with CantCompare {
     override def filter = CardTypeFilter()
   }
 
-  case object Subtype extends CardAttribute[Unit]("Subtype", "Subtypes only") {
-    override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
+  case object Subtype extends CardAttribute[Unit]("Subtype", "Subtypes only") with CantCompare {
     override def filter = SubtypeFilter()
   }
 
-  case object Supertype extends CardAttribute[Unit]("Supertype", "Supertypes only") {
-    override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
+  case object Supertype extends CardAttribute[Unit]("Supertype", "Supertypes only") with CantCompare {
     override def filter = SupertypeFilter()
   }
 
@@ -208,27 +209,25 @@ object CardAttribute {
     override def compare(x: LocalDate, y: LocalDate) = x.compareTo(y)
   }
 
-  case object AnyCard extends CardAttribute[Unit]("<Any Card>", "Match any card") {
-    override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
+  case object AnyCard extends CardAttribute[Unit]("<Any Card>", "Match any card") with CantCompare {
     override def filter = BinaryFilter(true)
   }
 
-  case object NoCard extends CardAttribute[Unit]("<No Card>", "Match no card") {
-    override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
+  case object NoCard extends CardAttribute[Unit]("<No Card>", "Match no card") with CantCompare {
     override def filter = BinaryFilter(false)
   }
 
-  case object Defaults extends CardAttribute[Unit]("Defaults", "Filters of predefined categories") with CantBeFiltered {
-    override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
-  }
+  case object Defaults extends CardAttribute[Unit]("Defaults", "Filters of predefined categories")
+    with CantBeFiltered
+    with CantCompare
 
-  case object Group extends CardAttribute[Unit]("Group", "") with CantBeFiltered {
-    override def compare(x: Unit, y: Unit) = throw UnsupportedOperationException()
-  }
+  case object Group extends CardAttribute[Unit]("Group", "")
+    with CantBeFiltered
+    with CantCompare
 
   val values: IndexedSeq[CardAttribute[?]] = IndexedSeq(Name, RulesText, FlavorText, PrintedText, ManaCost, RealManaValue, EffManaValue, Colors, ColorIdentity, TypeLine, PrintedTypes, CardType, Subtype, Supertype, Power, Toughness, Loyalty, Layout, Expansion, Block, Rarity, Artist, CardNumber, LegalIn, Tags, Categories, Count, DateAdded, AnyCard, NoCard, Defaults, Group)
   lazy val filterableValues = values.filter(!_.isInstanceOf[CantBeFiltered])
-  lazy val displayableValues = values.filter(_.dataType != classOf[Unit])
+  lazy val displayableValues = values.filter(!_.isInstanceOf[CantCompare])
   lazy val inventoryValues = displayableValues.filter(!Seq(Categories, Count).contains(_))
 
   def parse(s: String) = {
