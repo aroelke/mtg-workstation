@@ -74,7 +74,6 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
     val panel = attribute match {
       case CardAttribute.AnyCard => BinaryFilterPanel(true)
       case CardAttribute.NoCard => BinaryFilterPanel(false)
-      case CardAttribute.Defaults => DefaultsFilterPanel()
       case _ => attribute.filter match {
         case text: TextFilter => TextFilterPanel(text, this)
         case variable: VariableNumberFilter => VariableNumberFilterPanel(variable, this)

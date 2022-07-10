@@ -217,15 +217,11 @@ object CardAttribute {
     override def filter = BinaryFilter(false)
   }
 
-  case object Defaults extends CardAttribute[Unit]("Defaults", "Filters of predefined categories")
-    with CantBeFiltered
-    with CantCompare
-
   case object Group extends CardAttribute[Unit]("Group", "")
     with CantBeFiltered
     with CantCompare
 
-  val values: IndexedSeq[CardAttribute[?]] = IndexedSeq(Name, RulesText, FlavorText, PrintedText, ManaCost, RealManaValue, EffManaValue, Colors, ColorIdentity, TypeLine, PrintedTypes, CardType, Subtype, Supertype, Power, Toughness, Loyalty, Layout, Expansion, Block, Rarity, Artist, CardNumber, LegalIn, Tags, Categories, Count, DateAdded, AnyCard, NoCard, Defaults, Group)
+  val values: IndexedSeq[CardAttribute[?]] = IndexedSeq(Name, RulesText, FlavorText, PrintedText, ManaCost, RealManaValue, EffManaValue, Colors, ColorIdentity, TypeLine, PrintedTypes, CardType, Subtype, Supertype, Power, Toughness, Loyalty, Layout, Expansion, Block, Rarity, Artist, CardNumber, LegalIn, Tags, Categories, Count, DateAdded, AnyCard, NoCard, Group)
   lazy val filterableValues = values.filter(!_.isInstanceOf[CantBeFiltered])
   lazy val displayableValues = values.filter(!_.isInstanceOf[CantCompare])
   lazy val inventoryValues = displayableValues.filter(!Seq(Categories, Count).contains(_))
