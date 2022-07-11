@@ -57,8 +57,8 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   private val filterTypes = ComboBoxPanel(CardAttribute.filterableValues.toArray)
   filterTypes.setToolTipText(filterTypes.getSelectedItem.description)
   private val renderer = filterTypes.getRenderer
-  filterTypes.setRenderer(new ListCellRenderer[CardAttribute[?]] {
-    override def getListCellRendererComponent(list: JList[? <: CardAttribute[?]], value: CardAttribute[?], index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
+  filterTypes.setRenderer(new ListCellRenderer[CardAttribute[?, ?]] {
+    override def getListCellRendererComponent(list: JList[? <: CardAttribute[?, ?]], value: CardAttribute[?, ?], index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
       val component = renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
       component match { case j: JComponent => j.setToolTipText(value.description) }
       component
@@ -67,7 +67,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   add(filterTypes)
 
   // Panel containing each editor panel
-  private val filterPanels = collection.mutable.Map[CardAttribute[?], FilterEditorPanel[?]]()
+  private val filterPanels = collection.mutable.Map[CardAttribute[?, ?], FilterEditorPanel[?]]()
   private val filtersPanel = JPanel(java.awt.CardLayout())
   add(filtersPanel)
   CardAttribute.filterableValues.foreach((attribute) => {

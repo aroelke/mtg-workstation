@@ -13,6 +13,6 @@ import editor.filter.leaf.options.OptionsFilter
  * @param unified whether or not the value of an attribute is the same across all card faces
  * @tparam T type of the data that is being filtered
  */
-abstract class MultiOptionsFilter[T](t: CardAttribute[?], unified: Boolean, values: (Card) => Set[T]) extends OptionsFilter[T](t, unified) {
+abstract class MultiOptionsFilter[T](t: CardAttribute[?, ?], unified: Boolean, values: (Card) => Set[T]) extends OptionsFilter[T](t, unified) {
   override protected def testFace(c: Card) = contain(values(c), selected)
 }

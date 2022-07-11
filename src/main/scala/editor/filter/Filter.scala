@@ -11,7 +11,7 @@ import editor.database.card.Card
  * 
  * @author Alec Roelke
  */
-trait Filter(val attribute: CardAttribute[?]) extends ((Card) => Boolean) with java.util.function.Predicate[Card] {
+trait Filter(val attribute: CardAttribute[?, ?]) extends ((Card) => Boolean) with java.util.function.Predicate[Card] {
   /** @return a copy of this filter. */
   def copy: Filter
 

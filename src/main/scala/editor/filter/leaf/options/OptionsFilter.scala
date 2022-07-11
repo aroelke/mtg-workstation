@@ -17,7 +17,7 @@ import java.util.Objects
  * 
  * @author Alec Roelke
  */
-abstract class OptionsFilter[T](t: CardAttribute[?], unified: Boolean) extends FilterLeaf(t, unified) {
+abstract class OptionsFilter[T](t: CardAttribute[?, ?], unified: Boolean) extends FilterLeaf(t, unified) {
   /** Function to use to compare card attributes. */
   var contain = Containment.AnyOf
   /** Set of items to look for in cards. */

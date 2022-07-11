@@ -42,7 +42,7 @@ object OptionsFilterPanel {
    * @param options values of the attribute that can be chosen
    * @return an [[OptionsFilterPanel]] for a filter of the given attribute with the given possible values
    */
-  def apply[T <: AnyRef : ClassTag](attribute: CardAttribute[?], options: Seq[T], selector: FilterSelectorPanel) = new OptionsFilterPanel(attribute, options, selector)
+  def apply[T <: AnyRef : ClassTag](attribute: CardAttribute[?, ?], options: Seq[T], selector: FilterSelectorPanel) = new OptionsFilterPanel(attribute, options, selector)
 
   /**
    * Create a new [[OptionsFilterPanel]] with the given filter and possible options to choose from. The attribute
@@ -72,7 +72,7 @@ object OptionsFilterPanel {
  * 
  * @author Alec Roelke
  */
-class OptionsFilterPanel[T <: AnyRef : ClassTag](protected override val attribute: CardAttribute[?], options: Seq[T], selector: FilterSelectorPanel) extends FilterEditorPanel[OptionsFilter[T]] {
+class OptionsFilterPanel[T <: AnyRef : ClassTag](protected override val attribute: CardAttribute[?, ?], options: Seq[T], selector: FilterSelectorPanel) extends FilterEditorPanel[OptionsFilter[T]] {
   private val MaxComboWidth = 100
 
   setLayout(BorderLayout())

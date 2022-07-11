@@ -20,7 +20,7 @@ import javax.swing.table.AbstractTableModel
  * 
  * @author Alec Roelke
  */
-class CardTableModel(private var cards: CardList, private var characteristics: IndexedSeq[CardAttribute[?]], editor: Option[EditorFrame] = None) extends AbstractTableModel {
+class CardTableModel(private var cards: CardList, private var characteristics: IndexedSeq[CardAttribute[?, ?]], editor: Option[EditorFrame] = None) extends AbstractTableModel {
   override def getColumnCount = characteristics.size
   override def getColumnName(column: Int) = characteristics(column).toString
   override def getColumnClass(column: Int) = characteristics(column).dataType
@@ -44,7 +44,7 @@ class CardTableModel(private var cards: CardList, private var characteristics: I
    * Change the characteristics to be displayed by the table.
    * @param c new characteristics to show
    */
-  def columns_=(c: IndexedSeq[CardAttribute[?]]) = {
+  def columns_=(c: IndexedSeq[CardAttribute[?, ?]]) = {
     characteristics = c
     fireTableStructureChanged()
   }

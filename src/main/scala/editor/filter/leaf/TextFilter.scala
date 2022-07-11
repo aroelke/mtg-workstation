@@ -40,7 +40,7 @@ object TextFilter {
   )
 
   /** Convenience method for creating a [[TextFilter]] without "new." */
-  def apply(t: CardAttribute[?], value: (Card) => Iterable[String]) = new TextFilter(t, value)
+  def apply(t: CardAttribute[?, ?], value: (Card) => Iterable[String]) = new TextFilter(t, value)
 
   /**
    * Convenience method for creating a filter that searches the attribute for the given string.
@@ -49,7 +49,7 @@ object TextFilter {
    * @param s string to search for
    * @return a filter that filters by the attribute using the given string
    */
-  def apply(t: CardAttribute[?], s: String) = {
+  def apply(t: CardAttribute[?, ?], s: String) = {
     try {
       val filter = t.filter.asInstanceOf[TextFilter]
       filter.text = Regex.quote(s)
@@ -97,7 +97,7 @@ object TextFilter {
  * 
  * @author Alec Roelke
  */
-class TextFilter(t: CardAttribute[?], value: (Card) => Iterable[String]) extends FilterLeaf(t, false) {
+class TextFilter(t: CardAttribute[?, ?], value: (Card) => Iterable[String]) extends FilterLeaf(t, false) {
   import Containment._
   import TextFilter._
 

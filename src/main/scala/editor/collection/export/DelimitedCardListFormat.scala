@@ -62,7 +62,7 @@ object DelimitedCardListFormat {
  * 
  * @author Alec Roelke
  */
-class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute[?]]) extends CardListFormat {
+class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute[?, ?]]) extends CardListFormat {
   import DelimitedCardListFormat._
 
   private val delimiter = delim match {

@@ -16,7 +16,7 @@ import java.util.Objects
  * 
  * @author Alec Roelke
  */
-class ColorFilter(t: CardAttribute[?], value: (Card) => Set[ManaType]) extends FilterLeaf(t, false) {
+class ColorFilter(t: CardAttribute[?, ?], value: (Card) => Set[ManaType]) extends FilterLeaf(t, false) {
   /** Function to use to compare colors. */
   var contain = Containment.AnyOf
   /** Colors to compare cards with. */

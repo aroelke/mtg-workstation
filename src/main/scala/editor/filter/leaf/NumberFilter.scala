@@ -18,7 +18,7 @@ import scala.annotation.targetName
  * 
  * @author Alec Roelke
  */
-class NumberFilter(t: CardAttribute[?], unified: Boolean, value: (Card) => Double, val variable: Option[(Card) => Boolean] = None) extends FilterLeaf(t, unified) {
+class NumberFilter(t: CardAttribute[?, ?], unified: Boolean, value: (Card) => Double, val variable: Option[(Card) => Boolean] = None) extends FilterLeaf(t, unified) {
   private var _varies = false
 
   /** Comparison to use for the desired value and card's value */

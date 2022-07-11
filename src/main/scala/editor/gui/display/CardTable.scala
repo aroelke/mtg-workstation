@@ -32,7 +32,7 @@ object CardTable {
    * @param attr attribute to be edited by the editor
    * @return a component that can edit the value of the specified attribute
    */
-  def createCellEditor(frame: EditorFrame, attr: CardAttribute[?]) = attr match {
+  def createCellEditor(frame: EditorFrame, attr: CardAttribute[?, ?]) = attr match {
     case CardAttribute.Count => SpinnerCellEditor()
     case CardAttribute.Categories => InclusionCellEditor(frame)
     case _ => throw IllegalArgumentException(s"values of type $attr can't be edited")
@@ -116,7 +116,7 @@ class CardTable(model: TableModel) extends JTable(model) {
  * with other values the row could have.
  */
 private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[TableModel](model) {
-  private val NoString: Set[CardAttribute[?]] = Set(
+  private val NoString: Set[CardAttribute[?, ?]] = Set(
     CardAttribute.ManaCost,
     CardAttribute.EffManaValue,
     CardAttribute.Colors,

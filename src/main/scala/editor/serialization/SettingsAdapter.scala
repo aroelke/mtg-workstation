@@ -49,7 +49,7 @@ class SettingsAdapter extends JsonSerializer[Settings] with JsonDeserializer[Set
       val imageLimit = if (inventory.has("imageLimit")) inventory.get("imageLimit").getAsInt else defaults.inventory.imageLimit
       val tags = if (inventory.has("tags")) inventory.get("tags").getAsString else defaults.inventory.tags
       val update = if (inventory.has("update")) context.deserialize(inventory.get("update"), classOf[UpdateFrequency]) else defaults.inventory.update
-      val columns = if (inventory.has("columns")) inventory.get("columns").getAsJsonArray.asScala.map((c) => context.deserialize[CardAttribute[?]](c, classOf[CardAttribute[?]])).toIndexedSeq else defaults.inventory.columns
+      val columns = if (inventory.has("columns")) inventory.get("columns").getAsJsonArray.asScala.map((c) => context.deserialize[CardAttribute[?, ?]](c, classOf[CardAttribute[?, ?]])).toIndexedSeq else defaults.inventory.columns
       val background = if (inventory.has("background")) context.deserialize(inventory.get("background"), classOf[Color]) else defaults.inventory.background
       val stripe = if (inventory.has("stripe")) context.deserialize(inventory.get("stripe"), classOf[Color]) else defaults.inventory.stripe
       val warn = if (inventory.has("warn")) inventory.get("warn").getAsBoolean else defaults.inventory.warn
@@ -117,7 +117,7 @@ class SettingsAdapter extends JsonSerializer[Settings] with JsonDeserializer[Set
         LegalitySettings(search, main, all, list, sideboard)
       } else defaults.editor.legality
 
-      val columns = if (editor.has("columns")) editor.get("columns").getAsJsonArray.asScala.map((c) => context.deserialize[CardAttribute[?]](c, classOf[CardAttribute[?]])).toIndexedSeq else defaults.editor.columns
+      val columns = if (editor.has("columns")) editor.get("columns").getAsJsonArray.asScala.map((c) => context.deserialize[CardAttribute[?, ?]](c, classOf[CardAttribute[?, ?]])).toIndexedSeq else defaults.editor.columns
       val stripe = if (editor.has("stripe")) context.deserialize(editor.get("stripe"), classOf[Color]) else defaults.editor.stripe
       val mv = if (editor.has("manaValue")) editor.get("manaValue").getAsString else defaults.editor.manaValue
       val backFaceLands = if (editor.has("backFaceLands")) editor.get("backFaceLands").getAsJsonArray.asScala.map((l) => CardLayout.values.filter(_.toString == l.getAsString)(0)).toSeq else defaults.editor.backFaceLands
@@ -168,7 +168,7 @@ class SettingsAdapter extends JsonSerializer[Settings] with JsonDeserializer[Set
   }
 
   override def serialize(src: Settings, typeOfSrc: Type, context: JsonSerializationContext) = {
-    val attributeType = (new TypeToken[CardAttribute[?]] {}).getType
+    val attributeType = (new TypeToken[CardAttribute[?, ?]] {}).getType
 
     val settings = JsonObject()
 

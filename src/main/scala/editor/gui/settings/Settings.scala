@@ -68,7 +68,7 @@ case class InventorySettings(
   tags: String = SettingsDialog.EditorHome.resolve("tags.json").toString(),
   update: UpdateFrequency = UpdateFrequency.Daily,
   warn: Boolean = true,
-  columns: IndexedSeq[CardAttribute[?]] = IndexedSeq(Name, ManaCost, TypeLine, Expansion),
+  columns: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(Name, ManaCost, TypeLine, Expansion),
   background: Color = Color.WHITE,
   stripe: Color = Color(0xCC, 0xCC, 0xCC, 0xFF)
 ) {
@@ -102,7 +102,7 @@ case class InventorySettings(
 case class EditorSettings(
   recents: RecentsSettings = RecentsSettings(),
   categories: CategoriesSettings = CategoriesSettings(),
-  columns: IndexedSeq[CardAttribute[?]] = IndexedSeq(Name, ManaCost, TypeLine, Expansion, Categories, Count, DateAdded),
+  columns: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(Name, ManaCost, TypeLine, Expansion, Categories, Count, DateAdded),
   stripe: Color = Color(0xCC, 0xCC, 0xCC, 0xFF),
   hand: HandSettings = HandSettings(),
   legality: LegalitySettings = LegalitySettings(),

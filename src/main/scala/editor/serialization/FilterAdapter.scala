@@ -34,7 +34,7 @@ import scala.jdk.CollectionConverters._
 class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter] {
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
     val obj = json.getAsJsonObject
-    context.deserialize[CardAttribute[?]](obj.get("type"), classOf[CardAttribute[?]]) match {
+    context.deserialize[CardAttribute[?, ?]](obj.get("type"), classOf[CardAttribute[?, ?]]) match {
       case CardAttribute.Name => TextFilter(CardAttribute.Name, _.normalizedName)
       case CardAttribute.RulesText => TextFilter(CardAttribute.RulesText, _.normalizedOracle)
       case CardAttribute.FlavorText => TextFilter(CardAttribute.FlavorText, _.normalizedFlavor)

@@ -47,7 +47,7 @@ trait CardListEntry extends Equals {
   def categories: Set[Categorization]
 
   /** @return the value of the given attribute for the card */
-  def apply(data: CardAttribute[?]) = data match {
+  def apply(data: CardAttribute[?, ?]) = data match {
     case Name => card.name
     case Layout => card.layout
     case ManaCost => card.faces.map(_.manaCost)
