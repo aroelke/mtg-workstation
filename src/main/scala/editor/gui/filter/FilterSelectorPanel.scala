@@ -76,7 +76,6 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
       case CardAttribute.NoCard => BinaryFilterPanel(false)
       case _ => attribute.filter match {
         case text: TextFilter => TextFilterPanel(text, this)
-        case variable: VariableNumberFilter => VariableNumberFilterPanel(variable, this)
         case number: NumberFilter => NumberFilterPanel(number, this)
         case color: ColorFilter => ColorFilterPanel(color, this)
         case layout: LayoutFilter => OptionsFilterPanel(layout, _root_.editor.database.card.CardLayout.values.toSeq, this)

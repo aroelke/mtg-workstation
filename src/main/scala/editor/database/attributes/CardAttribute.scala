@@ -18,7 +18,6 @@ import editor.filter.leaf.options.single.BlockFilter
 import editor.filter.leaf.options.single.ExpansionFilter
 import editor.filter.leaf.options.single.LayoutFilter
 import editor.filter.leaf.options.single.RarityFilter
-import editor.filter.leaf.VariableNumberFilter
 import editor.database.card.CardLayout
 import editor.collection.Categorization
 import scala.jdk.CollectionConverters._
@@ -139,17 +138,17 @@ object CardAttribute {
 
   case object Power extends CardAttribute[Seq[CombatStat]]("Power", "Creature power") {
     override def compare(x: Seq[CombatStat], y: Seq[CombatStat]) = x(0).compare(y(0))
-    override def filter = VariableNumberFilter(this, _.power.value, _.powerVariable)
+    override def filter = NumberFilter(this, false, _.power.value, Some(_.powerVariable))
   }
 
   case object Toughness extends CardAttribute[Seq[CombatStat]]("Toughness", "Creature toughness") {
     override def compare(x: Seq[CombatStat], y: Seq[CombatStat]) = x(0).compare(y(0))
-    override def filter = VariableNumberFilter(this, _.toughness.value, _.toughnessVariable)
+    override def filter = NumberFilter(this, false, _.toughness.value, Some(_.toughnessVariable))
   }
 
   case object Loyalty extends CardAttribute[Seq[Loyalty]]("Loyalty", "Planeswalker starting loyalty") {
     override def compare(x: Seq[Loyalty], y: Seq[Loyalty]) = x(0).compare(y(0))
-    override def filter = VariableNumberFilter(this, _.loyalty.value, _.loyaltyVariable)
+    override def filter = NumberFilter(this, false, _.loyalty.value, Some(_.loyaltyVariable))
   }
 
   case object Layout extends CardAttribute[CardLayout]("Layout", "Layout of card faces") {

@@ -57,9 +57,9 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         val filter = SupertypeFilter()
         filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
         filter
-      case CardAttribute.Power => VariableNumberFilter(CardAttribute.Power, _.power.value, _.powerVariable)
-      case CardAttribute.Toughness => VariableNumberFilter(CardAttribute.Toughness, _.toughness.value, _.toughnessVariable)
-      case CardAttribute.Loyalty => VariableNumberFilter(CardAttribute.Loyalty, _.loyalty.value, _.loyaltyVariable)
+      case CardAttribute.Power => NumberFilter(CardAttribute.Power, false, _.power.value, Some(_.powerVariable))
+      case CardAttribute.Toughness => NumberFilter(CardAttribute.Toughness, false, _.toughness.value, Some(_.toughnessVariable))
+      case CardAttribute.Loyalty => NumberFilter(CardAttribute.Loyalty, false, _.loyalty.value, Some(_.loyaltyVariable))
       case CardAttribute.Layout =>
         val filter = LayoutFilter()
         filter.selected = obj.get("selected").getAsJsonArray.asScala.map((v) => CardLayout.valueOf(v.getAsString.replace(' ', '_').toUpperCase)).toSet
@@ -114,14 +114,11 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         c.colors = obj.get("colors").getAsJsonArray.asScala.map((e) => ManaType.parse(e.getAsString).get).toSet
         c.multicolored = obj.get("multicolored").getAsBoolean()
         c
-      case v: VariableNumberFilter =>
-        v.operation = Comparison.valueOf(obj.get("operation").getAsString.apply(0))
-        v.operand = obj.get("operand").getAsDouble
-        v.varies = obj.get("varies").getAsBoolean
-        v
       case n: NumberFilter =>
         n.operation = Comparison.valueOf(obj.get("operation").getAsString.apply(0))
         n.operand = obj.get("operand").getAsDouble
+        if (n.variable.isDefined)
+          n.varies = obj.get("varies").getAsBoolean
         n
       case o: OptionsFilter[?] =>
         o.contain = Containment.parse(obj.get("contains").getAsString).get
@@ -152,10 +149,6 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
       case _ =>
     }
     src match {
-      case v: VariableNumberFilter =>
-        json.addProperty("operation", v.operation.toString)
-        json.addProperty("operand", v.operand)
-        json.addProperty("varies", v.varies)
       case t: TypeLineFilter =>
         json.addProperty("contains", t.contain.toString)
         json.addProperty("pattern", t.line)
@@ -166,6 +159,8 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
       case n: NumberFilter =>
         json.addProperty("operation", n.operation.toString)
         json.addProperty("operand", n.operand)
+        if (n.variable.isDefined)
+          json.addProperty("varies", n.varies)
       case m: ManaCostFilter =>
         json.addProperty("contains", m.contain.toString)
         json.addProperty("cost", m.cost.toString)
