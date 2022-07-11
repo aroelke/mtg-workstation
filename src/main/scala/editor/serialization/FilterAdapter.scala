@@ -125,7 +125,7 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         o
       case f => f
     } match {
-      case l: FilterLeaf =>
+      case l: FilterLeaf[?] =>
         l.faces = Option(obj.get("faces")).map((f) => FaceSearchOptions.valueOf(f.getAsString)).getOrElse(FaceSearchOptions.ANY)
         l
       case g => g
@@ -136,7 +136,7 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
     val json = JsonObject()
     json.addProperty("type", src.attribute.toString)
     src match {
-      case l: FilterLeaf => json.addProperty("faces", l.faces.toString)
+      case l: FilterLeaf[?] => json.addProperty("faces", l.faces.toString)
       case g: FilterGroup =>
         json.addProperty("mode", g.mode.toString)
         json.addProperty("comment", g.comment)

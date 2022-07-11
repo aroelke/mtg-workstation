@@ -6,17 +6,18 @@ import editor.database.card.MultiCard
 import editor.database.card.SingleCard
 import editor.filter.FaceSearchOptions
 import editor.filter.Filter
+import scala.reflect.ClassTag
 
 /**
  * A filter that groups cards by a single attribute.
  * 
  * @constructor create a new filter
- * @param t attribute to be filtered
+ * @param attribute attribute to be filtered
  * @param unified whether or not the attribute applies to an entire card (true) or individually to its faces (false)
  * 
  * @author Alec Roelke
  */
-abstract class FilterLeaf(t: CardAttribute[?, ?], val unified: Boolean) extends Filter(t) {
+abstract class FilterLeaf[F <: FilterLeaf[?] : ClassTag](override val attribute: CardAttribute[?, F], val unified: Boolean) extends Filter(attribute) {
   /** If the filter is not unified, which faces to consider when applying the filter. */
   var faces = FaceSearchOptions.ANY
 
@@ -39,7 +40,7 @@ abstract class FilterLeaf(t: CardAttribute[?, ?], val unified: Boolean) extends 
   }
 
   /** @return a copy of this filter, except for which faces to search. */
-  protected def copyLeaf: FilterLeaf
+  protected def copyLeaf: F
 
   final override def copy = {
     val filter = copyLeaf
@@ -48,10 +49,10 @@ abstract class FilterLeaf(t: CardAttribute[?, ?], val unified: Boolean) extends 
   }
 
   /** @return true if the values of this filter's fields are equal to the other's, and false otherwise. */
-  protected def leafEquals(other: Any): Boolean
+  protected def leafEquals(other: F): Boolean
 
   override def equals(other: Any) = other match {
-    case o: FilterLeaf => leafEquals(o) && o.faces == faces
+    case o: F => leafEquals(o) && o.faces == faces
     case _ => false
   }
 }

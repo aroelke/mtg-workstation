@@ -10,7 +10,7 @@ import java.util.Objects
  * Filter that groups cards by all of their types.
  * @author Alec Roelke
  */
-class TypeLineFilter extends FilterLeaf(CardAttribute.TypeLine, false) {
+final class TypeLineFilter extends FilterLeaf[TypeLineFilter](CardAttribute.TypeLine, false) {
   var contain = Containment.AnyOf
   var line = ""
 
@@ -23,10 +23,7 @@ class TypeLineFilter extends FilterLeaf(CardAttribute.TypeLine, false) {
     filter
   }
 
-  override def leafEquals(other: Any) = other match {
-    case o: TypeLineFilter => o.contain == contain && o.line == line
-    case _ => false
-  }
+  override def leafEquals(other: TypeLineFilter) = contain == other.contain && line == other.line
 
   override def hashCode = Objects.hash(attribute, contain, line)
 }

@@ -24,17 +24,14 @@ class LegalityFilter extends MultiOptionsFilter[String, LegalityFilter](CardAttr
   }
 
   override protected def copyLeaf = {
-    val filter = CardAttribute.LegalIn.filter.asInstanceOf[LegalityFilter]
+    val filter = CardAttribute.LegalIn.filter
     filter.contain = contain
     filter.selected = selected
     filter.restricted = restricted
     filter
   }
 
-  override def leafEquals(other: Any) = other match {
-    case o: LegalityFilter => o.contain == contain && o.selected == selected && o.restricted == restricted
-    case _ => false
-  }
+  override def leafEquals(other: LegalityFilter) = contain == other.contain && selected == other.selected && restricted == other.restricted
 
   override def hashCode = Objects.hash(contain, selected, restricted)
 }

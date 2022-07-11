@@ -11,7 +11,7 @@ import java.util.Objects
  * Filter that groups cards by mana cost.
  * @author Alec Roelke
  */
-final class ManaCostFilter extends FilterLeaf(CardAttribute.ManaCost, false) {
+final class ManaCostFilter extends FilterLeaf[ManaCostFilter](CardAttribute.ManaCost, false) {
   import Containment._
 
   /** Function used for comparing costs. */
@@ -35,10 +35,7 @@ final class ManaCostFilter extends FilterLeaf(CardAttribute.ManaCost, false) {
     filter
   }
 
-  override def leafEquals(other: Any) = other match {
-    case o: ManaCostFilter => o.contain == contain && o.cost == cost
-    case _ => false
-  }
+  override def leafEquals(other: ManaCostFilter) = contain == other.contain && cost == other.cost
 
   override def hashCode = Objects.hash(attribute, contain, cost)
 }

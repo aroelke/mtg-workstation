@@ -27,7 +27,7 @@ import scala.reflect.ClassTag
 
 // D: type returned from CardTableEntry.apply
 // F: type of filter that filters by the attribute
-sealed trait CardAttribute[D : ClassTag, F <: FilterLeaf](name: String, val description: String) extends Ordering[D] {
+sealed trait CardAttribute[D : ClassTag, F <: FilterLeaf[?]](name: String, val description: String) extends Ordering[D] {
   def filter: F
 
   def ordinal = CardAttribute.values.indexOf(this)

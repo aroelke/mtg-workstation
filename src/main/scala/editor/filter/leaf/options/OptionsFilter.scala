@@ -18,7 +18,7 @@ import scala.reflect.ClassTag
  * 
  * @author Alec Roelke
  */
-abstract class OptionsFilter[T, F <: OptionsFilter[T, ?] : ClassTag](override val attribute: CardAttribute[?, F], unified: Boolean) extends FilterLeaf(attribute, unified) {
+abstract class OptionsFilter[T, F <: OptionsFilter[T, ?] : ClassTag](override val attribute: CardAttribute[?, F], unified: Boolean) extends FilterLeaf[F](attribute, unified) {
   /** Function to use to compare card attributes. */
   var contain = Containment.AnyOf
   /** Set of items to look for in cards. */
@@ -31,10 +31,7 @@ abstract class OptionsFilter[T, F <: OptionsFilter[T, ?] : ClassTag](override va
     filter
   }
 
-  override def leafEquals(other: Any) = other match {
-    case o: OptionsFilter[T, F] if o.getClass == getClass => o.attribute == attribute && o.contain == contain && o.selected == selected
-    case _ => false
-  }
+  override def leafEquals(other: F) = attribute == other.attribute && contain == other.contain && selected == other.selected
 
   override def hashCode = Objects.hash(attribute, contain, selected)
 }

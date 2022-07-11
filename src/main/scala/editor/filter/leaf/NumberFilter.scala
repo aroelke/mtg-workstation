@@ -17,7 +17,7 @@ import java.util.Objects
  * 
  * @author Alec Roelke
  */
-final class NumberFilter(override val attribute: CardAttribute[?, NumberFilter], unified: Boolean, value: (Card) => Double, val variable: Option[(Card) => Boolean] = None) extends FilterLeaf(attribute, unified) {
+final class NumberFilter(override val attribute: CardAttribute[?, NumberFilter], unified: Boolean, value: (Card) => Double, val variable: Option[(Card) => Boolean] = None) extends FilterLeaf[NumberFilter](attribute, unified) {
   private var _varies = false
 
   /** Comparison to use for the desired value and card's value */
@@ -38,10 +38,7 @@ final class NumberFilter(override val attribute: CardAttribute[?, NumberFilter],
     filter
   }
 
-  override def leafEquals(other: Any) = other match {
-    case o: NumberFilter => o.attribute == attribute && o.operation == operation && o.operand == operand && o._varies == _varies
-    case _ => false
-  }
+  override def leafEquals(other: NumberFilter) = attribute == other.attribute && operation == other.operation && operand == other.operand && _varies == other._varies
 
   override def hashCode = Objects.hash(attribute, operation, operand, _varies)
 }

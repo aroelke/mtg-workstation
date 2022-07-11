@@ -16,7 +16,7 @@ import java.util.Objects
  * 
  * @author Alec Roelke
  */
-final class ColorFilter(override val attribute: CardAttribute[?, ColorFilter], value: (Card) => Set[ManaType]) extends FilterLeaf(attribute, false) {
+final class ColorFilter(override val attribute: CardAttribute[?, ColorFilter], value: (Card) => Set[ManaType]) extends FilterLeaf[ColorFilter](attribute, false) {
   /** Function to use to compare colors. */
   var contain = Containment.AnyOf
   /** Colors to compare cards with. */
@@ -34,10 +34,7 @@ final class ColorFilter(override val attribute: CardAttribute[?, ColorFilter], v
     filter
   }
 
-  override def leafEquals(other: Any) = other match {
-    case o: ColorFilter if o.attribute == attribute => o.colors == colors && o.contain == contain && o.multicolored == multicolored
-    case _ => false
-  }
+  override def leafEquals(other: ColorFilter) = attribute == other.attribute && colors == other.colors && contain == other.contain && multicolored == other.multicolored
 
   override def hashCode = Objects.hash(attribute, colors, contain, multicolored)
 }

@@ -95,7 +95,7 @@ object TextFilter {
  * 
  * @author Alec Roelke
  */
-final class TextFilter(override val attribute: CardAttribute[?, TextFilter], value: (Card) => Iterable[String]) extends FilterLeaf(attribute, false) {
+final class TextFilter(override val attribute: CardAttribute[?, TextFilter], value: (Card) => Iterable[String]) extends FilterLeaf[TextFilter](attribute, false) {
   import Containment._
   import TextFilter._
 
@@ -147,10 +147,7 @@ final class TextFilter(override val attribute: CardAttribute[?, TextFilter], val
     filter
   }
 
-  override def leafEquals(other: Any) = other match {
-    case o: TextFilter => o.attribute == attribute && o.contain == contain && o.regex == regex && o.text == text
-    case _ => false
-  }
+  override def leafEquals(other: TextFilter) = attribute == other.attribute && contain == other.contain && regex == other.regex && text == other.text
 
   override def hashCode = Objects.hash(attribute, current)
 }
