@@ -11,12 +11,12 @@ import java.util.Objects
  * Filter that groups cards by a color attribute.
  * 
  * @constructor create a new filter for a color attribute
- * @param t attribute to filter by
+ * @param attribute attribute to filter by
  * @param value function retrieving the value of the attribute from a card
  * 
  * @author Alec Roelke
  */
-class ColorFilter(t: CardAttribute[?, ?], value: (Card) => Set[ManaType]) extends FilterLeaf(t, false) {
+final class ColorFilter(override val attribute: CardAttribute[?, ColorFilter], value: (Card) => Set[ManaType]) extends FilterLeaf(attribute, false) {
   /** Function to use to compare colors. */
   var contain = Containment.AnyOf
   /** Colors to compare cards with. */
@@ -27,7 +27,7 @@ class ColorFilter(t: CardAttribute[?, ?], value: (Card) => Set[ManaType]) extend
   override protected def testFace(c: Card) = contain(value(c), colors) && (!multicolored || value(c).size > 1)
 
   override protected def copyLeaf = {
-    val filter = attribute.filter.asInstanceOf[ColorFilter]
+    val filter = attribute.filter
     filter.contain = contain
     filter.colors = colors
     filter.multicolored = multicolored

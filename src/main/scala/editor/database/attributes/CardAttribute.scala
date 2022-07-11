@@ -1,13 +1,15 @@
 package editor.database.attributes
 
-import editor.filter.leaf.FilterLeaf
-import scala.reflect.ClassTag
 import editor.collection.CardListEntry
-import java.text.Collator
-import editor.filter.leaf.TextFilter
+import editor.collection.Categorization
+import editor.database.card.Card
+import editor.database.card.CardLayout
+import editor.filter.leaf.BinaryFilter
+import editor.filter.leaf.ColorFilter
+import editor.filter.leaf.FilterLeaf
 import editor.filter.leaf.ManaCostFilter
 import editor.filter.leaf.NumberFilter
-import editor.filter.leaf.ColorFilter
+import editor.filter.leaf.TextFilter
 import editor.filter.leaf.TypeLineFilter
 import editor.filter.leaf.options.multi.CardTypeFilter
 import editor.filter.leaf.options.multi.LegalityFilter
@@ -18,12 +20,10 @@ import editor.filter.leaf.options.single.BlockFilter
 import editor.filter.leaf.options.single.ExpansionFilter
 import editor.filter.leaf.options.single.LayoutFilter
 import editor.filter.leaf.options.single.RarityFilter
-import editor.database.card.CardLayout
-import editor.collection.Categorization
-import scala.jdk.CollectionConverters._
+
+import java.text.Collator
 import java.time.LocalDate
-import editor.filter.leaf.BinaryFilter
-import editor.database.card.Card
+import scala.reflect.ClassTag
 
 // D: type returned from CardTableEntry.apply
 // F: type of filter that filters by the attribute

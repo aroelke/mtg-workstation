@@ -47,10 +47,8 @@ class LegalityFilterPanel(selector: FilterSelectorPanel) extends OptionsFilterPa
       legality
   }
 
-  override def setFields(filter: OptionsFilter[String]) = filter match {
-    case legality: LegalityFilter =>
-      super.setFields(legality)
-      restricted.setSelected(legality.restricted)
-    case _ => throw IllegalArgumentException(s"${filter.attribute} is not a legality filter")
+  override def setFields(filter: LegalityFilter) = {
+    super.setFields(filter)
+    restricted.setSelected(filter.restricted)
   }
 }

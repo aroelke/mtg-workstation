@@ -13,15 +13,15 @@ import java.util.Objects
  * 
  * @author Alec Roelke
  */
-class BinaryFilter(all: Boolean) extends FilterLeaf(if (all) CardAttribute.AnyCard else CardAttribute.NoCard, true) {
+final class BinaryFilter(private val all: Boolean) extends FilterLeaf(if (all) CardAttribute.AnyCard else CardAttribute.NoCard, true) {
   override protected def testFace(c: Card) = all
 
-  override protected def copyLeaf = attribute.filter.asInstanceOf[BinaryFilter]
+  override protected def copyLeaf = BinaryFilter(all)
 
   override def leafEquals(other: Any) = other match {
-    case o: BinaryFilter => o.attribute == attribute
+    case o: BinaryFilter => all == o.all
     case _ => false
   }
 
-  override def hashCode = Objects.hash(attribute)
+  override def hashCode = Objects.hash(all)
 }

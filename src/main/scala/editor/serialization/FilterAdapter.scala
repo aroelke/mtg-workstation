@@ -120,7 +120,7 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         if (n.variable.isDefined)
           n.varies = obj.get("varies").getAsBoolean
         n
-      case o: OptionsFilter[?] =>
+      case o: OptionsFilter[?, ?] =>
         o.contain = Containment.parse(obj.get("contains").getAsString).get
         o
       case f => f
@@ -145,7 +145,7 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         json.add("children", array)
     }
     src match {
-      case o: OptionsFilter[?] => json.addProperty("contains", o.contain.toString)
+      case o: OptionsFilter[?, ?] => json.addProperty("contains", o.contain.toString)
       case _ =>
     }
     src match {
@@ -171,7 +171,7 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         json.add("colors", array)
         json.addProperty("multicolored", c.multicolored)
       case _: BinaryFilter => // Nothing additional actually needs to be serialized
-      case o: OptionsFilter[?] =>
+      case o: OptionsFilter[?, ?] =>
         val array = JsonArray()
         o.selected.foreach((i) => array.add(i match {
           case e @ (_: Rarity | _: CardLayout) => e.toString

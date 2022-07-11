@@ -40,22 +40,20 @@ object TextFilter {
   )
 
   /** Convenience method for creating a [[TextFilter]] without "new." */
-  def apply(t: CardAttribute[?, ?], value: (Card) => Iterable[String]) = new TextFilter(t, value)
+  def apply(attribute: CardAttribute[?, TextFilter], value: (Card) => Iterable[String]) = new TextFilter(attribute, value)
 
   /**
    * Convenience method for creating a filter that searches the attribute for the given string.
    * 
-   * @param t attribute to filter by
+   * @param attribute attribute to filter by
    * @param s string to search for
    * @return a filter that filters by the attribute using the given string
    */
-  def apply(t: CardAttribute[?, ?], s: String) = {
-    try {
-      val filter = t.filter.asInstanceOf[TextFilter]
-      filter.text = Regex.quote(s)
-      filter.regex = true
-      filter
-    } catch case _: ClassCastException => throw IllegalArgumentException(s"illegal text filter type $t")
+  def apply(attribute: CardAttribute[?, TextFilter], s: String) = {
+    val filter = attribute.filter
+    filter.text = Regex.quote(s)
+    filter.regex = true
+    filter
   }
 
   /**
@@ -92,12 +90,12 @@ object TextFilter {
  * Filter that groups cards based on matching patterns in a text-based attribute.
  * 
  * @constructor create a new text filter for an attribute
- * @param t attribute to filter by
+ * @param attribute attribute to filter by
  * @param value function to use to get the value of the attribute from a card
  * 
  * @author Alec Roelke
  */
-class TextFilter(t: CardAttribute[?, ?], value: (Card) => Iterable[String]) extends FilterLeaf(t, false) {
+final class TextFilter(override val attribute: CardAttribute[?, TextFilter], value: (Card) => Iterable[String]) extends FilterLeaf(attribute, false) {
   import Containment._
   import TextFilter._
 

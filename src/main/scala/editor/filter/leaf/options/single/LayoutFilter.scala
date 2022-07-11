@@ -8,4 +8,4 @@ import editor.database.card.CardLayout
  * A filter that groups cards based on layout.
  * @author Alec Roelke
  */
-class LayoutFilter extends SingletonOptionsFilter[CardLayout](CardAttribute.Layout, true, _.layout)
+class LayoutFilter extends SingletonOptionsFilter[CardLayout, LayoutFilter](CardAttribute.Layout, true, _.layout)
