@@ -2,12 +2,13 @@ package editor.filter.leaf
 
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
+import editor.filter.FaceSearchOptions
 import editor.filter.leaf.options.multi.CardTypeFilter
 import editor.filter.leaf.options.multi.SubtypeFilter
 import editor.filter.leaf.options.multi.SupertypeFilter
 import editor.util.Containment
+import editor.util.Containment._
 
-import java.util.Objects
 import scala.util.matching._
 
 /**
@@ -39,9 +40,6 @@ object TextFilter {
     Token(Seq(raw"\subtype"), () => SubtypeFilter.subtypeList)
   )
 
-  /** Convenience method for creating a [[TextFilter]] without "new." */
-  def apply(attribute: CardAttribute[?, TextFilter], value: (Card) => Iterable[String]) = new TextFilter(attribute, value)
-
   /**
    * Convenience method for creating a filter that searches the attribute for the given string.
    * 
@@ -49,12 +47,7 @@ object TextFilter {
    * @param s string to search for
    * @return a filter that filters by the attribute using the given string
    */
-  def apply(attribute: CardAttribute[?, TextFilter], s: String) = {
-    val filter = attribute.filter
-    filter.text = Regex.quote(s)
-    filter.regex = true
-    filter
-  }
+  def apply(attribute: CardAttribute[?, TextFilter], s: String) = attribute.filter.copy(text = Regex.quote(s), regex = true)
 
   /**
    * Transform a string into a regular expression that maches any instances of any [[Token]]s with the
@@ -90,64 +83,36 @@ object TextFilter {
  * Filter that groups cards based on matching patterns in a text-based attribute.
  * 
  * @constructor create a new text filter for an attribute
- * @param attribute attribute to filter by
- * @param value function to use to get the value of the attribute from a card
+ * @param value function to use to get the value of the text attribute from a card
+ * @param contain function to use to compare with the value from a card
+ * @param regex whether or not the text string is a regular expression
+ * @param text text to compare with the value from a card
  * 
  * @author Alec Roelke
  */
-final class TextFilter(override val attribute: CardAttribute[?, TextFilter], value: (Card) => Iterable[String]) extends FilterLeaf[TextFilter](attribute, false) {
-  import Containment._
+final case class TextFilter(attribute: CardAttribute[?, TextFilter], value: (Card) => Iterable[String], faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = Containment.AnyOf, regex: Boolean = false, text: String = "") extends FilterLeaf[TextFilter] {
   import TextFilter._
 
-  private var current = Data(AnyOf, false, "")
-  /** @return the method of containment used to determine if a non-regex pattern matches */
-  def contain = current.contain
-  /** @param c new method of containment to use for matching text */
-  def contain_=(c: Containment) = current = current.copy(contain = c)
-  /** @return true if the pattern is a regex, and false otherwise */
-  def regex = current.regex
-  /** @param r whether or not the pattern should be considered a regex */
-  def regex_=(r: Boolean) = current = current.copy(regex = r)
-  /** @return the pattern used to match the attribute */
-  def text = current.text
-  /** @param t new pattern to match the attribute using */
-  def text_=(t: String) = current = current.copy(text = t)
-
-  private var prev = current
-  private var patternCache: (String) => Boolean = _ => true
-
-  override protected def testFace(c: Card) = {
-    if (prev != current) {
-      prev = current
-      patternCache = if (regex) s"(?si)${replaceTokens(text)}".r.findFirstIn(_).isDefined else contain match {
-        case AllOf => createSimpleMatcher(text)
-        case AnyOf | NoneOf =>
-          val r = WordPattern.findAllMatchIn(text).map((m) => {
-            replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.matched).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
-          }).mkString("(?mi)((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))").replace("\\Q\\E", "").r
-          if (contain == AnyOf)
-            r.findFirstIn(_).isDefined
-          else
-            !r.findFirstIn(_).isDefined
-        case SomeOf => !createSimpleMatcher(text)(_)
-        case Exactly | NotExactly =>
-          val r = s"(?i)${replaceTokens(text)}".r
-          if (contain == Exactly)
-            r.findFirstIn(_).isDefined
-          else
-            !r.findFirstIn(_).isDefined
-      }
-    }
-    value(c).exists(patternCache)
+  private lazy val matches: (String) => Boolean = if (regex) s"(?si)${replaceTokens(text)}".r.findFirstIn(_).isDefined else contain match {
+    case AllOf => createSimpleMatcher(text)
+    case AnyOf | NoneOf =>
+      val r = WordPattern.findAllMatchIn(text).map((m) => {
+        replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.matched).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
+      }).mkString("(?mi)((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))").replace("\\Q\\E", "").r
+      if (contain == AnyOf)
+        r.findFirstIn(_).isDefined
+      else
+        !r.findFirstIn(_).isDefined
+    case SomeOf => !createSimpleMatcher(text)(_)
+    case Exactly | NotExactly =>
+      val r = s"(?i)${replaceTokens(text)}".r
+      if (contain == Exactly)
+        r.findFirstIn(_).isDefined
+      else
+        !r.findFirstIn(_).isDefined
   }
 
-  override protected def copyLeaf = {
-    val filter = attribute.filter.asInstanceOf[TextFilter]
-    filter.current = current.copy()
-    filter
-  }
-
-  override def leafEquals(other: TextFilter) = attribute == other.attribute && contain == other.contain && regex == other.regex && text == other.text
-
-  override def hashCode = Objects.hash(attribute, current)
+  override val unified = false
+  override protected def testFace(c: Card) = value(c).exists(matches)
+  override def copyFaces(faces: FaceSearchOptions) = copy(faces = faces)
 }

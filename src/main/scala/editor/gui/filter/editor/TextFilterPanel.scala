@@ -68,14 +68,7 @@ class TextFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[T
 
   protected override var attribute = CardAttribute.Name
 
-  override def filter = attribute.filter match {
-    case tf: TextFilter =>
-      tf.faces = selector.faces
-      tf.contain = contain.getSelectedItem
-      tf.text = if (isError) "" else text.getText
-      tf.regex = regex.isSelected
-      tf
-  }
+  override def filter = attribute.filter.copy(faces = selector.faces, contain = contain.getSelectedItem, text = if (isError) "" else text.getText, regex = regex.isSelected)
 
   override def setFields(filter: TextFilter) = {
     attribute = filter.attribute

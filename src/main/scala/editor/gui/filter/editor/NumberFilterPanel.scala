@@ -9,9 +9,9 @@ import editor.util.Comparison
 
 import java.awt.Dimension
 import javax.swing.BoxLayout
+import javax.swing.JCheckBox
 import javax.swing.JSpinner
 import javax.swing.SpinnerNumberModel
-import javax.swing.JCheckBox
 
 /**
  * Convenience constructors for [[NumberFilterPanel]].
@@ -64,14 +64,8 @@ class NumberFilterPanel(selector: FilterSelectorPanel, v: String = "") extends F
 
   protected override var attribute = CardAttribute.CardNumber
 
-  override def filter = (attribute.filter, spinner.getValue) match {
-    case (number: NumberFilter, value: Double) =>
-      number.faces = selector.faces
-      number.operation = comparison.getSelectedItem
-      number.operand = value
-      if (variable.isVisible)
-        number.varies = variable.isSelected
-      number
+  override def filter = spinner.getValue match {
+    case v: Double => attribute.filter.copy(faces = selector.faces, operation = comparison.getSelectedItem, operand = v, varies = variable.isVisible && variable.isSelected)
   }
 
   override def setFields(filter: NumberFilter) = {

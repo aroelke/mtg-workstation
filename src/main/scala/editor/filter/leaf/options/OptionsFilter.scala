@@ -2,10 +2,10 @@ package editor.filter.leaf.options
 
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
+import editor.filter.FaceSearchOptions
 import editor.filter.leaf.FilterLeaf
 import editor.util.Containment
 
-import java.util.Objects
 import scala.reflect.ClassTag
 
 /**
@@ -18,20 +18,12 @@ import scala.reflect.ClassTag
  * 
  * @author Alec Roelke
  */
-abstract class OptionsFilter[T, F <: OptionsFilter[T, ?] : ClassTag](override val attribute: CardAttribute[?, F], unified: Boolean) extends FilterLeaf[F](attribute, unified) {
+trait OptionsFilter[T, F <: OptionsFilter[T, ?] : ClassTag] extends FilterLeaf[F] {
+  override def attribute: CardAttribute[?, F]
   /** Function to use to compare card attributes. */
-  var contain = Containment.AnyOf
+  def contain: Containment
   /** Set of items to look for in cards. */
-  var selected = Set[T]() // Using an immutable var guarantees that changing this in a copy doesn't change this filter's version
+  def selected: Set[T] // Using an immutable var guarantees that changing this in a copy doesn't change this filter's version
 
-  override protected def copyLeaf = {
-    val filter = attribute.filter
-    filter.contain = contain
-    filter.selected = selected
-    filter
-  }
-
-  override def leafEquals(other: F) = attribute == other.attribute && contain == other.contain && selected == other.selected
-
-  override def hashCode = Objects.hash(attribute, contain, selected)
+  @deprecated def copy(faces: FaceSearchOptions, contain: Containment, selected: Set[T]): F
 }

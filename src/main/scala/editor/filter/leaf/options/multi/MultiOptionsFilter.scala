@@ -8,13 +8,11 @@ import scala.reflect.ClassTag
 
 /**
  * A type of filter that groups cards by an attribute that can have zero or more of a set of distinct vales.
- * 
- * @constructor create a new multi-item options filter
- * @param attribute attribute to be filtered by
- * @param values function to use to get the value of the attribute from a card
- * @param unified whether or not the value of an attribute is the same across all card faces
  * @tparam T type of the data that is being filtered
+ * @author Alec Roelke
  */
-abstract class MultiOptionsFilter[T, F <: MultiOptionsFilter[T, ?] : ClassTag](override val attribute: CardAttribute[?, F], unified: Boolean, values: (Card) => Set[T]) extends OptionsFilter[T, F](attribute, unified) {
+trait MultiOptionsFilter[T, F <: MultiOptionsFilter[T, ?] : ClassTag] extends OptionsFilter[T, F] {
+  /** Function to use to get the values of the attribute from a card. */
+  def values: (Card) => Set[T]
   override protected def testFace(c: Card) = contain(values(c), selected)
 }

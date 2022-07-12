@@ -42,9 +42,7 @@ class LegalityFilterPanel(selector: FilterSelectorPanel) extends OptionsFilterPa
   add(restricted, BorderLayout.EAST)
 
   override def filter = super.filter match {
-    case legality: LegalityFilter =>
-      legality.restricted = restricted.isSelected
-      legality
+    case legality: LegalityFilter => legality.copy(restricted = restricted.isSelected)
   }
 
   override def setFields(filter: LegalityFilter) = {

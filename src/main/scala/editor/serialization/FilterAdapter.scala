@@ -45,89 +45,38 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
       case CardAttribute.ColorIdentity => ColorFilter(CardAttribute.ColorIdentity, _.colorIdentity)
       case CardAttribute.TypeLine => TypeLineFilter()
       case CardAttribute.PrintedTypes => TextFilter(CardAttribute.PrintedTypes, _.faces.map(_.printedTypes))
-      case CardAttribute.CardType =>
-        val filter = CardTypeFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
-        filter
-      case CardAttribute.Subtype =>
-        val filter = SubtypeFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
-        filter
-      case CardAttribute.Supertype =>
-        val filter = SupertypeFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
-        filter
+      case CardAttribute.CardType => CardTypeFilter(selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet)
+      case CardAttribute.Subtype => SubtypeFilter(selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet)
+      case CardAttribute.Supertype => SupertypeFilter(selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet)
       case CardAttribute.Power => NumberFilter(CardAttribute.Power, false, _.power.value, Some(_.powerVariable))
       case CardAttribute.Toughness => NumberFilter(CardAttribute.Toughness, false, _.toughness.value, Some(_.toughnessVariable))
       case CardAttribute.Loyalty => NumberFilter(CardAttribute.Loyalty, false, _.loyalty.value, Some(_.loyaltyVariable))
-      case CardAttribute.Layout =>
-        val filter = LayoutFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map((v) => CardLayout.valueOf(v.getAsString.replace(' ', '_').toUpperCase)).toSet
-        filter
-      case CardAttribute.Expansion =>
-        val filter = ExpansionFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map((v) => Expansion.expansions.find(_.name == v.getAsString).getOrElse(throw JsonParseException(s"unknown expansion \"${v.getAsString}\""))).toSet
-        filter
-      case CardAttribute.Block =>
-        val filter = BlockFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
-        filter
-      case CardAttribute.Rarity =>
-        val filter = RarityFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map((v) => Rarity.parse(v.getAsString).getOrElse(Rarity.Unknown)).toSet
-        filter
+      case CardAttribute.Layout => LayoutFilter(selected = obj.get("selected").getAsJsonArray.asScala.map((v) => CardLayout.valueOf(v.getAsString.replace(' ', '_').toUpperCase)).toSet)
+      case CardAttribute.Expansion => ExpansionFilter(selected = obj.get("selected").getAsJsonArray.asScala.map((v) => Expansion.expansions.find(_.name == v.getAsString).getOrElse(throw JsonParseException(s"unknown expansion \"${v.getAsString}\""))).toSet)
+      case CardAttribute.Block => BlockFilter(selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet)
+      case CardAttribute.Rarity => RarityFilter(selected = obj.get("selected").getAsJsonArray.asScala.map((v) => Rarity.parse(v.getAsString).getOrElse(Rarity.Unknown)).toSet)
       case CardAttribute.Artist => TextFilter(CardAttribute.Artist, _.faces.map(_.artist))
       case CardAttribute.CardNumber => NumberFilter(CardAttribute.CardNumber, false, (f) => try f.number.replace("--", "0").replaceAll("[\\D]", "").toInt catch case _: NumberFormatException => 0.0)
-      case CardAttribute.LegalIn =>
-        val filter = LegalityFilter()
-        filter.restricted = obj.get("restricted").getAsBoolean
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
-        filter
-      case CardAttribute.Tags =>
-        val filter = TagsFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
-        filter
+      case CardAttribute.LegalIn => LegalityFilter(selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet, restricted = obj.get("restricted").getAsBoolean)
+      case CardAttribute.Tags => TagsFilter(selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet)
       case CardAttribute.AnyCard => BinaryFilter(true)
       case CardAttribute.NoCard => BinaryFilter(false)
-      case CardAttribute.Group =>
-        val group = FilterGroup(obj.get("children").getAsJsonArray.asScala.map((element) => context.deserialize[Filter](element, classOf[Filter])))
-        group.mode = FilterGroup.Mode.values.find(_.toString == obj.get("mode").getAsString).getOrElse(FilterGroup.Mode.And)
-        group.comment = Option(obj.get("comment")).map(_.getAsString).getOrElse("")
-        group
+      case CardAttribute.Group => FilterGroup(
+        obj.get("children").getAsJsonArray.asScala.map((element) => context.deserialize[Filter](element, classOf[Filter])),
+        FilterGroup.Mode.values.find(_.toString == obj.get("mode").getAsString).getOrElse(FilterGroup.Mode.And),
+        Option(obj.get("comment")).map(_.getAsString).getOrElse("")
+      )
       case x => throw JsonParseException(s"attribute $x can't be used to filter")
     } match {
-      case t: TextFilter =>
-        t.contain = Containment.parse(obj.get("contains").getAsString).get
-        t.regex = obj.get("regex").getAsBoolean
-        t.text = obj.get("pattern").getAsString
-        t
-      case t: TypeLineFilter =>
-        t.contain = Containment.parse(obj.get("contains").getAsString).get
-        t.line = obj.get("pattern").getAsString
-        t
-      case m: ManaCostFilter =>
-        m.contain = Containment.parse(obj.get("contains").getAsString).get
-        m.cost = ManaCost.parse(obj.get("cost").getAsString).get
-        m
-      case c: ColorFilter =>
-        c.contain = Containment.parse(obj.get("contains").getAsString).get
-        c.colors = obj.get("colors").getAsJsonArray.asScala.map((e) => ManaType.parse(e.getAsString).get).toSet
-        c.multicolored = obj.get("multicolored").getAsBoolean()
-        c
-      case n: NumberFilter =>
-        n.operation = Comparison.valueOf(obj.get("operation").getAsString.apply(0))
-        n.operand = obj.get("operand").getAsDouble
-        if (n.variable.isDefined)
-          n.varies = obj.get("varies").getAsBoolean
-        n
-      case o: OptionsFilter[?, ?] =>
-        o.contain = Containment.parse(obj.get("contains").getAsString).get
-        o
+      case t: TextFilter => t.copy(contain = Containment.parse(obj.get("contains").getAsString).get, regex = obj.get("regex").getAsBoolean, text = obj.get("pattern").getAsString)
+      case t: TypeLineFilter => t.copy(contain = Containment.parse(obj.get("contains").getAsString).get, line = obj.get("pattern").getAsString)
+      case m: ManaCostFilter => m.copy(contain = Containment.parse(obj.get("contains").getAsString).get, cost = ManaCost.parse(obj.get("cost").getAsString).get)
+      case c: ColorFilter => c.copy(contain = Containment.parse(obj.get("contains").getAsString).get, colors = obj.get("colors").getAsJsonArray.asScala.map((e) => ManaType.parse(e.getAsString).get).toSet, multicolored = obj.get("multicolored").getAsBoolean)
+      case n: NumberFilter => n.copy(operation = Comparison.valueOf(obj.get("operation").getAsString.apply(0)), operand = obj.get("operand").getAsDouble, varies = n.variable.isDefined && obj.get("varies").getAsBoolean)
+      case o: OptionsFilter[?, ?] => o.copy(faces = o.faces, contain = Containment.parse(obj.get("contains").getAsString).get, selected = o.selected)
       case f => f
     } match {
-      case l: FilterLeaf[?] =>
-        l.faces = Option(obj.get("faces")).map((f) => FaceSearchOptions.valueOf(f.getAsString)).getOrElse(FaceSearchOptions.ANY)
-        l
+      case l: FilterLeaf[?] => l.copyFaces(faces = Option(obj.get("faces")).map((f) => FaceSearchOptions.valueOf(f.getAsString)).getOrElse(FaceSearchOptions.ANY))
       case g => g
     }
   }

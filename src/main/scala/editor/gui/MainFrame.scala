@@ -1135,7 +1135,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   // Action to be taken when the advanced filter button is pressed (show the advanced filter dialog)
   advancedFilterButton.addActionListener(_ => {
     val panel = FilterGroupPanel()
-    if (inventory.filter.equals(CardAttribute.AnyCard.filter))
+    if (inventory.filter.attribute == CardAttribute.AnyCard)
       panel.setContents(CardAttribute.Name.filter)
     else
       panel.setContents(inventory.filter)

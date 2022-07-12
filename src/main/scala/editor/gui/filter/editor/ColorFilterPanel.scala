@@ -56,8 +56,8 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
   private val colorless = JCheckBox()
 
   // Check boxes for selecting colors
-  val colors = ListMap(ManaType.colors.map(_ -> JCheckBox()):_*)
-  colors.foreach{ case (color, box) =>
+  val colorBoxes = ListMap(ManaType.colors.map(_ -> JCheckBox()):_*)
+  colorBoxes.foreach{ case (color, box) =>
     add(box)
     add(JLabel(ColorSymbol(color).getIcon(IconHeight)))
     box.addActionListener(_ => if (box.isSelected) colorless.setSelected(false))
@@ -76,7 +76,7 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
   add(colorless)
   add(JLabel(ColorSymbol(ManaType.Colorless).getIcon(IconHeight)))
   colorless.addActionListener(_ => if (colorless.isSelected) {
-    colors.foreach{ case (_, box) => box.setSelected(false) }
+    colorBoxes.foreach{ case (_, box) => box.setSelected(false) }
     multi.setSelected(false)
   })
 
@@ -84,19 +84,12 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
 
   protected override var attribute = CardAttribute.Colors
 
-  override def filter = attribute.filter match {
-    case filter: ColorFilter =>
-      filter.faces = selector.faces
-      filter.contain = contain.getSelectedItem
-      filter.colors ++= colors.collect{ case (c, b) if b.isSelected => c }
-      filter.multicolored = multi.isSelected
-      filter
-  }
+  override def filter = attribute.filter.copy(faces = selector.faces, contain = contain.getSelectedItem, colors = colorBoxes.collect{ case (c, b) if b.isSelected => c }.toSet, multicolored = multi.isSelected)
 
   override def setFields(filter: ColorFilter) = {
     attribute = filter.attribute
     contain.setSelectedItem(filter.contain)
-    filter.colors.foreach(colors(_).setSelected(true))
+    filter.colors.foreach(colorBoxes(_).setSelected(true))
     multi.setSelected(filter.multicolored)
     colorless.setSelected(!filter.multicolored && filter.colors.isEmpty)
   }

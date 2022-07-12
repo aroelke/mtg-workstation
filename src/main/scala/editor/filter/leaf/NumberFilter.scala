@@ -2,43 +2,25 @@ package editor.filter.leaf
 
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
+import editor.filter.FaceSearchOptions
 import editor.util.Comparison
-
-import java.util.Objects
 
 /**
  * Filter that groups cards by the value of a numerical attribute, which could vary during the game.
  * 
  * @constructor create a new number filter
- * @param attribute attribute to filter by
- * @param unified whether or not the value of the attribute is the same across all card faces
  * @param value function to get the value of the attribute from a card
- * @param variable if the attribute could vary during the game for some cards, whether or not to filter cards for which it does
+ * @param variable function determining if the card's attribute value can vary
+ * @param operation function to use to compare with the value of the numerical attribute
+ * @param operand value to compare with the card's attribute
+ * @param varies whether or not to filter by values that could vary during the game
  * 
  * @author Alec Roelke
  */
-final class NumberFilter(override val attribute: CardAttribute[?, NumberFilter], unified: Boolean, value: (Card) => Double, val variable: Option[(Card) => Boolean] = None) extends FilterLeaf[NumberFilter](attribute, unified) {
-  private var _varies = false
+final case class NumberFilter(attribute: CardAttribute[?, NumberFilter], unified: Boolean, value: (Card) => Double, variable: Option[(Card) => Boolean] = None, faces: FaceSearchOptions = FaceSearchOptions.ANY, operation: Comparison = Comparison.EQ, operand: Double = 0.0, varies: Boolean = false) extends FilterLeaf[NumberFilter] {
+  if (varies && !variable.isDefined)
+    throw IllegalArgumentException(s"attribute ${attribute.toString} cannot vary")
 
-  /** Comparison to use for the desired value and card's value */
-  var operation = Comparison.EQ
-  /** Desired value of the attribute to filter by */
-  var operand = 0.0
-
-  def varies = variable.isDefined && _varies
-  def varies_=(v: Boolean) = if (variable.isDefined) _varies = v else throw UnsupportedOperationException(s"attribute ${attribute.toString} does not vary")
-
-  override protected def testFace(c: Card) = if (_varies) (variable.get)(c) else { val v = value(c); !v.isNaN && operation(v, operand) }
-
-  override protected def copyLeaf = {
-    val filter = attribute.filter.asInstanceOf[NumberFilter]
-    filter.operation = operation
-    filter.operand = operand
-    filter._varies = _varies
-    filter
-  }
-
-  override def leafEquals(other: NumberFilter) = attribute == other.attribute && operation == other.operation && operand == other.operand && _varies == other._varies
-
-  override def hashCode = Objects.hash(attribute, operation, operand, _varies)
+  override protected def testFace(c: Card) = if (varies) (variable.get)(c) else { val v = value(c); !v.isNaN && operation(v, operand) }
+  override def copyFaces(faces: FaceSearchOptions) = copy(faces = faces)
 }

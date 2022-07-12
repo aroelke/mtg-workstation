@@ -171,9 +171,7 @@ case class CategoriesSettings(
     "Lands" -> Seq("Land"),
     "Instants/Sorceries" -> Seq("Instant", "Sorcery")
   ).map{ case (name, types) => {
-    val filter = CardAttribute.CardType.filter.asInstanceOf[CardTypeFilter]
-    filter.selected ++= types
-    Categorization(name, filter, Set.empty, Set.empty, Color.WHITE)
+    Categorization(name, CardAttribute.CardType.filter.copy(selected = types.toSet), Set.empty, Set.empty, Color.WHITE)
   }}.toSeq,
   rows: Int = 6,
   explicits: Int = 3

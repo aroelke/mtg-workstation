@@ -46,7 +46,7 @@ class Inventory(val cards: Iterable[Card] = IndexedSeq.empty) extends CardList {
   def contains(id: String) = ids.contains(id)
 
   /** @return the filter used for filtering the inventory. */
-  def filter = _filter.copy
+  def filter = _filter
 
   /**
    * Update the filtered view of cards. Applies to the whole inventory, not to the current view (i.e. new filters aren't

@@ -134,13 +134,7 @@ class OptionsFilterPanel[T <: AnyRef : ClassTag, F <: OptionsFilter[T, F] : Clas
     optionsPanel.add(boxPanel)
   }
 
-  override def filter = {
-    val of = attribute.filter
-    of.faces = selector.faces
-    of.contain = contain.getSelectedItem
-    of.selected = boxes.map((b) => b.getItemAt(b.getSelectedIndex)).toSet
-    of
-  }
+  override def filter = attribute.filter.copy(faces = selector.faces, contain = contain.getSelectedItem, selected = boxes.map((b) => b.getItemAt(b.getSelectedIndex)).toSet)
 
   override def setFields(filter: F) = if (filter.attribute == attribute) {
     contain.setSelectedItem(filter.contain)
