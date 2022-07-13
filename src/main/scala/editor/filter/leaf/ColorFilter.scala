@@ -17,8 +17,7 @@ import editor.util.Containment
  * 
  * @author Alec Roelke
  */
-final case class ColorFilter(attribute: CardAttribute[?, ColorFilter], value: (Card) => Set[ManaType], faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = Containment.AnyOf, colors: Set[ManaType] = Set.empty, multicolored: Boolean = false) extends FilterLeaf[ColorFilter] {
+final case class ColorFilter(attribute: CardAttribute[?, ColorFilter], value: (Card) => Set[ManaType], faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = Containment.AnyOf, colors: Set[ManaType] = Set.empty, multicolored: Boolean = false) extends FilterLeaf {
   override val unified = false
   override protected def testFace(c: Card) = contain(value(c), colors) && (!multicolored || value(c).size > 1)
-  override def copyFaces(faces: FaceSearchOptions) = copy(faces = faces)
 }

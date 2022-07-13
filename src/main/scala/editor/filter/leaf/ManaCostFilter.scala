@@ -15,7 +15,7 @@ import editor.util.Containment._
  * 
  * @author Alec Roelke
  */
-final case class ManaCostFilter(faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = AnyOf, cost: ManaCost = ManaCost()) extends FilterLeaf[ManaCostFilter] {
+final case class ManaCostFilter(faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = AnyOf, cost: ManaCost = ManaCost()) extends FilterLeaf {
   override def attribute = CardAttribute.ManaCost
   override val unified = false
   override def testFace(c: Card) = contain match {
@@ -26,5 +26,4 @@ final case class ManaCostFilter(faces: FaceSearchOptions = FaceSearchOptions.ANY
     case Exactly    => c.manaCost == cost
     case NotExactly => c.manaCost != cost
   }
-  override def copyFaces(faces: FaceSearchOptions) = copy(faces = faces)
 }

@@ -14,9 +14,8 @@ import editor.util.Containment
  * 
  * @author Alec Roelke
  */
-final case class TypeLineFilter(faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = Containment.AnyOf, line: String = "") extends FilterLeaf[TypeLineFilter] {
+final case class TypeLineFilter(faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = Containment.AnyOf, line: String = "") extends FilterLeaf {
   override def attribute = CardAttribute.TypeLine
   override val unified = false
   override protected def testFace(c: Card) = !line.isEmpty && contain(c.typeLine.toSet.map(_.toLowerCase), line.toLowerCase.split("\\s").toSeq)
-  override def copyFaces(faces: FaceSearchOptions) = copy(faces = faces)
 }

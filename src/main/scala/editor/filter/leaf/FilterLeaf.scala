@@ -14,7 +14,7 @@ import scala.reflect.ClassTag
  * @tparam F type of filter this is
  * @author Alec Roelke
  */
-trait FilterLeaf[+F <: FilterLeaf[?] : ClassTag] extends Filter {
+trait FilterLeaf extends Filter {
   /** If the filter is not unified, which faces to consider when applying the filter. */
   def faces: FaceSearchOptions
 
@@ -38,6 +38,4 @@ trait FilterLeaf[+F <: FilterLeaf[?] : ClassTag] extends Filter {
       case FaceSearchOptions.BACK  => testFace(c.faces.last)
     }
   }
-
-  @deprecated def copyFaces(faces: FaceSearchOptions): F
 }

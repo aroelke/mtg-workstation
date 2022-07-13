@@ -21,5 +21,4 @@ final case class CardTypeFilter(faces: FaceSearchOptions = FaceSearchOptions.ANY
   override def attribute = CardAttribute.CardType
   override val unified = false
   override val values = _.types
-  override def copyFaces(faces: FaceSearchOptions) = copy(faces = faces)
 }

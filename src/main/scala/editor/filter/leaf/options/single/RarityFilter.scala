@@ -15,5 +15,4 @@ final case class RarityFilter(contain: Containment = Containment.AnyOf, selected
   override val unified = true
   override def value = _.rarity
   override def copy(faces: FaceSearchOptions, contain: Containment, selected: Set[Rarity]) = copy(contain = contain, selected = selected)
-  override def copyFaces(faces: FaceSearchOptions) = this
 }

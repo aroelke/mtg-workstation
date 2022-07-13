@@ -17,10 +17,9 @@ import editor.util.Comparison
  * 
  * @author Alec Roelke
  */
-final case class NumberFilter(attribute: CardAttribute[?, NumberFilter], unified: Boolean, value: (Card) => Double, variable: Option[(Card) => Boolean] = None, faces: FaceSearchOptions = FaceSearchOptions.ANY, operation: Comparison = Comparison.EQ, operand: Double = 0.0, varies: Boolean = false) extends FilterLeaf[NumberFilter] {
+final case class NumberFilter(attribute: CardAttribute[?, NumberFilter], unified: Boolean, value: (Card) => Double, variable: Option[(Card) => Boolean] = None, faces: FaceSearchOptions = FaceSearchOptions.ANY, operation: Comparison = Comparison.EQ, operand: Double = 0.0, varies: Boolean = false) extends FilterLeaf {
   if (varies && !variable.isDefined)
     throw IllegalArgumentException(s"attribute ${attribute.toString} cannot vary")
 
   override protected def testFace(c: Card) = if (varies) (variable.get)(c) else { val v = value(c); !v.isNaN && operation(v, operand) }
-  override def copyFaces(faces: FaceSearchOptions) = copy(faces = faces)
 }

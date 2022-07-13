@@ -90,7 +90,7 @@ object TextFilter {
  * 
  * @author Alec Roelke
  */
-final case class TextFilter(attribute: CardAttribute[?, TextFilter], value: (Card) => Iterable[String], faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = Containment.AnyOf, regex: Boolean = false, text: String = "") extends FilterLeaf[TextFilter] {
+final case class TextFilter(attribute: CardAttribute[?, TextFilter], value: (Card) => Iterable[String], faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = Containment.AnyOf, regex: Boolean = false, text: String = "") extends FilterLeaf {
   import TextFilter._
 
   private lazy val matches: (String) => Boolean = if (regex) s"(?si)${replaceTokens(text)}".r.findFirstIn(_).isDefined else contain match {
@@ -114,5 +114,4 @@ final case class TextFilter(attribute: CardAttribute[?, TextFilter], value: (Car
 
   override val unified = false
   override protected def testFace(c: Card) = value(c).exists(matches)
-  override def copyFaces(faces: FaceSearchOptions) = copy(faces = faces)
 }

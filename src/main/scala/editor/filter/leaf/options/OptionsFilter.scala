@@ -10,15 +10,13 @@ import scala.reflect.ClassTag
 
 /**
  * A type of filter that groups cards by attributes that have values taken from a set of discreet possibiliies.
- * 
- * @constructor create a new options filter
- * @param attribute attribute to filter by
- * @param unified whether or not the value of an attribute is the same across all card faces
+ *
  * @tparam T type of data used for filtering
+ * @tparam F type of filter this is
  * 
  * @author Alec Roelke
  */
-trait OptionsFilter[T, F <: OptionsFilter[T, ?] : ClassTag] extends FilterLeaf[F] {
+trait OptionsFilter[T, F <: OptionsFilter[T, F] : ClassTag] extends FilterLeaf {
   override def attribute: CardAttribute[?, F]
   /** Function to use to compare card attributes. */
   def contain: Containment

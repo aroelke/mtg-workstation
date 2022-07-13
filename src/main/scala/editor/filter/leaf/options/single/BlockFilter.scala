@@ -14,5 +14,4 @@ final case class BlockFilter(contain: Containment = Containment.AnyOf, selected:
   override val unified = true
   override def value = _.expansion.block
   override def copy(faces: FaceSearchOptions, contain: Containment, selected: Set[String]) = copy(contain = contain, selected = selected)
-  override def copyFaces(faces: FaceSearchOptions) = this
 }

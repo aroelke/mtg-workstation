@@ -12,10 +12,9 @@ import editor.filter.FaceSearchOptions
  * 
  * @author Alec Roelke
  */
-final class BinaryFilter(all: Boolean) extends FilterLeaf[BinaryFilter] {
+final class BinaryFilter(all: Boolean) extends FilterLeaf {
   override def faces = FaceSearchOptions.ANY
   override def attribute = if (all) CardAttribute.AnyCard else CardAttribute.NoCard
   override val unified = true
   override protected def testFace(c: Card) = all
-  override def copyFaces(faces: FaceSearchOptions) = this
 }

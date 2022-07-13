@@ -21,5 +21,4 @@ final case class SupertypeFilter(faces: FaceSearchOptions = FaceSearchOptions.AN
   override def attribute = CardAttribute.Supertype
   override val unified = false
   override val values = _.supertypes
-  override def copyFaces(faces: FaceSearchOptions) = copy(faces = faces)
 }

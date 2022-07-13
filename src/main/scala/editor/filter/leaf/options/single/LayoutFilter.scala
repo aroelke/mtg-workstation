@@ -16,5 +16,4 @@ final case class LayoutFilter(contain: Containment = Containment.AnyOf, selected
   override val unified = true
   override def value = _.layout
   override def copy(faces: FaceSearchOptions, contain: Containment, selected: Set[CardLayout]) = copy(contain = contain, selected = selected)
-  override def copyFaces(faces: FaceSearchOptions) = this
 }

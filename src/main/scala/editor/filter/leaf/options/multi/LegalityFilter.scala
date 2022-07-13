@@ -29,5 +29,4 @@ final case class LegalityFilter(contain: Containment = Containment.AnyOf, select
     else
       true
   }
-  override def copyFaces(faces: FaceSearchOptions) = this
 }

@@ -8,10 +8,13 @@ import scala.reflect.ClassTag
 
 /**
  * A type of filter that groups cards by an attribute that has only one of a set of possible values.
+ *
  * @tparam T type of data that is being filtered
+ * @tparam F type of filter this is
+ *
  * @author Alec Roelke
  */
-trait SingletonOptionsFilter[T, F <: SingletonOptionsFilter[T, ?] : ClassTag] extends OptionsFilter[T, F] {
+trait SingletonOptionsFilter[T, F <: SingletonOptionsFilter[T, F] : ClassTag] extends OptionsFilter[T, F] {
   /** Function to use to get the value of the attribute from the card */
   def value: (Card) => T
   override protected def testFace(c: Card) = contain(selected, Seq(value(c)))

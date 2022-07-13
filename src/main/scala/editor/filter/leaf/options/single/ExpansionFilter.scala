@@ -15,5 +15,4 @@ final case class ExpansionFilter(contain: Containment = Containment.AnyOf, selec
   override val unified = true
   override def value = _.expansion
   override def copy(faces: FaceSearchOptions, contain: Containment, selected: Set[Expansion]) = copy(contain = contain, selected = selected)
-  override def copyFaces(faces: FaceSearchOptions) = this
 }
