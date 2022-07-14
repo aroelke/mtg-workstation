@@ -116,20 +116,6 @@ class CardTable(model: TableModel) extends JTable(model) {
  * with other values the row could have.
  */
 private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[TableModel](model) {
-  private val NoString: Set[CardAttribute[?, ?]] = Set(
-    CardAttribute.ManaCost,
-    CardAttribute.EffManaValue,
-    CardAttribute.Colors,
-    CardAttribute.ColorIdentity,
-    CardAttribute.TypeLine,
-    CardAttribute.Power,
-    CardAttribute.Toughness,
-    CardAttribute.Loyalty,
-    CardAttribute.LegalIn,
-    CardAttribute.Tags,
-    CardAttribute.Categories
-  )
-
   override def getComparator(column: Int) = model match {
     case m: CardTableModel =>
       val ascending = getSortKeys.get(0).getSortOrder == SortOrder.ASCENDING
@@ -160,8 +146,5 @@ private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[Tabl
     case _ => super.getComparator(column)
   }
 
-  override protected def useToString(column: Int) = model match {
-    case m: CardTableModel => !NoString.contains(m.columns(column)) && super.useToString(column)
-    case _ => super.useToString(column)
-  }
+  override protected def useToString(column: Int) = false
 }
