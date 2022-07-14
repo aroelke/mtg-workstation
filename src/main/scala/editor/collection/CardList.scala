@@ -48,7 +48,7 @@ trait CardListEntry extends Equals {
 
   /** @return the value of the given attribute for the card */
   def apply(data: CardAttribute[?, ?]) = data match {
-    case Name => card.name
+    case Name => card.faces.map(_.name)
     case Layout => card.layout
     case ManaCost => card.faces.map(_.manaCost)
     case RealManaValue => card.manaValue
@@ -62,7 +62,7 @@ trait CardListEntry extends Equals {
     case Power => card.faces.map(_.power)
     case Toughness => card.faces.map(_.toughness)
     case Loyalty => card.faces.map(_.loyalty)
-    case Artist => card.faces(0).artist
+    case Artist => card.faces.map(_.artist)
     case CardNumber => card.faces.map(_.number).mkString(Card.FaceSeparator)
     case LegalIn => card.legalIn.toSeq.sorted
     case Count => count

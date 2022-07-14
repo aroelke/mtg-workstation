@@ -63,6 +63,13 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
           setColors(panel)
         }
         m.columns(column) match {
+          case CardAttribute.Name =>
+            val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
+            value match {
+              case s: Seq[?] => panel.add(setColors(tableLabel(s.collect{ case t: String => t }.sorted.mkString(Card.FaceSeparator))))
+              case _ =>
+            }
+            panel
           case CardAttribute.ManaCost =>
             val costs = value match {
               case s: Seq[?] => s.collect{ case cost: ManaCost => cost }
@@ -115,6 +122,13 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
             value match {
               case s: Seq[?] => panel.add(setColors(tableLabel(s.mkString(Card.FaceSeparator))))
+              case _ =>
+            }
+            panel
+          case CardAttribute.Artist =>
+            val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
+            value match {
+              case s: Seq[?] => panel.add(setColors(tableLabel(s.collect{ case t: String => t }.headOption.getOrElse("")))) // assume same artist for all faces for now
               case _ =>
             }
             panel
