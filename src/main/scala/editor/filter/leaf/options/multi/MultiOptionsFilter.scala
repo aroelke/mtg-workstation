@@ -15,6 +15,7 @@ import scala.reflect.ClassTag
  * @author Alec Roelke
  */
 trait MultiOptionsFilter[T, F <: MultiOptionsFilter[T, F] : ClassTag] extends OptionsFilter[T, F] {
+  override def attribute: CardAttribute[Set[T], F]
   /** Function to use to get the values of the attribute from a card. */
   def values: (Card) => Set[T]
   override protected def testFace(c: Card) = contain(values(c), selected)

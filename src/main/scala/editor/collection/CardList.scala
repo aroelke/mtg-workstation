@@ -56,7 +56,7 @@ trait CardListEntry extends Equals {
     case Colors => card.colors
     case ColorIdentity => card.colorIdentity
     case TypeLine => card.faces.map(_.typeLine)
-    case Expansion => card.expansion.toString
+    case Expansion => card.expansion
     case Block => card.expansion.block
     case Rarity => card.rarity
     case Power => card.faces.map(_.power)

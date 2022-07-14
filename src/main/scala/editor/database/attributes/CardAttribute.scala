@@ -24,6 +24,10 @@ import editor.filter.leaf.options.single.RarityFilter
 import java.text.Collator
 import java.time.LocalDate
 import scala.reflect.ClassTag
+import editor.filter.leaf.options.OptionsFilter
+import editor.filter.leaf.options.single.SingletonOptionsFilter
+import editor.filter.leaf.options.multi.MultiOptionsFilter
+import editor.database.FormatConstraints
 
 // D: type returned from CardTableEntry.apply
 // F: type of filter that filters by the attribute
@@ -41,6 +45,10 @@ sealed trait CardAttribute[D : ClassTag, F <: FilterLeaf](name: String, val desc
   def dataType = implicitly[ClassTag[D]].runtimeClass.asInstanceOf[Class[D]]
 
   override def toString = name
+}
+
+trait HasOptions[T] {
+  def options: Seq[T]
 }
 
 sealed trait ComparesColors { this: CardAttribute[Set[ManaType], ?] =>
@@ -67,6 +75,12 @@ sealed trait HasColorFilter(colors: (Card) => Set[ManaType]) { this: CardAttribu
 
 sealed trait HasNumberFilter(unified: Boolean, value: (Card) => Double, variable: Option[(Card) => Boolean]) { this: CardAttribute[?, NumberFilter] =>
   override def filter = NumberFilter(this, unified, value, variable)
+}
+
+sealed trait HasSingletonOptionsFilter[T, F <: SingletonOptionsFilter[T, F]] extends HasOptions[T] { this: CardAttribute[T, F] =>
+}
+
+sealed trait HasMultiOptionsFilter[T, F <: MultiOptionsFilter[T, F]] extends HasOptions[T] { this: CardAttribute[Set[T], F] =>
 }
 
 sealed trait CantBeFiltered { this: CardAttribute[?, Nothing] =>
@@ -127,15 +141,24 @@ object CardAttribute {
     with HasTextFilter(_.faces.map(_.printedTypes))
     with CantCompare[Seq[String]]
 
-  case object CardType extends CardAttribute[Set[String], CardTypeFilter]("Card Type", "Card types only") with CantCompare[Set[String]] {
+  case object CardType extends CardAttribute[Set[String], CardTypeFilter]("Card Type", "Card types only")
+      with CantCompare[Set[String]]
+      with HasMultiOptionsFilter[String, CardTypeFilter] {
+    override def options = CardTypeFilter.typeList
     override def filter = CardTypeFilter()
   }
 
-  case object Subtype extends CardAttribute[Set[String], SubtypeFilter]("Subtype", "Subtypes only") with CantCompare[Set[String]] {
+  case object Subtype extends CardAttribute[Set[String], SubtypeFilter]("Subtype", "Subtypes only")
+      with CantCompare[Set[String]]
+      with HasMultiOptionsFilter[String, SubtypeFilter] {
+    override def options = SubtypeFilter.subtypeList
     override def filter = SubtypeFilter()
   }
 
-  case object Supertype extends CardAttribute[Set[String], SupertypeFilter]("Supertype", "Supertypes only") with CantCompare[Set[String]] {
+  case object Supertype extends CardAttribute[Set[String], SupertypeFilter]("Supertype", "Supertypes only")
+      with CantCompare[Set[String]]
+      with HasMultiOptionsFilter[String, SupertypeFilter] {
+    override def options = SupertypeFilter.supertypeList
     override def filter = SupertypeFilter()
   }
 
@@ -151,22 +174,26 @@ object CardAttribute {
     override def compare(x: Seq[Loyalty], y: Seq[Loyalty]) = x(0).compare(y(0))
   }
 
-  case object Layout extends CardAttribute[CardLayout, LayoutFilter]("Layout", "Layout of card faces") {
+  case object Layout extends CardAttribute[CardLayout, LayoutFilter]("Layout", "Layout of card faces") with HasSingletonOptionsFilter[CardLayout, LayoutFilter] {
+    override def options = CardLayout.values
     override def compare(x: CardLayout, y: CardLayout) = x.compare(y)
     override def filter = LayoutFilter()
   }
 
-  case object Expansion extends CardAttribute[String, ExpansionFilter]("Expansion", "Expansion a card belongs to") {
-    override def compare(x: String, y: String) = Collator.getInstance.compare(x, y)
+  case object Expansion extends CardAttribute[editor.database.attributes.Expansion, ExpansionFilter]("Expansion", "Expansion a card belongs to") with HasSingletonOptionsFilter[editor.database.attributes.Expansion, ExpansionFilter] {
+    override def options = editor.database.attributes.Expansion.expansions
+    override def compare(x: editor.database.attributes.Expansion, y: editor.database.attributes.Expansion) = Collator.getInstance.compare(x.name, y.name)
     override def filter = ExpansionFilter()
   }
 
-  case object Block extends CardAttribute[String, BlockFilter]("Block", "Block of expansions, if any, a card's expansion belongs to") {
+  case object Block extends CardAttribute[String, BlockFilter]("Block", "Block of expansions, if any, a card's expansion belongs to") with HasSingletonOptionsFilter[String, BlockFilter] {
+    override def options = editor.database.attributes.Expansion.blocks
     override def compare(x: String, y: String) = Collator.getInstance.compare(x, y)
     override def filter = BlockFilter()
   }
 
-  case object Rarity extends CardAttribute[Rarity, RarityFilter]("Rarity", "Printed rarity") {
+  case object Rarity extends CardAttribute[Rarity, RarityFilter]("Rarity", "Printed rarity") with HasSingletonOptionsFilter[editor.database.attributes.Rarity, RarityFilter] {
+    override def options = editor.database.attributes.Rarity.values
     override def compare(x: Rarity, y: Rarity) = x.compare(y)
     override def filter = RarityFilter()
   }
@@ -183,12 +210,14 @@ object CardAttribute {
     override def compare(x: Seq[String], y: Seq[String]) = Collator.getInstance.compare(x(0), y(0))
   }
 
-  case object LegalIn extends CardAttribute[Seq[String], LegalityFilter]("Format Legality", "Formats a card can be legally be played in and if it is restricted") {
-    override def compare(x: Seq[String], y: Seq[String]) = Collator.getInstance.compare(x.mkString(","), y.mkString(","))
+  case object LegalIn extends CardAttribute[Set[String], LegalityFilter]("Format Legality", "Formats a card can be legally be played in and if it is restricted") with HasMultiOptionsFilter[String, LegalityFilter] {
+    override def options = FormatConstraints.FormatNames
+    override def compare(x: Set[String], y: Set[String]) = Collator.getInstance.compare(x.toSeq.sorted.mkString(","), y.toSeq.sorted.mkString(","))
     override def filter = LegalityFilter()
   }
 
-  case object Tags extends CardAttribute[Set[String], TagsFilter]("Tags", "Tags you have created and assigned") {
+  case object Tags extends CardAttribute[Set[String], TagsFilter]("Tags", "Tags you have created and assigned") with HasMultiOptionsFilter[String, TagsFilter] {
+    override def options = Card.tags.flatMap{ case (_, s) => s }.toSeq.sorted
     override def compare(x: Set[String], y: Set[String]) = Collator.getInstance.compare(x.toSeq.sorted.mkString(","), y.toSeq.sorted.mkString(","))
     override def filter = TagsFilter()
   }

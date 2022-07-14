@@ -45,14 +45,14 @@ object FormatConstraints {
   @deprecated def CONSTRAINTS() = Constraints
 
   /** List of supported format names, in alphabetical order. */
-  val FormatNames = Constraints.map{ case (name, _) => name }.toSeq.sorted
+  val FormatNames = Constraints.map{ case (name, _) => name }.toIndexedSeq.sorted
   @deprecated def FORMAT_NAMES() = FormatNames
 
   /** List of types of each of the deckbuilding constraints. */
-  val Classes = Seq(classOf[String], classOf[Integer], classOf[java.lang.Boolean], classOf[Integer], classOf[Integer], classOf[java.lang.Boolean])
+  val Classes = IndexedSeq(classOf[String], classOf[Integer], classOf[java.lang.Boolean], classOf[Integer], classOf[Integer], classOf[java.lang.Boolean])
   @deprecated def CLASSES() = Classes
 
   /** The name of each type of deckbuilding constraint. */
-  val DataNames = Seq("Name", "Deck Size", "Exact?", "Max Card Count", "Sideboard size", "Has Commander?")
+  val DataNames = IndexedSeq("Name", "Deck Size", "Exact?", "Max Card Count", "Sideboard size", "Has Commander?")
   @deprecated def DATA_NAMES() = DataNames
 }
