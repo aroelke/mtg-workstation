@@ -132,6 +132,13 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
               case _ =>
             }
             panel
+          case CardAttribute.CardNumber =>
+            val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
+            value match {
+              case s: Seq[?] => panel.add(setColors(tableLabel(s.collect{ case t: String => t }.sorted.mkString(Card.FaceSeparator))))
+              case _ =>
+            }
+            panel
           case CardAttribute.LegalIn =>
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
             value match {

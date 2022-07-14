@@ -65,6 +65,10 @@ sealed trait HasColorFilter(colors: (Card) => Set[ManaType]) { this: CardAttribu
   override def filter = ColorFilter(this, colors)
 }
 
+sealed trait HasNumberFilter(unified: Boolean, value: (Card) => Double, variable: Option[(Card) => Boolean]) { this: CardAttribute[?, NumberFilter] =>
+  override def filter = NumberFilter(this, unified, value, variable)
+}
+
 sealed trait CantBeFiltered { this: CardAttribute[?, Nothing] =>
   override def filter = throw UnsupportedOperationException(s"$toString can't be filtered")
 }
@@ -91,14 +95,12 @@ object CardAttribute {
     override def filter = ManaCostFilter()
   }
 
-  case object RealManaValue extends CardAttribute[Double, NumberFilter]("Real Mana Value", "Card mana value as defined by the rules") {
+  case object RealManaValue extends CardAttribute[Double, NumberFilter]("Real Mana Value", "Card mana value as defined by the rules") with HasNumberFilter(true, _.manaValue, None) {
     override def compare(x: Double, y: Double) = x.compare(y)
-    override def filter = NumberFilter(this, true, _.manaValue)
   }
 
-  case object EffManaValue extends CardAttribute[Seq[Double], NumberFilter]("Eff. Mana Value", "Spell or permament mana value on the stack or battlefield of each face") {
+  case object EffManaValue extends CardAttribute[Seq[Double], NumberFilter]("Eff. Mana Value", "Spell or permament mana value on the stack or battlefield of each face") with HasNumberFilter(false, _.manaValue, None) {
     override def compare(x: Seq[Double], y: Seq[Double]) = x(0).compare(y(0))
-    override def filter = NumberFilter(this, false, _.manaValue)
   }
 
   case object Colors extends CardAttribute[Set[ManaType], ColorFilter]("Colors", "Card colors derived from mana cost or color indicator")
@@ -137,19 +139,16 @@ object CardAttribute {
     override def filter = SupertypeFilter()
   }
 
-  case object Power extends CardAttribute[Seq[CombatStat], NumberFilter]("Power", "Creature power") {
+  case object Power extends CardAttribute[Seq[CombatStat], NumberFilter]("Power", "Creature power") with HasNumberFilter(false, _.power.value, Some(_.powerVariable)) {
     override def compare(x: Seq[CombatStat], y: Seq[CombatStat]) = x(0).compare(y(0))
-    override def filter = NumberFilter(this, false, _.power.value, Some(_.powerVariable))
   }
 
-  case object Toughness extends CardAttribute[Seq[CombatStat], NumberFilter]("Toughness", "Creature toughness") {
+  case object Toughness extends CardAttribute[Seq[CombatStat], NumberFilter]("Toughness", "Creature toughness") with HasNumberFilter(false, _.toughness.value, Some(_.powerVariable)) {
     override def compare(x: Seq[CombatStat], y: Seq[CombatStat]) = x(0).compare(y(0))
-    override def filter = NumberFilter(this, false, _.toughness.value, Some(_.toughnessVariable))
   }
 
-  case object Loyalty extends CardAttribute[Seq[Loyalty], NumberFilter]("Loyalty", "Planeswalker starting loyalty") {
+  case object Loyalty extends CardAttribute[Seq[Loyalty], NumberFilter]("Loyalty", "Planeswalker starting loyalty") with HasNumberFilter(false, _.loyalty.value, Some(_.loyaltyVariable)) {
     override def compare(x: Seq[Loyalty], y: Seq[Loyalty]) = x(0).compare(y(0))
-    override def filter = NumberFilter(this, false, _.loyalty.value, Some(_.loyaltyVariable))
   }
 
   case object Layout extends CardAttribute[CardLayout, LayoutFilter]("Layout", "Layout of card faces") {
@@ -176,13 +175,12 @@ object CardAttribute {
     override def compare(x: Seq[String], y: Seq[String]) = Collator.getInstance.compare(x(0), y(0))
   }
 
-  case object CardNumber extends CardAttribute[String, NumberFilter]("Card Number", "Collector number in expansion") {
-    override def compare(x: String, y: String) = Collator.getInstance.compare(x, y)
-    override def filter = NumberFilter(this, false, (f) => {
-      try {
-        f.number.replace("--", "0").replaceAll(raw"[\D]", "").toDouble
-      } catch case e: NumberFormatException => 0.0
-    })
+  case object CardNumber extends CardAttribute[Seq[String], NumberFilter]("Card Number", "Collector number in expansion") with HasNumberFilter(false, (f) => {
+    try {
+      f.number.replace("--", "0").replaceAll(raw"[\D]", "").toDouble
+    } catch case e: NumberFormatException => 0.0
+  }, None) {
+    override def compare(x: Seq[String], y: Seq[String]) = Collator.getInstance.compare(x(0), y(0))
   }
 
   case object LegalIn extends CardAttribute[Seq[String], LegalityFilter]("Format Legality", "Formats a card can be legally be played in and if it is restricted") {

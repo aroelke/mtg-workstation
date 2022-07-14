@@ -63,7 +63,7 @@ trait CardListEntry extends Equals {
     case Toughness => card.faces.map(_.toughness)
     case Loyalty => card.faces.map(_.loyalty)
     case Artist => card.faces.map(_.artist)
-    case CardNumber => card.faces.map(_.number).mkString(Card.FaceSeparator)
+    case CardNumber => card.faces.map(_.number)
     case LegalIn => card.legalIn.toSeq.sorted
     case Count => count
     case Categories => categories
