@@ -107,7 +107,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
             val panel = tablePanel()
             panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))
             value match {
-              case s: Seq[?] => s.foreach{ case t: ManaType => panel.add(tableLabel(ColorSymbol(t).scaled(ComponentUtils.TextSize))) }
+              case s: Set[?] => ManaType.sorted(s.collect{ case t: ManaType => t }).foreach((t) => panel.add(tableLabel(ColorSymbol(t).scaled(ComponentUtils.TextSize))))
               case _ =>
             }
             panel

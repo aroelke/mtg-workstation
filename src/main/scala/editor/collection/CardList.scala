@@ -53,8 +53,8 @@ trait CardListEntry extends Equals {
     case ManaCost => card.faces.map(_.manaCost)
     case RealManaValue => card.manaValue
     case EffManaValue => card.faces.map(_.manaValue)
-    case Colors => ManaType.sorted(card.colors)
-    case ColorIdentity => ManaType.sorted(card.colorIdentity)
+    case Colors => card.colors
+    case ColorIdentity => card.colorIdentity
     case TypeLine => card.faces.map(_.typeLine)
     case Expansion => card.expansion.toString
     case Block => card.expansion.block

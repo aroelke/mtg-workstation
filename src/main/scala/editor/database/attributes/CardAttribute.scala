@@ -43,16 +43,30 @@ sealed trait CardAttribute[D : ClassTag, F <: FilterLeaf](name: String, val desc
   override def toString = name
 }
 
-sealed trait CantBeFiltered { this: CardAttribute[?, Nothing] =>
-  override def filter = throw UnsupportedOperationException(s"$toString can't be filtered")
+sealed trait ComparesColors { this: CardAttribute[Set[ManaType], ?] =>
+  override def compare(x: Set[ManaType], y: Set[ManaType]) = {
+    val diff = x.size - y.size
+    if (diff == 0)
+      (x zip y).map{ case (a, b) => a.compare(b) }.zipWithIndex.map{ case (d, i) => d*math.pow(10, x.size - i).toInt }.reduce(_ + _)
+    else
+      diff
+  }
+}
+
+sealed trait CantCompare[T] { this: CardAttribute[T, ?] =>
+  override def compare(x: T, y: T) = throw UnsupportedOperationException(s"$toString can't be used to compare attributes")
 }
 
 sealed trait HasTextFilter(text: (Card) => Seq[String]) { this: CardAttribute[Seq[String], TextFilter] =>
   override def filter = TextFilter(this, text)
 }
 
-sealed trait CantCompare[T] { this: CardAttribute[T, ?] =>
-  override def compare(x: T, y: T) = throw UnsupportedOperationException(s"$toString can't be used to compare attributes")
+sealed trait HasColorFilter(colors: (Card) => Set[ManaType]) { this: CardAttribute[Set[ManaType], ColorFilter] =>
+  override def filter = ColorFilter(this, colors)
+}
+
+sealed trait CantBeFiltered { this: CardAttribute[?, Nothing] =>
+  override def filter = throw UnsupportedOperationException(s"$toString can't be filtered")
 }
 
 object CardAttribute {
@@ -87,27 +101,13 @@ object CardAttribute {
     override def filter = NumberFilter(this, false, _.manaValue)
   }
 
-  case object Colors extends CardAttribute[Seq[ManaType], ColorFilter]("Colors", "Card colors derived from mana cost or color indicator") {
-    override def compare(x: Seq[ManaType], y: Seq[ManaType]) = {
-      val diff = x.size - y.size
-      if (diff == 0)
-        (x zip y).map{ case (a, b) => a.compare(b) }.zipWithIndex.map{ case (d, i) => d*math.pow(10, x.size - i).toInt }.reduce(_ + _)
-      else
-        diff
-    }
-    override def filter = ColorFilter(this, _.colors)
-  }
+  case object Colors extends CardAttribute[Set[ManaType], ColorFilter]("Colors", "Card colors derived from mana cost or color indicator")
+    with ComparesColors
+    with HasColorFilter(_.colors)
 
-  case object ColorIdentity extends CardAttribute[Seq[ManaType], ColorFilter]("Color Identity", "Card colors plus the colors of any mana symbols that appear in its Oracle text") {
-    override def compare(x: Seq[ManaType], y: Seq[ManaType]) = {
-      val diff = x.size - y.size
-      if (diff == 0)
-        (x zip y).map{ case (a, b) => a.compare(b) }.zipWithIndex.map{ case (d, i) => d*math.pow(10, x.size - i).toInt }.reduce(_ + _)
-      else
-        diff
-    }
-    override def filter = ColorFilter(this, _.colorIdentity)
-  }
+  case object ColorIdentity extends CardAttribute[Set[ManaType], ColorFilter]("Color Identity", "Card colors plus the colors of any mana symbols that appear in its Oracle text")
+    with ComparesColors
+    with HasColorFilter(_.colorIdentity)
 
   case object TypeLine extends CardAttribute[Seq[TypeLine], TypeLineFilter]("Type Line", "Full type line, including supertypes, card types, and subtypes") {
     override def compare(x: Seq[TypeLine], y: Seq[TypeLine]) = {
