@@ -69,12 +69,12 @@ sealed trait HasTextFilter(text: (Card) => Seq[String]) { this: CardAttribute[Se
   override def filter = TextFilter(this, text)
 }
 
-sealed trait HasColorFilter(colors: (Card) => Set[ManaType]) { this: CardAttribute[Set[ManaType], ColorFilter] =>
-  override def filter = ColorFilter(this, colors)
-}
-
 sealed trait HasNumberFilter(unified: Boolean, value: (Card) => Double, variable: Option[(Card) => Boolean]) { this: CardAttribute[?, NumberFilter] =>
   override def filter = NumberFilter(this, unified, value, variable)
+}
+
+sealed trait HasColorFilter(colors: (Card) => Set[ManaType]) { this: CardAttribute[Set[ManaType], ColorFilter] =>
+  override def filter = ColorFilter(this, colors)
 }
 
 sealed trait HasSingletonOptionsFilter[T, F <: SingletonOptionsFilter[T, F]] extends HasOptions[T] { this: CardAttribute[T, F] =>

@@ -54,46 +54,26 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
   // Filter type selector
-  private val filterTypes = ComboBoxPanel(CardAttribute.filterableValues.toArray)
-  filterTypes.setToolTipText(filterTypes.getSelectedItem.description)
+  private val filterTypes = ComboBoxPanel(FilterAttribute.values.toArray)
+  filterTypes.setToolTipText(filterTypes.getSelectedItem.attribute.description)
   private val renderer = filterTypes.getRenderer
-  filterTypes.setRenderer(new ListCellRenderer[CardAttribute[?, ?]] {
-    override def getListCellRendererComponent(list: JList[? <: CardAttribute[?, ?]], value: CardAttribute[?, ?], index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
+  filterTypes.setRenderer(new ListCellRenderer[FilterAttribute[?, ?]] {
+    override def getListCellRendererComponent(list: JList[? <: FilterAttribute[?, ?]], value: FilterAttribute[?, ?], index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
       val component = renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
-      component match { case j: JComponent => j.setToolTipText(value.description) }
+      component match { case j: JComponent => j.setToolTipText(value.attribute.description) }
       component
     }
   })
   add(filterTypes)
 
   // Panel containing each editor panel
-  private val filterPanels = collection.mutable.Map[CardAttribute[?, ?], FilterEditorPanel[?]]()
+  private val filterPanels = collection.mutable.Map[FilterAttribute[?, ?], FilterEditorPanel[?]]()
   private val filtersPanel = JPanel(java.awt.CardLayout())
   add(filtersPanel)
-  CardAttribute.filterableValues.foreach((attribute) => {
-    val panel = attribute match {
-      case CardAttribute.AnyCard => BinaryFilterPanel(true)
-      case CardAttribute.NoCard => BinaryFilterPanel(false)
-      case _ => attribute.filter match {
-        case text: TextFilter => TextFilterPanel(text, this)
-        case number: NumberFilter => NumberFilterPanel(number, this)
-        case color: ColorFilter => ColorFilterPanel(color, this)
-        case layout: LayoutFilter => OptionsFilterPanel(layout, _root_.editor.database.card.CardLayout.values.toSeq, this)
-        case cost: ManaCostFilter => ManaCostFilterPanel(cost, this)
-        case line: TypeLineFilter => TypeLineFilterPanel(line, this)
-        case supertype: SupertypeFilter => OptionsFilterPanel(supertype, SupertypeFilter.supertypeList, this)
-        case cardtype: CardTypeFilter => OptionsFilterPanel(cardtype, CardTypeFilter.typeList, this)
-        case subtype: SubtypeFilter => OptionsFilterPanel(subtype, SubtypeFilter.subtypeList, this)
-        case expansion: ExpansionFilter => OptionsFilterPanel(expansion, Expansion.expansions, this)
-        case block: BlockFilter => OptionsFilterPanel(block, Expansion.blocks, this)
-        case rarity: RarityFilter => OptionsFilterPanel(rarity, Rarity.values.toSeq, this)
-        case legality: LegalityFilter => LegalityFilterPanel(legality, this)
-        case tags: TagsFilter => OptionsFilterPanel(tags, Card.tags.flatMap{ case (_, s) => s }.toArray.sorted, this)
-        case _ => throw IllegalArgumentException(s"no panel for fiters of type $filter")
-      }
-    }
-    filterPanels.put(attribute, panel)
-    filtersPanel.add(panel, attribute.toString)
+  FilterAttribute.values.foreach((a) => {
+    val panel = a.panel(this)
+    filterPanels(a) = panel
+    filtersPanel.add(panel, a.attribute.toString)
   })
 
   // Small button to choose which faces to look at when filtering
@@ -126,8 +106,8 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   filterTypes.addItemListener(_ => filtersPanel.getLayout match {
     case cards: java.awt.CardLayout =>
       cards.show(filtersPanel, filterTypes.getSelectedItem.toString)
-      filterTypes.setToolTipText(filterTypes.getSelectedItem.description)
-      facesLabel.setVisible(!filterTypes.getSelectedItem.filter.unified)
+      filterTypes.setToolTipText(filterTypes.getSelectedItem.attribute.description)
+      facesLabel.setVisible(!filterTypes.getSelectedItem.attribute.filter.unified)
   })
 
   /** @return the current selection for which faces the filter should search */
@@ -141,8 +121,8 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   override def filter = filterPanels(filterTypes.getSelectedItem).filter
 
   override def setContents(filter: FilterLeaf) = {
-    filterTypes.setSelectedItem(filter.attribute)
-    filterPanels(filter.attribute).setContents(filter)
+    filterTypes.setSelectedItem(FilterAttribute.fromAttribute(filter.attribute))
+    filterPanels(FilterAttribute.fromAttribute(filter.attribute)).setContents(filter)
     faces = filter.faces
     filtersPanel.getLayout match {
       case card: java.awt.CardLayout => card.show(filtersPanel, filter.attribute.toString)
