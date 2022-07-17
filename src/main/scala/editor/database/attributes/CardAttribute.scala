@@ -43,10 +43,6 @@ sealed trait CardAttribute[D : ClassTag, F <: FilterLeaf](name: String, val desc
   override def toString = name
 }
 
-trait HasOptions[T] {
-  def options: Seq[T]
-}
-
 sealed trait ComparesColors { this: CardAttribute[Set[ManaType], ?] =>
   override def compare(x: Set[ManaType], y: Set[ManaType]) = {
     val diff = x.size - y.size
@@ -73,11 +69,15 @@ sealed trait HasColorFilter(colors: (Card) => Set[ManaType]) { this: CardAttribu
   override def filter = ColorFilter(this, colors)
 }
 
-sealed trait HasSingletonOptionsFilter[T](value: (Card) => T) extends HasOptions[T] { this: CardAttribute[T, SingletonOptionsFilter[T]] =>
+trait HasOptions[T, F <: OptionsFilter[T, F]] { this: CardAttribute[?, F] =>
+  def options: Seq[T]
+}
+
+sealed trait HasSingletonOptionsFilter[T](value: (Card) => T) extends HasOptions[T, SingletonOptionsFilter[T]] { this: CardAttribute[T, SingletonOptionsFilter[T]] =>
   override def filter = SingletonOptionsFilter(this, value)
 }
 
-sealed trait HasMultiOptionsFilter[T, F <: MultiOptionsFilter[T, F]] extends HasOptions[T] { this: CardAttribute[Set[T], F] =>
+sealed trait HasMultiOptionsFilter[T, F <: MultiOptionsFilter[T, F]] extends HasOptions[T, F] { this: CardAttribute[Set[T], F] =>
 }
 
 sealed trait CantBeFiltered { this: CardAttribute[?, Nothing] =>
@@ -203,7 +203,7 @@ object CardAttribute {
     override def compare(x: Seq[String], y: Seq[String]) = Collator.getInstance.compare(x(0), y(0))
   }
 
-  case object LegalIn extends CardAttribute[Set[String], LegalityFilter]("Format Legality", "Formats a card can be legally be played in and if it is restricted") with HasOptions[String] {
+  case object LegalIn extends CardAttribute[Set[String], LegalityFilter]("Format Legality", "Formats a card can be legally be played in and if it is restricted") with HasOptions[String, LegalityFilter] {
     override def options = FormatConstraints.FormatNames
     override def compare(x: Set[String], y: Set[String]) = Collator.getInstance.compare(x.toSeq.sorted.mkString(","), y.toSeq.sorted.mkString(","))
     override def filter = LegalityFilter()
