@@ -53,8 +53,8 @@ sealed trait ColorFilterAttribute { this: FilterAttribute[Set[ManaType], ColorFi
   override def panel(selector: FilterSelectorPanel) = ColorFilterPanel(attribute.filter, selector)
 }
 
-sealed trait SingletonOptionsFilterAttribute[T <: AnyRef : ClassTag, F <: SingletonOptionsFilter[T, F] : ClassTag] { this: FilterAttribute[T, F] =>
-  override def attribute: CardAttribute[T, F] with HasSingletonOptionsFilter[T, F]
+sealed trait SingletonOptionsFilterAttribute[T <: AnyRef : ClassTag] { this: FilterAttribute[T, SingletonOptionsFilter[T]] =>
+  override def attribute: CardAttribute[T, SingletonOptionsFilter[T]] with HasSingletonOptionsFilter[T]
   override def panel(selector: FilterSelectorPanel) = OptionsFilterPanel(attribute.filter, attribute.options, selector)
 }
 
@@ -130,19 +130,19 @@ object FilterAttribute {
     override def attribute = CardAttribute.Loyalty
   }
 
-  case object LayoutFilter extends FilterAttribute[CardLayout, _root_.editor.filter.leaf.options.single.LayoutFilter] with SingletonOptionsFilterAttribute[CardLayout, _root_.editor.filter.leaf.options.single.LayoutFilter] {
+  case object LayoutFilter extends FilterAttribute[CardLayout, SingletonOptionsFilter[CardLayout]] with SingletonOptionsFilterAttribute[CardLayout] {
     override def attribute = CardAttribute.Layout
   }
 
-  case object ExpansionFilter extends FilterAttribute[Expansion, _root_.editor.filter.leaf.options.single.ExpansionFilter] with SingletonOptionsFilterAttribute[Expansion, _root_.editor.filter.leaf.options.single.ExpansionFilter] {
+  case object ExpansionFilter extends FilterAttribute[Expansion, SingletonOptionsFilter[Expansion]] with SingletonOptionsFilterAttribute[Expansion] {
     override def attribute = CardAttribute.Expansion
   }
 
-  case object BlockFilter extends FilterAttribute[String, _root_.editor.filter.leaf.options.single.BlockFilter] with SingletonOptionsFilterAttribute[String, _root_.editor.filter.leaf.options.single.BlockFilter] {
+  case object BlockFilter extends FilterAttribute[String, SingletonOptionsFilter[String]] with SingletonOptionsFilterAttribute[String] {
     override def attribute = CardAttribute.Block
   }
 
-  case object RarityFilter extends FilterAttribute[Rarity, _root_.editor.filter.leaf.options.single.RarityFilter] with SingletonOptionsFilterAttribute[Rarity, _root_.editor.filter.leaf.options.single.RarityFilter] {
+  case object RarityFilter extends FilterAttribute[Rarity, SingletonOptionsFilter[Rarity]] with SingletonOptionsFilterAttribute[Rarity] {
     override def attribute = CardAttribute.Rarity
   }
 

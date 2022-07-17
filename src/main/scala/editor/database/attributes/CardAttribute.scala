@@ -16,10 +16,6 @@ import editor.filter.leaf.options.multi.LegalityFilter
 import editor.filter.leaf.options.multi.SubtypeFilter
 import editor.filter.leaf.options.multi.SupertypeFilter
 import editor.filter.leaf.options.multi.TagsFilter
-import editor.filter.leaf.options.single.BlockFilter
-import editor.filter.leaf.options.single.ExpansionFilter
-import editor.filter.leaf.options.single.LayoutFilter
-import editor.filter.leaf.options.single.RarityFilter
 
 import java.text.Collator
 import java.time.LocalDate
@@ -77,7 +73,8 @@ sealed trait HasColorFilter(colors: (Card) => Set[ManaType]) { this: CardAttribu
   override def filter = ColorFilter(this, colors)
 }
 
-sealed trait HasSingletonOptionsFilter[T, F <: SingletonOptionsFilter[T, F]] extends HasOptions[T] { this: CardAttribute[T, F] =>
+sealed trait HasSingletonOptionsFilter[T](value: (Card) => T) extends HasOptions[T] { this: CardAttribute[T, SingletonOptionsFilter[T]] =>
+  override def filter = SingletonOptionsFilter(this, value)
 }
 
 sealed trait HasMultiOptionsFilter[T, F <: MultiOptionsFilter[T, F]] extends HasOptions[T] { this: CardAttribute[Set[T], F] =>
@@ -174,28 +171,24 @@ object CardAttribute {
     override def compare(x: Seq[Loyalty], y: Seq[Loyalty]) = x(0).compare(y(0))
   }
 
-  case object Layout extends CardAttribute[CardLayout, LayoutFilter]("Layout", "Layout of card faces") with HasSingletonOptionsFilter[CardLayout, LayoutFilter] {
+  case object Layout extends CardAttribute[CardLayout, SingletonOptionsFilter[CardLayout]]("Layout", "Layout of card faces") with HasSingletonOptionsFilter[CardLayout](_.layout) {
     override def options = CardLayout.values
     override def compare(x: CardLayout, y: CardLayout) = x.compare(y)
-    override def filter = LayoutFilter()
   }
 
-  case object Expansion extends CardAttribute[editor.database.attributes.Expansion, ExpansionFilter]("Expansion", "Expansion a card belongs to") with HasSingletonOptionsFilter[editor.database.attributes.Expansion, ExpansionFilter] {
+  case object Expansion extends CardAttribute[editor.database.attributes.Expansion, SingletonOptionsFilter[editor.database.attributes.Expansion]]("Expansion", "Expansion a card belongs to") with HasSingletonOptionsFilter[editor.database.attributes.Expansion](_.expansion) {
     override def options = editor.database.attributes.Expansion.expansions
     override def compare(x: editor.database.attributes.Expansion, y: editor.database.attributes.Expansion) = Collator.getInstance.compare(x.name, y.name)
-    override def filter = ExpansionFilter()
   }
 
-  case object Block extends CardAttribute[String, BlockFilter]("Block", "Block of expansions, if any, a card's expansion belongs to") with HasSingletonOptionsFilter[String, BlockFilter] {
+  case object Block extends CardAttribute[String, SingletonOptionsFilter[String]]("Block", "Block of expansions, if any, a card's expansion belongs to") with HasSingletonOptionsFilter[String](_.expansion.block) {
     override def options = editor.database.attributes.Expansion.blocks
     override def compare(x: String, y: String) = Collator.getInstance.compare(x, y)
-    override def filter = BlockFilter()
   }
 
-  case object Rarity extends CardAttribute[Rarity, RarityFilter]("Rarity", "Printed rarity") with HasSingletonOptionsFilter[editor.database.attributes.Rarity, RarityFilter] {
+  case object Rarity extends CardAttribute[editor.database.attributes.Rarity, SingletonOptionsFilter[editor.database.attributes.Rarity]]("Rarity", "Printed rarity") with HasSingletonOptionsFilter[editor.database.attributes.Rarity](_.rarity) {
     override def options = editor.database.attributes.Rarity.values
     override def compare(x: Rarity, y: Rarity) = x.compare(y)
-    override def filter = RarityFilter()
   }
 
   case object Artist extends CardAttribute[Seq[String], TextFilter]("Artist", "Credited artist") with HasTextFilter(_.faces.map(_.artist)) {
