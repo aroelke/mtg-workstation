@@ -156,7 +156,7 @@ object FilterAttribute {
 
   case object LegalInFilter extends FilterAttribute[Set[String], LegalityFilter] {
     override def attribute = CardAttribute.LegalIn
-    override def panel(selector: FilterSelectorPanel) = LegalityFilterPanel(selector)
+    override def panel(selector: FilterSelectorPanel) = LegalityFilterPanel(attribute.filter, selector)
   }
 
   case object TagsFilter extends FilterAttribute[Set[String], _root_.editor.filter.leaf.options.multi.TagsFilter] with MultiOptionsFilterAttribute[String, _root_.editor.filter.leaf.options.multi.TagsFilter] {

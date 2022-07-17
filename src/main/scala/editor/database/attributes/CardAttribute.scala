@@ -203,7 +203,7 @@ object CardAttribute {
     override def compare(x: Seq[String], y: Seq[String]) = Collator.getInstance.compare(x(0), y(0))
   }
 
-  case object LegalIn extends CardAttribute[Set[String], LegalityFilter]("Format Legality", "Formats a card can be legally be played in and if it is restricted") with HasMultiOptionsFilter[String, LegalityFilter] {
+  case object LegalIn extends CardAttribute[Set[String], LegalityFilter]("Format Legality", "Formats a card can be legally be played in and if it is restricted") with HasOptions[String] {
     override def options = FormatConstraints.FormatNames
     override def compare(x: Set[String], y: Set[String]) = Collator.getInstance.compare(x.toSeq.sorted.mkString(","), y.toSeq.sorted.mkString(","))
     override def filter = LegalityFilter()
