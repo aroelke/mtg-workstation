@@ -76,7 +76,8 @@ sealed trait HasSingletonOptionsFilter[T](value: (Card) => T) extends HasOptions
   override def filter = SingletonOptionsFilter(this, value)
 }
 
-sealed trait HasMultiOptionsFilter[T] extends HasOptions[T, MultiOptionsFilter[T]] { this: CardAttribute[Set[T], MultiOptionsFilter[T]] =>
+sealed trait HasMultiOptionsFilter[T](values: (Card) => Set[T]) extends HasOptions[T, MultiOptionsFilter[T]] { this: CardAttribute[Set[T], MultiOptionsFilter[T]] =>
+  override def filter = MultiOptionsFilter(this, values)
 }
 
 sealed trait CantBeFiltered { this: CardAttribute[?, Nothing] =>
@@ -139,23 +140,21 @@ object CardAttribute {
 
   case object CardType extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Card Type", "Card types only")
       with CantCompare[Set[String]]
-      with HasMultiOptionsFilter[String] {
+      with HasMultiOptionsFilter[String](_.types) {
     override def options = CardTypeFilter.typeList
-    override def filter = MultiOptionsFilter(this, _.types)
   }
 
   case object Subtype extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Subtype", "Subtypes only")
       with CantCompare[Set[String]]
-      with HasMultiOptionsFilter[String] {
+      with HasMultiOptionsFilter[String](_.subtypes) {
     override def options = SubtypeFilter.subtypeList
     override def filter = MultiOptionsFilter(this, _.subtypes)
   }
 
   case object Supertype extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Supertype", "Supertypes only")
       with CantCompare[Set[String]]
-      with HasMultiOptionsFilter[String] {
+      with HasMultiOptionsFilter[String](_.supertypes) {
     override def options = SupertypeFilter.supertypeList
-    override def filter = MultiOptionsFilter(this, _.supertypes)
   }
 
   case object Power extends CardAttribute[Seq[CombatStat], NumberFilter]("Power", "Creature power") with HasNumberFilter(false, _.power.value, Some(_.powerVariable)) {
@@ -208,10 +207,9 @@ object CardAttribute {
     override def filter = LegalityFilter()
   }
 
-  case object Tags extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Tags", "Tags you have created and assigned") with HasMultiOptionsFilter[String] {
+  case object Tags extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Tags", "Tags you have created and assigned") with HasMultiOptionsFilter[String](Card.tags.get(_).map(_.toSet).getOrElse(Set.empty)) {
     override def options = Card.tags.flatMap{ case (_, s) => s }.toSeq.sorted
     override def compare(x: Set[String], y: Set[String]) = Collator.getInstance.compare(x.toSeq.sorted.mkString(","), y.toSeq.sorted.mkString(","))
-    override def filter = MultiOptionsFilter(this, Card.tags.get(_).map(_.toSet).getOrElse(Set.empty))
   }
 
   case object Categories extends CardAttribute[Set[Categorization], Nothing]("Categories", "") with CantBeFiltered {
