@@ -10,9 +10,6 @@ import editor.database.FormatConstraints
 import editor.database.attributes._
 import editor.database.card._
 import editor.database.version.DatabaseVersion
-import editor.filter.leaf.options.multi.CardTypeFilter
-import editor.filter.leaf.options.multi.SubtypeFilter
-import editor.filter.leaf.options.multi.SupertypeFilter
 import editor.gui.MainFrame
 import editor.gui.generic.ScrollablePanel
 import editor.gui.settings.SettingsDialog

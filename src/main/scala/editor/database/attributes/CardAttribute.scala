@@ -11,10 +11,7 @@ import editor.filter.leaf.ManaCostFilter
 import editor.filter.leaf.NumberFilter
 import editor.filter.leaf.TextFilter
 import editor.filter.leaf.TypeLineFilter
-import editor.filter.leaf.options.multi.CardTypeFilter
 import editor.filter.leaf.options.multi.LegalityFilter
-import editor.filter.leaf.options.multi.SubtypeFilter
-import editor.filter.leaf.options.multi.SupertypeFilter
 
 import java.text.Collator
 import java.time.LocalDate
@@ -70,6 +67,12 @@ sealed trait HasColorFilter(colors: (Card) => Set[ManaType]) { this: CardAttribu
 
 trait HasOptions[T, F <: OptionsFilter[T, F]] { this: CardAttribute[?, F] =>
   def options: Seq[T]
+}
+
+trait HasAssignableOptions[T, F <: OptionsFilter[T, F]] extends HasOptions[T, F] { this: CardAttribute[?, F] =>
+  private var values = Seq.empty[T]
+  def options_=(v: Iterable[T]) = values = v.toSeq
+  override def options = values.toSeq
 }
 
 sealed trait HasSingletonOptionsFilter[T](value: (Card) => T) extends HasOptions[T, SingletonOptionsFilter[T]] { this: CardAttribute[T, SingletonOptionsFilter[T]] =>
@@ -140,22 +143,18 @@ object CardAttribute {
 
   case object CardType extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Card Type", "Card types only")
       with CantCompare[Set[String]]
-      with HasMultiOptionsFilter[String](_.types) {
-    override def options = CardTypeFilter.typeList
-  }
+      with HasMultiOptionsFilter[String](_.types)
+      with HasAssignableOptions[String, MultiOptionsFilter[String]]
 
   case object Subtype extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Subtype", "Subtypes only")
       with CantCompare[Set[String]]
-      with HasMultiOptionsFilter[String](_.subtypes) {
-    override def options = SubtypeFilter.subtypeList
-    override def filter = MultiOptionsFilter(this, _.subtypes)
-  }
+      with HasMultiOptionsFilter[String](_.subtypes)
+      with HasAssignableOptions[String, MultiOptionsFilter[String]]
 
   case object Supertype extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Supertype", "Supertypes only")
       with CantCompare[Set[String]]
-      with HasMultiOptionsFilter[String](_.supertypes) {
-    override def options = SupertypeFilter.supertypeList
-  }
+      with HasMultiOptionsFilter[String](_.supertypes)
+      with HasAssignableOptions[String, MultiOptionsFilter[String]]
 
   case object Power extends CardAttribute[Seq[CombatStat], NumberFilter]("Power", "Creature power") with HasNumberFilter(false, _.power.value, Some(_.powerVariable)) {
     override def compare(x: Seq[CombatStat], y: Seq[CombatStat]) = x(0).compare(y(0))

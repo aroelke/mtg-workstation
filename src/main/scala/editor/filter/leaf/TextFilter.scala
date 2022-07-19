@@ -3,9 +3,6 @@ package editor.filter.leaf
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 import editor.filter.FaceSearchOptions
-import editor.filter.leaf.options.multi.CardTypeFilter
-import editor.filter.leaf.options.multi.SubtypeFilter
-import editor.filter.leaf.options.multi.SupertypeFilter
 import editor.util.Containment
 import editor.util.Containment._
 
@@ -35,9 +32,9 @@ object TextFilter {
    * and subtypes ("\subtype"). Be careful using these, as they can cause long delays in filtering lists of cards.
    */
   val Tokens = Seq(
-    Token(Seq(raw"\supertype"), () => SupertypeFilter.supertypeList),
-    Token(Seq(raw"\cardtype"), () => CardTypeFilter.typeList),
-    Token(Seq(raw"\subtype"), () => SubtypeFilter.subtypeList)
+    Token(Seq(raw"\supertype"), () => CardAttribute.Supertype.options),
+    Token(Seq(raw"\cardtype"), () => CardAttribute.CardType.options),
+    Token(Seq(raw"\subtype"), () => CardAttribute.Subtype.options)
   )
 
   /**

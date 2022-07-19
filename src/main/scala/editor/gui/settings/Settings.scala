@@ -8,7 +8,6 @@ import editor.database.card.CardLayout
 import editor.database.card.MultiCard
 import editor.database.version.DatabaseVersion
 import editor.database.version.UpdateFrequency
-import editor.filter.leaf.options.multi.CardTypeFilter
 
 import java.awt.Color
 import java.io.File
