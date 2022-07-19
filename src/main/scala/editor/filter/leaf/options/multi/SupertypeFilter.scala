@@ -16,9 +16,9 @@ object SupertypeFilter {
 /**
  * Filter that groups cards by supertype.
  * @author Alec Roelke
- */
+ *//*
 final case class SupertypeFilter(faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = Containment.AnyOf, selected: Set[String] = Set.empty) extends MultiOptionsFilter[String, SupertypeFilter] {
   override def attribute = CardAttribute.Supertype
   override val unified = false
   override val values = _.supertypes
-}
+}*/

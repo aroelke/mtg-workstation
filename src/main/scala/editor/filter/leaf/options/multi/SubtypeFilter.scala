@@ -15,9 +15,9 @@ object SubtypeFilter {
 /**
  * Filter for grouping cards by subtype.
  * @author Alec Roelke
- */
+ *//*
 final case class SubtypeFilter(faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = Containment.AnyOf, selected: Set[String] = Set.empty) extends MultiOptionsFilter[String, SubtypeFilter] {
   override def attribute = CardAttribute.Subtype
   override val unified = false
   override def values = _.subtypes
-}
+}*/

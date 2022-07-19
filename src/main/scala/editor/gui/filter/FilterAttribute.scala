@@ -58,8 +58,8 @@ sealed trait SingletonOptionsFilterAttribute[T <: AnyRef : ClassTag] { this: Fil
   override def panel(selector: FilterSelectorPanel) = OptionsFilterPanel(attribute.filter, attribute.options, selector)
 }
 
-sealed trait MultiOptionsFilterAttribute[T <: AnyRef : ClassTag, F <: MultiOptionsFilter[T, F] : ClassTag] { this: FilterAttribute[Set[T], F] =>
-  override def attribute: CardAttribute[Set[T], F] with HasMultiOptionsFilter[T, F]
+sealed trait MultiOptionsFilterAttribute[T <: AnyRef : ClassTag, F <: MultiOptionsFilter[T] : ClassTag] { this: FilterAttribute[Set[T], F] =>
+  override def attribute: CardAttribute[Set[T], F] with HasMultiOptionsFilter[T]
   override def panel(selector: FilterSelectorPanel) = OptionsFilterPanel(attribute.filter, attribute.options, selector)
 }
 
@@ -106,15 +106,15 @@ object FilterAttribute {
     override def attribute = CardAttribute.PrintedTypes
   }
 
-  case object CardTypeFilter extends FilterAttribute[Set[String], _root_.editor.filter.leaf.options.multi.CardTypeFilter] with MultiOptionsFilterAttribute[String, _root_.editor.filter.leaf.options.multi.CardTypeFilter] {
+  case object CardTypeFilter extends FilterAttribute[Set[String], MultiOptionsFilter[String]] with MultiOptionsFilterAttribute[String, MultiOptionsFilter[String]] {
     override def attribute = CardAttribute.CardType
   }
 
-  case object SubtypeFilter extends FilterAttribute[Set[String], _root_.editor.filter.leaf.options.multi.SubtypeFilter] with MultiOptionsFilterAttribute[String, _root_.editor.filter.leaf.options.multi.SubtypeFilter] {
+  case object SubtypeFilter extends FilterAttribute[Set[String], MultiOptionsFilter[String]] with MultiOptionsFilterAttribute[String, MultiOptionsFilter[String]] {
     override def attribute = CardAttribute.Subtype
   }
 
-  case object SupertypeFilter extends FilterAttribute[Set[String], _root_.editor.filter.leaf.options.multi.SupertypeFilter] with MultiOptionsFilterAttribute[String, _root_.editor.filter.leaf.options.multi.SupertypeFilter] {
+  case object SupertypeFilter extends FilterAttribute[Set[String], MultiOptionsFilter[String]] with MultiOptionsFilterAttribute[String, MultiOptionsFilter[String]] {
     override def attribute = CardAttribute.Supertype
   }
 
@@ -159,7 +159,7 @@ object FilterAttribute {
     override def panel(selector: FilterSelectorPanel) = LegalityFilterPanel(attribute.filter, selector)
   }
 
-  case object TagsFilter extends FilterAttribute[Set[String], _root_.editor.filter.leaf.options.multi.TagsFilter] with MultiOptionsFilterAttribute[String, _root_.editor.filter.leaf.options.multi.TagsFilter] {
+  case object TagsFilter extends FilterAttribute[Set[String], MultiOptionsFilter[String]] with MultiOptionsFilterAttribute[String, MultiOptionsFilter[String]] {
     override def attribute = CardAttribute.Tags
   }
 

@@ -16,9 +16,9 @@ object CardTypeFilter {
 /**
  * Filter that groups cards based on card types.
  * @author Alec Roelke
- */
+ *//*
 final case class CardTypeFilter(faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = Containment.AnyOf, selected: Set[String] = Set.empty) extends MultiOptionsFilter[String, CardTypeFilter] {
   override def attribute = CardAttribute.CardType
   override val unified = false
   override val values = _.types
-}
+}*/
