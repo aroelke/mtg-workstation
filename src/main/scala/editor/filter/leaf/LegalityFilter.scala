@@ -1,11 +1,10 @@
-package editor.filter.leaf.options.multi
+package editor.filter.leaf
 
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.Legality
 import editor.database.card.Card
 import editor.filter.FaceSearchOptions
 import editor.util.Containment
-import editor.filter.leaf.options.OptionsFilter
 
 /**
  * Filter that groups cards by format legality and, optionally, by whether or not they are restricted in those formats (if applicable).

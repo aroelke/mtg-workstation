@@ -2,7 +2,7 @@ package editor.gui.filter.editor
 
 import editor.database.attributes.CardAttribute
 import editor.filter.leaf.FilterLeaf
-import editor.filter.leaf.options.OptionsFilter
+import editor.filter.leaf.OptionsFilter
 import editor.gui.filter.FilterSelectorPanel
 import editor.gui.generic.ButtonScrollPane
 import editor.gui.generic.ComboBoxPanel

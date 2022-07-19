@@ -12,25 +12,8 @@ import _root_.editor.database.attributes.ManaType
 import _root_.editor.database.attributes.Rarity
 import _root_.editor.database.attributes.TypeLine
 import _root_.editor.database.card.CardLayout
-import _root_.editor.filter.leaf.BinaryFilter
-import _root_.editor.filter.leaf.ColorFilter
-import _root_.editor.filter.leaf.FilterLeaf
-import _root_.editor.filter.leaf.ManaCostFilter
-import _root_.editor.filter.leaf.NumberFilter
-import _root_.editor.filter.leaf.TextFilter
-import _root_.editor.filter.leaf.options.OptionsFilter
-import _root_.editor.filter.leaf.options.multi.LegalityFilter
-import _root_.editor.filter.leaf.options.multi.MultiOptionsFilter
-import _root_.editor.filter.leaf.options.single.SingletonOptionsFilter
-import _root_.editor.gui.filter.editor.BinaryFilterPanel
-import _root_.editor.gui.filter.editor.ColorFilterPanel
-import _root_.editor.gui.filter.editor.FilterEditorPanel
-import _root_.editor.gui.filter.editor.LegalityFilterPanel
-import _root_.editor.gui.filter.editor.ManaCostFilterPanel
-import _root_.editor.gui.filter.editor.NumberFilterPanel
-import _root_.editor.gui.filter.editor.OptionsFilterPanel
-import _root_.editor.gui.filter.editor.TextFilterPanel
-import _root_.editor.gui.filter.editor.TypeLineFilterPanel
+import _root_.editor.filter.leaf._
+import _root_.editor.gui.filter.editor._
 
 import scala.reflect.ClassTag
 

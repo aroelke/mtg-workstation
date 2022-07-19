@@ -18,9 +18,6 @@ import editor.filter.FaceSearchOptions
 import editor.filter.Filter
 import editor.filter.FilterGroup
 import editor.filter.leaf._
-import editor.filter.leaf.options.OptionsFilter
-import editor.filter.leaf.options.multi._
-import editor.filter.leaf.options.single._
 import editor.util.Comparison
 import editor.util.Containment
 

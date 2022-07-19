@@ -5,10 +5,7 @@ import _root_.editor.database.attributes.Expansion
 import _root_.editor.database.attributes.Rarity
 import _root_.editor.database.card.Card
 import _root_.editor.filter.FaceSearchOptions
-import _root_.editor.filter.leaf.FilterLeaf
 import _root_.editor.filter.leaf._
-import _root_.editor.filter.leaf.options.multi._
-import _root_.editor.filter.leaf.options.single._
 import _root_.editor.gui.filter.editor.FilterEditorPanel
 import _root_.editor.gui.filter.editor._
 import _root_.editor.gui.generic.ComboBoxPanel
