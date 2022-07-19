@@ -22,8 +22,6 @@ trait OptionsFilter[T, F <: OptionsFilter[T, F] : ClassTag] extends FilterLeaf {
   def contain: Containment
   /** Set of items to look for in cards. */
   def selected: Set[T] // Using an immutable var guarantees that changing this in a copy doesn't change this filter's version
-
-  @deprecated def copy(faces: FaceSearchOptions, contain: Containment, selected: Set[T]): F
 }
 
 /**
@@ -39,7 +37,6 @@ final case class SingletonOptionsFilter[T](attribute: CardAttribute[T, Singleton
   override def faces = FaceSearchOptions.ANY
   override val unified = true
   override protected def testFace(c: Card) = contain(selected, Seq(value(c)))
-  override def copy(faces: FaceSearchOptions, contain: Containment, selected: Set[T]) = copy(contain = contain, selected = selected)
 }
 
 /**
@@ -55,5 +52,4 @@ final case class MultiOptionsFilter[T](attribute: CardAttribute[Set[T], MultiOpt
   override def faces = FaceSearchOptions.ANY
   override val unified = true
   override protected def testFace(c: Card) = contain(values(c), selected)
-  override def copy(faces: FaceSearchOptions, contain: Containment, selected: Set[T]) = copy(contain = contain, selected = selected)
 }

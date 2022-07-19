@@ -18,7 +18,6 @@ final case class LegalityFilter(contain: Containment = Containment.AnyOf, select
   override def faces = FaceSearchOptions.ANY
   override def attribute = CardAttribute.LegalIn
   override val unified = true
-  override def copy(faces: FaceSearchOptions, contain: Containment, selected: Set[String]) = copy(contain = contain, selected = selected)
 
   override protected def testFace(c: Card) = {
     if (!contain(c.legalIn, selected))

@@ -2,7 +2,9 @@ package editor.gui.filter.editor
 
 import editor.database.attributes.CardAttribute
 import editor.filter.leaf.FilterLeaf
+import editor.filter.leaf.MultiOptionsFilter
 import editor.filter.leaf.OptionsFilter
+import editor.filter.leaf.SingletonOptionsFilter
 import editor.gui.filter.FilterSelectorPanel
 import editor.gui.generic.ButtonScrollPane
 import editor.gui.generic.ComboBoxPanel
@@ -134,7 +136,9 @@ class OptionsFilterPanel[T <: AnyRef : ClassTag, F <: OptionsFilter[T, F] : Clas
     optionsPanel.add(boxPanel)
   }
 
-  override def filter = attribute.filter.copy(faces = selector.faces, contain = contain.getSelectedItem, selected = boxes.map((b) => b.getItemAt(b.getSelectedIndex)).toSet)
+  override def filter = attribute.filter match {
+    case o @ (_: SingletonOptionsFilter[?] | _: MultiOptionsFilter[?]) => o.copy(contain = contain.getSelectedItem, selected = boxes.map((b) => b.getItemAt(b.getSelectedIndex)).toSet)
+  }
 
   override def setFields(filter: F) = if (filter.attribute == attribute) {
     contain.setSelectedItem(filter.contain)

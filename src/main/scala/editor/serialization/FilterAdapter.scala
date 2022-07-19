@@ -71,7 +71,8 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
       case m: ManaCostFilter => m.copy(contain = Containment.parse(obj.get("contains").getAsString).get, cost = ManaCost.parse(obj.get("cost").getAsString).get)
       case c: ColorFilter => c.copy(contain = Containment.parse(obj.get("contains").getAsString).get, colors = obj.get("colors").getAsJsonArray.asScala.map((e) => ManaType.parse(e.getAsString).get).toSet, multicolored = obj.get("multicolored").getAsBoolean)
       case n: NumberFilter => n.copy(operation = Comparison.valueOf(obj.get("operation").getAsString.apply(0)), operand = obj.get("operand").getAsDouble, varies = n.variable.isDefined && obj.get("varies").getAsBoolean)
-      case o: OptionsFilter[?, ?] => o.copy(faces = o.faces, contain = Containment.parse(obj.get("contains").getAsString).get, selected = o.selected)
+      case s: SingletonOptionsFilter[?] => s.copy(contain = Containment.parse(obj.get("contains").getAsString).get)
+      case m: MultiOptionsFilter[?] => m.copy(contain = Containment.parse(obj.get("contains").getAsString).get)
       case f => f
     }
   }
