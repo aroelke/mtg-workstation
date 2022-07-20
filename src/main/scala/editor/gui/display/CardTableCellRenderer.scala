@@ -3,6 +3,8 @@ package editor.gui.display
 import editor.collection.Categorization
 import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
+import editor.database.attributes.CombatStat
+import editor.database.attributes.Loyalty
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.card.Card
@@ -27,7 +29,6 @@ import javax.swing.UIManager
 import javax.swing.border.Border
 import javax.swing.table.DefaultTableCellRenderer
 import scala.jdk.CollectionConverters._
-import editor.database.attributes.CombatStat
 
 private object CardTableCellRenderer {
   val cache = collection.mutable.Map[Seq[ManaCost], Seq[Seq[Icon]]]()
@@ -132,7 +133,10 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
           case CardAttribute.Loyalty =>
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
             value match {
-              case s: Seq[?] => panel.add(setColors(tableLabel(s.mkString(Card.FaceSeparator))))
+              case s: Seq[?] => panel.add(setColors(tableLabel(if (s.forall(_ == None)) "" else s.map{
+                case Some(l: Loyalty) => l.toString
+                case None => ""
+              }.mkString(Card.FaceSeparator))))
               case _ =>
             }
             panel

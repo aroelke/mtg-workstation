@@ -398,7 +398,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             val number = Option(card.get("number")).map(_.getAsString).getOrElse("")
             val power = Option(card.get("power")).map(_.getAsString)
             val toughness = Option(card.get("toughness")).map(_.getAsString)
-            val loyalty = Option(card.get("loyalty")).map(l => if (l.isJsonNull) "X" else l.getAsString).getOrElse("")
+            val loyalty = Option(card.get("loyalty")).map(l => if (l.isJsonNull) "X" else l.getAsString)
 
             val c = SingleCard(
               layout,
@@ -441,7 +441,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               numbers.getOrElseUpdate(number, number),
               power.map((p) => stats.getOrElseUpdate(p, CombatStat(p))),
               toughness.map((t) => stats.getOrElseUpdate(t, CombatStat(t))),
-              loyalties.getOrElseUpdate(loyalty, Loyalty(loyalty)),
+              loyalty.map((l) => loyalties.getOrElseUpdate(l, Loyalty(l))),
               TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
               legality,
               commandFormats

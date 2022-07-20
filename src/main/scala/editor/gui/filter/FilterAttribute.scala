@@ -109,7 +109,7 @@ object FilterAttribute {
     override def attribute = CardAttribute.Toughness
   }
 
-  case object LoyaltyFilter extends FilterAttribute[Seq[Loyalty], NumberFilter] with NumberFilterAttribute {
+  case object LoyaltyFilter extends FilterAttribute[Seq[Option[Loyalty]], NumberFilter] with NumberFilterAttribute {
     override def attribute = CardAttribute.Loyalty
   }
 

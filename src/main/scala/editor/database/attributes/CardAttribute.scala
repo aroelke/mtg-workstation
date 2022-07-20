@@ -168,14 +168,19 @@ object CardAttribute {
   case object Toughness extends CardAttribute[Seq[Option[CombatStat]], NumberFilter]("Toughness", "Creature toughness") with HasNumberFilter(false, _.toughness.map(_.value).getOrElse(Double.NaN), Some(_.powerVariable)) {
     override def compare(x: Seq[Option[CombatStat]], y: Seq[Option[CombatStat]]) = (x.flatten.headOption, y.flatten.headOption) match {
       case (Some(a), Some(b)) => a.compare(b)
-      case (Some(a), None) => -1
-      case (None, Some(b)) => 1
+      case (Some(_), None) => -1
+      case (None, Some(_)) => 1
       case (None, None) => 0
     }
   }
 
-  case object Loyalty extends CardAttribute[Seq[Loyalty], NumberFilter]("Loyalty", "Planeswalker starting loyalty") with HasNumberFilter(false, _.loyalty.value, Some(_.loyaltyVariable)) {
-    override def compare(x: Seq[Loyalty], y: Seq[Loyalty]) = x(0).compare(y(0))
+  case object Loyalty extends CardAttribute[Seq[Option[Loyalty]], NumberFilter]("Loyalty", "Planeswalker starting loyalty") with HasNumberFilter(false, _.loyalty.map(_.value).getOrElse(Double.NaN), Some(_.loyaltyVariable)) {
+    override def compare(x: Seq[Option[Loyalty]], y: Seq[Option[Loyalty]]) = (x.flatten.headOption, y.flatten.headOption) match {
+      case (Some(a), Some(b)) => a.compare(b)
+      case (Some(_), None) => -1
+      case (None, Some(_)) => 1
+      case (None, None) => 0
+    }
   }
 
   case object Layout extends CardAttribute[CardLayout, SingletonOptionsFilter[CardLayout]]("Layout", "Layout of card faces") with HasSingletonOptionsFilter[CardLayout](_.layout) {

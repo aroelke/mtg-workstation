@@ -1,8 +1,9 @@
 package editor.gui.display
 
 import editor.database.attributes.CardAttribute
+import editor.database.attributes.CombatStat
+import editor.database.attributes.Loyalty
 import editor.database.attributes.ManaCost
-import editor.database.attributes.OptionalAttribute
 import editor.database.card.Card
 import editor.gui.editor.EditorFrame
 import editor.gui.editor.InclusionCellEditor
@@ -17,7 +18,6 @@ import javax.swing.table.TableCellRenderer
 import javax.swing.table.TableModel
 import javax.swing.table.TableRowSorter
 import scala.jdk.CollectionConverters._
-import editor.database.attributes.CombatStat
 
 /**
  * Companion used for global card table operations.
@@ -138,24 +138,19 @@ private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[Tabl
           }
         }
         case CardAttribute.Loyalty => (a: AnyRef, b: AnyRef) => {
-          val first = a match {
-            case s: Seq[?] => s.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
-            case l: java.util.List[?] => l.asScala.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
-            case _ => OptionalAttribute.empty
+          def findL(x: AnyRef) = x match {
+            case s: Seq[?] => s.map{
+              case Some(l: Loyalty) => Some(l)
+              case _ => None
+            }.headOption.flatten
+            case _ => None
           }
-          val second = b match {
-            case s: Seq[?] => s.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
-            case l: java.util.List[?] => l.asScala.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
-            case _ => OptionalAttribute.empty
+          (findL(a), findL(b)) match {
+            case (None, None) => 0
+            case (Some(_), None) => if (ascending) -1 else 1
+            case (None, Some(_)) => if (ascending) 1 else -1
+            case (Some(x), Some(y)) => x.compare(y)
           }
-          if (!first.exists && !second.exists)
-            0
-          else if (!first.exists)
-            if (ascending) 1 else -1
-          else if (!second.exists)
-            if (ascending) -1 else 1
-          else
-            attribute.any_compare(first, second)
         }
         case _ => m.columns(column)
       }

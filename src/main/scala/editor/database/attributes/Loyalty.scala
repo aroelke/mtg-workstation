@@ -9,27 +9,28 @@ package editor.database.attributes
  * 
  * @author Alec Roelke
  */
-case class Loyalty(value: Double) extends OptionalAttribute with Ordered[Loyalty] {
-  @deprecated def this(v: Int) = this(v.toDouble)
-  @deprecated def this(s: String) = this(s.toUpperCase match {
-    case "X" => Loyalty.X
-    case "*" => Loyalty.STAR
-    case ""  => Double.NaN
-    case u   => u.toDoubleOption.getOrElse(Double.NaN)
-  })
-
+case class Loyalty(value: Double) extends Ordered[Loyalty] {
   /** Whether or not the card actually has loyalty (i.e. is a planeswalker) */
   val exists = !value.isNaN
 
   /** Whether or not the starting loyalty is variable. */
   val variable = value < 0
 
-  override def compare(that: Loyalty) = value.compare(that.value)
+  override def compare(that: Loyalty) = {
+    val c = value.compare(that.value)
+    if (c == 0) {
+      if (variable && !that.variable)
+        1
+      else if (!variable && that.variable)
+        -1
+      else // both variable or neither variable
+        0
+    } else c
+  }
 
   override val toString = value match {
     case Loyalty.X    => "X"
     case Loyalty.STAR => "*"
-    case Double.NaN   => ""
     case _ => value.toInt.toString
   }
 }
@@ -45,16 +46,11 @@ object Loyalty {
   def apply(s: String): Loyalty = Loyalty(s.toUpperCase match {
     case "X" => Loyalty.X
     case "*" => Loyalty.STAR
-    case ""  => Double.NaN
-    case u   => u.toDoubleOption.getOrElse(Double.NaN)
+    case  u  => u.toDouble
   })
 
   /** Number that represents a starting loyalty of X (determined as the planeswalker enters). */
   val X: Double = -1
   /** Number that represents continuously variable loyalty (based on some other part of the game state). */
   val STAR: Double = -2
-
-  /** Value used for cards that don't have loyalty. */
-  val NoLoyalty = Loyalty(Double.NaN)
-  @deprecated def NO_LOYALTY() = NoLoyalty
 }

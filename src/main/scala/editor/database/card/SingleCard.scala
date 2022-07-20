@@ -73,7 +73,7 @@ case class SingleCard(
   number: String,
   power: Option[CombatStat],
   toughness: Option[CombatStat],
-  loyalty: Loyalty,
+  loyalty: Option[Loyalty],
   rulings: TreeMap[Date, Seq[String]],
   legality: Map[String, Legality],
   commandFormats: Seq[String]
@@ -216,8 +216,8 @@ case class SingleCard(
 
       if (power.isDefined && toughness.isDefined)
         document.insertString(document.getLength, s"${power.get}/${toughness.get}\n", textStyle)
-      else if (loyalty.exists)
-          document.insertString(document.getLength, s"$loyalty\n", textStyle)
+      else if (loyalty.isDefined)
+          document.insertString(document.getLength, s"${loyalty.get}\n", textStyle)
 
       document.insertString(document.getLength, s"$artist $number/${expansion.count}", textStyle)
     } catch case e: BadLocationException => e.printStackTrace()
