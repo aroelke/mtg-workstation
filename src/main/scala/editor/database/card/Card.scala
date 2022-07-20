@@ -192,11 +192,11 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   /** @return the card's flavor text. */
   def flavorText: String
 
-  /** @return the card's power, if it's a creature. */
-  def power: CombatStat
+  /** @return the card's power if it has one, or None otherwise. */
+  def power: Option[CombatStat]
 
-  /** @return the card's toughness, if it's a creature. */
-  def toughness: CombatStat
+  /** @return the card's toughness if it has one, or None otherwise. */
+  def toughness: Option[CombatStat]
 
   /** @return the card's loyalty, if it's a planeswalker. */
   def loyalty: Loyalty
@@ -255,10 +255,10 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def compareName(other: Card) = Collator.getInstance(Locale.US).compare(name, other.name)
 
   /** @return true if the card has a power value and it's variable (contains *), or false otherwise. */
-  def powerVariable = faces.exists(_.power.variable)
+  def powerVariable = faces.exists(_.power.exists(_.variable))
 
   /** @return true if the card has a toughness value and it's variable (contains *) or false otherwise. */
-  def toughnessVariable = faces.exists(_.toughness.variable)
+  def toughnessVariable = faces.exists(_.toughness.exists(_.variable))
 
   /** @return true if the card has a loyalty value and it's variable (contains * or X) or false otherwise. */
   def loyaltyVariable = faces.exists(_.loyalty.variable)

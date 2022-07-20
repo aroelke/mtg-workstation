@@ -71,8 +71,8 @@ case class SingleCard(
   multiverseid: Int,
   scryfallid: String,
   number: String,
-  power: CombatStat,
-  toughness: CombatStat,
+  power: Option[CombatStat],
+  toughness: Option[CombatStat],
   loyalty: Loyalty,
   rulings: TreeMap[Date, Seq[String]],
   legality: Map[String, Legality],
@@ -214,8 +214,8 @@ case class SingleCard(
         document.insertString(document.getLength, "\n", reminderStyle)
       }
 
-      if (power.exists && toughness.exists)
-        document.insertString(document.getLength, s"$power/$toughness\n", textStyle)
+      if (power.isDefined && toughness.isDefined)
+        document.insertString(document.getLength, s"${power.get}/${toughness.get}\n", textStyle)
       else if (loyalty.exists)
           document.insertString(document.getLength, s"$loyalty\n", textStyle)
 

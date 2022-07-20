@@ -396,8 +396,8 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             val printed = Option(card.get("originalText")).map(_.getAsString).getOrElse("")
             val artist = Option(card.get("artist")).map(_.getAsString).getOrElse("")
             val number = Option(card.get("number")).map(_.getAsString).getOrElse("")
-            val power = Option(card.get("power")).map(_.getAsString).getOrElse("")
-            val toughness = Option(card.get("toughness")).map(_.getAsString).getOrElse("")
+            val power = Option(card.get("power")).map(_.getAsString)
+            val toughness = Option(card.get("toughness")).map(_.getAsString)
             val loyalty = Option(card.get("loyalty")).map(l => if (l.isJsonNull) "X" else l.getAsString).getOrElse("")
 
             val c = SingleCard(
@@ -439,8 +439,8 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               multiverseid,
               scryfallid,
               numbers.getOrElseUpdate(number, number),
-              stats.getOrElseUpdate(power, CombatStat(power)),
-              stats.getOrElseUpdate(toughness, CombatStat(toughness)),
+              power.map((p) => stats.getOrElseUpdate(p, CombatStat(p))),
+              toughness.map((t) => stats.getOrElseUpdate(t, CombatStat(t))),
               loyalties.getOrElseUpdate(loyalty, Loyalty(loyalty)),
               TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
               legality,

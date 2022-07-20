@@ -156,12 +156,22 @@ object CardAttribute {
       with HasMultiOptionsFilter[String](_.supertypes)
       with HasAssignableOptions[String, MultiOptionsFilter[String]]
 
-  case object Power extends CardAttribute[Seq[CombatStat], NumberFilter]("Power", "Creature power") with HasNumberFilter(false, _.power.value, Some(_.powerVariable)) {
-    override def compare(x: Seq[CombatStat], y: Seq[CombatStat]) = x(0).compare(y(0))
+  case object Power extends CardAttribute[Seq[Option[CombatStat]], NumberFilter]("Power", "Creature power") with HasNumberFilter(false, _.power.map(_.value).getOrElse(Double.NaN), Some(_.powerVariable)) {
+    override def compare(x: Seq[Option[CombatStat]], y: Seq[Option[CombatStat]]) = (x.flatten.headOption, y.flatten.headOption) match {
+      case (Some(a), Some(b)) => a.compare(b)
+      case (Some(a), None) => -1
+      case (None, Some(b)) => 1
+      case (None, None) => 0
+    }
   }
 
-  case object Toughness extends CardAttribute[Seq[CombatStat], NumberFilter]("Toughness", "Creature toughness") with HasNumberFilter(false, _.toughness.value, Some(_.powerVariable)) {
-    override def compare(x: Seq[CombatStat], y: Seq[CombatStat]) = x(0).compare(y(0))
+  case object Toughness extends CardAttribute[Seq[Option[CombatStat]], NumberFilter]("Toughness", "Creature toughness") with HasNumberFilter(false, _.toughness.map(_.value).getOrElse(Double.NaN), Some(_.powerVariable)) {
+    override def compare(x: Seq[Option[CombatStat]], y: Seq[Option[CombatStat]]) = (x.flatten.headOption, y.flatten.headOption) match {
+      case (Some(a), Some(b)) => a.compare(b)
+      case (Some(a), None) => -1
+      case (None, Some(b)) => 1
+      case (None, None) => 0
+    }
   }
 
   case object Loyalty extends CardAttribute[Seq[Loyalty], NumberFilter]("Loyalty", "Planeswalker starting loyalty") with HasNumberFilter(false, _.loyalty.value, Some(_.loyaltyVariable)) {

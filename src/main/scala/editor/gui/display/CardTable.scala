@@ -17,6 +17,7 @@ import javax.swing.table.TableCellRenderer
 import javax.swing.table.TableModel
 import javax.swing.table.TableRowSorter
 import scala.jdk.CollectionConverters._
+import editor.database.attributes.CombatStat
 
 /**
  * Companion used for global card table operations.
@@ -121,7 +122,22 @@ private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[Tabl
       val ascending = getSortKeys.get(0).getSortOrder == SortOrder.ASCENDING
       val attribute = m.columns(column)
       attribute match {
-        case CardAttribute.Power | CardAttribute.Toughness | CardAttribute.Loyalty => (a: AnyRef, b: AnyRef) => {
+        case CardAttribute.Power | CardAttribute.Toughness => (a: AnyRef, b: AnyRef) => {
+          def findPT(x: AnyRef) = x match {
+            case s: Seq[?] => s.map{
+              case Some(c: CombatStat) => Some(c)
+              case _ => None
+            }.headOption.flatten
+            case _ => None
+          }
+          (findPT(a), findPT(b)) match {
+            case (None, None) => 0
+            case (Some(_), None) => if (ascending) -1 else 1
+            case (None, Some(_)) => if (ascending) 1 else -1
+            case (Some(x), Some(y)) => x.compare(y)
+          }
+        }
+        case CardAttribute.Loyalty => (a: AnyRef, b: AnyRef) => {
           val first = a match {
             case s: Seq[?] => s.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
             case l: java.util.List[?] => l.asScala.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)

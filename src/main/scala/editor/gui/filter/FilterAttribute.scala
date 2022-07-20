@@ -101,11 +101,11 @@ object FilterAttribute {
     override def attribute = CardAttribute.Supertype
   }
 
-  case object PowerFilter extends FilterAttribute[Seq[CombatStat], NumberFilter] with NumberFilterAttribute {
+  case object PowerFilter extends FilterAttribute[Seq[Option[CombatStat]], NumberFilter] with NumberFilterAttribute {
     override def attribute = CardAttribute.Power
   }
 
-  case object ToughnessFilter extends FilterAttribute[Seq[CombatStat], NumberFilter] with NumberFilterAttribute {
+  case object ToughnessFilter extends FilterAttribute[Seq[Option[CombatStat]], NumberFilter] with NumberFilterAttribute {
     override def attribute = CardAttribute.Toughness
   }
 

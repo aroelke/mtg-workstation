@@ -27,6 +27,7 @@ import javax.swing.UIManager
 import javax.swing.border.Border
 import javax.swing.table.DefaultTableCellRenderer
 import scala.jdk.CollectionConverters._
+import editor.database.attributes.CombatStat
 
 private object CardTableCellRenderer {
   val cache = collection.mutable.Map[Seq[ManaCost], Seq[Seq[Icon]]]()
@@ -118,7 +119,17 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
               case _ => ""
             }
             panel
-          case CardAttribute.Power | CardAttribute.Toughness | CardAttribute.Loyalty =>
+          case CardAttribute.Power | CardAttribute.Toughness =>
+            val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
+            value match {
+              case s: Seq[?] => panel.add(setColors(tableLabel(if (s.forall(_ == None)) "" else s.map{
+                case Some(CombatStat(e, _)) => e
+                case _ => ""
+              }.mkString(Card.FaceSeparator))))
+              case _ =>
+            }
+            panel
+          case CardAttribute.Loyalty =>
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
             value match {
               case s: Seq[?] => panel.add(setColors(tableLabel(s.mkString(Card.FaceSeparator))))
