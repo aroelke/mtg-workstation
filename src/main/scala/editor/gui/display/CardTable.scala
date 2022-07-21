@@ -123,13 +123,13 @@ class CardTable(model: TableModel) extends JTable(model) {
 private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[TableModel](model) {
   override def getComparator(column: Int) = model match {
     case m: CardTableModel =>
-      val ascending = getSortKeys.get(0).getSortOrder == SortOrder.ASCENDING
+      val ascending = getSortKeys.asScala.exists(_.getSortOrder == SortOrder.ASCENDING)
+      implicit def ordering[T : Ordering]: Ordering[Option[T]] = OptionOrdering[T](ascending)
 
-      val attribute = m.columns(column)
-      attribute match {
-        case CardAttribute.Power | CardAttribute.Toughness => SeqOrdering[Option[CombatStat]]()(OptionOrdering[CombatStat](ascending))
-        case CardAttribute.Loyalty => SeqOrdering[Option[Loyalty]]()(OptionOrdering[Loyalty](ascending))
-        case _ => m.columns(column)
+      m.columns(column) match {
+        case CardAttribute.Power | CardAttribute.Toughness => SeqOrdering[Option[CombatStat]]()
+        case CardAttribute.Loyalty => SeqOrdering[Option[Loyalty]]()
+        case attribute => attribute
       }
     case _ => super.getComparator(column)
   }
