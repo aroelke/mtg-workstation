@@ -137,7 +137,8 @@ class OptionsFilterPanel[T <: AnyRef : ClassTag, F <: OptionsFilter[T, F] : Clas
   }
 
   override def filter = attribute.filter match {
-    case o @ (_: SingletonOptionsFilter[?] | _: MultiOptionsFilter[?]) => o.copy(contain = contain.getSelectedItem, selected = boxes.map((b) => b.getItemAt(b.getSelectedIndex)).toSet)
+    case s: SingletonOptionsFilter[?] => s.copy(contain = contain.getSelectedItem, selected = boxes.map((b) => b.getItemAt(b.getSelectedIndex)).toSet)
+    case m: MultiOptionsFilter[?] => m.copy(contain = contain.getSelectedItem, selected = boxes.map((b) => b.getItemAt(b.getSelectedIndex)).toSet)
   }
 
   override def setFields(filter: F) = if (filter.attribute == attribute) {
