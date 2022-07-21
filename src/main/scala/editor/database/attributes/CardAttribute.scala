@@ -20,6 +20,7 @@ import editor.filter.leaf.TypeLineFilter
 import java.text.Collator
 import java.time.LocalDate
 import scala.reflect.ClassTag
+import editor.util.SeqOrdering
 
 // D: type returned from CardTableEntry.apply
 // F: type of filter that filters by the attribute
@@ -47,6 +48,10 @@ sealed trait ComparesColors { this: CardAttribute[Set[ManaType], ?] =>
     else
       diff
   }
+}
+
+sealed trait ComparesOptions[T : Ordering] { this: CardAttribute[Seq[Option[T]], ?] =>
+  override def compare(x: Seq[Option[T]], y: Seq[Option[T]]) = SeqOrdering[Option[T]]().compare(x, y)
 }
 
 sealed trait CantCompare[T] { this: CardAttribute[T, ?] =>
@@ -142,46 +147,31 @@ object CardAttribute {
     with CantCompare[Seq[String]]
 
   case object CardType extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Card Type", "Card types only")
-      with CantCompare[Set[String]]
-      with HasMultiOptionsFilter[String](_.types)
-      with HasAssignableOptions[String, MultiOptionsFilter[String]]
+    with CantCompare[Set[String]]
+    with HasMultiOptionsFilter[String](_.types)
+    with HasAssignableOptions[String, MultiOptionsFilter[String]]
 
   case object Subtype extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Subtype", "Subtypes only")
-      with CantCompare[Set[String]]
-      with HasMultiOptionsFilter[String](_.subtypes)
-      with HasAssignableOptions[String, MultiOptionsFilter[String]]
+    with CantCompare[Set[String]]
+    with HasMultiOptionsFilter[String](_.subtypes)
+    with HasAssignableOptions[String, MultiOptionsFilter[String]]
 
   case object Supertype extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Supertype", "Supertypes only")
-      with CantCompare[Set[String]]
-      with HasMultiOptionsFilter[String](_.supertypes)
-      with HasAssignableOptions[String, MultiOptionsFilter[String]]
+    with CantCompare[Set[String]]
+    with HasMultiOptionsFilter[String](_.supertypes)
+    with HasAssignableOptions[String, MultiOptionsFilter[String]]
 
-  case object Power extends CardAttribute[Seq[Option[CombatStat]], NumberFilter]("Power", "Creature power") with HasNumberFilter(false, _.power.map(_.value).getOrElse(Double.NaN), Some(_.powerVariable)) {
-    override def compare(x: Seq[Option[CombatStat]], y: Seq[Option[CombatStat]]) = (x.flatten.headOption, y.flatten.headOption) match {
-      case (Some(a), Some(b)) => a.compare(b)
-      case (Some(a), None) => -1
-      case (None, Some(b)) => 1
-      case (None, None) => 0
-    }
-  }
+  case object Power extends CardAttribute[Seq[Option[CombatStat]], NumberFilter]("Power", "Creature power")
+    with ComparesOptions[CombatStat]
+    with HasNumberFilter(false, _.power.map(_.value).getOrElse(Double.NaN), Some(_.powerVariable))
 
-  case object Toughness extends CardAttribute[Seq[Option[CombatStat]], NumberFilter]("Toughness", "Creature toughness") with HasNumberFilter(false, _.toughness.map(_.value).getOrElse(Double.NaN), Some(_.powerVariable)) {
-    override def compare(x: Seq[Option[CombatStat]], y: Seq[Option[CombatStat]]) = (x.flatten.headOption, y.flatten.headOption) match {
-      case (Some(a), Some(b)) => a.compare(b)
-      case (Some(_), None) => -1
-      case (None, Some(_)) => 1
-      case (None, None) => 0
-    }
-  }
+  case object Toughness extends CardAttribute[Seq[Option[CombatStat]], NumberFilter]("Toughness", "Creature toughness")
+    with ComparesOptions[CombatStat]
+    with HasNumberFilter(false, _.toughness.map(_.value).getOrElse(Double.NaN), Some(_.powerVariable))
 
-  case object Loyalty extends CardAttribute[Seq[Option[Loyalty]], NumberFilter]("Loyalty", "Planeswalker starting loyalty") with HasNumberFilter(false, _.loyalty.map(_.value).getOrElse(Double.NaN), Some(_.loyaltyVariable)) {
-    override def compare(x: Seq[Option[Loyalty]], y: Seq[Option[Loyalty]]) = (x.flatten.headOption, y.flatten.headOption) match {
-      case (Some(a), Some(b)) => a.compare(b)
-      case (Some(_), None) => -1
-      case (None, Some(_)) => 1
-      case (None, None) => 0
-    }
-  }
+  case object Loyalty extends CardAttribute[Seq[Option[Loyalty]], NumberFilter]("Loyalty", "Planeswalker starting loyalty")
+    with ComparesOptions[Loyalty]
+    with HasNumberFilter(false, _.loyalty.map(_.value).getOrElse(Double.NaN), Some(_.loyaltyVariable))
 
   case object Layout extends CardAttribute[CardLayout, SingletonOptionsFilter[CardLayout]]("Layout", "Layout of card faces") with HasSingletonOptionsFilter[CardLayout](_.layout) {
     override def options = CardLayout.values
