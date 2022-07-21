@@ -1,7 +1,12 @@
 package editor.util
 
-class OptionOrdering[T : Ordering] extends math.Ordering.OptionOrdering[T] {
-  override def optionOrdering = implicitly[Ordering[T]]
+class OptionOrdering[T : Ordering](ascending: Boolean = true) extends Ordering[Option[T]] {
+  override def compare(x: Option[T], y: Option[T]) = (x, y) match {
+    case (Some(a), Some(b)) => implicitly[Ordering[T]].compare(a, b)
+    case (Some(_), None) => if (ascending) -1 else 1
+    case (None, Some(_)) => if (ascending) 1 else -1
+    case (None, None) => 0
+  }
 }
 
 class SeqOrdering[T : Ordering] extends Ordering[Seq[T]] {
