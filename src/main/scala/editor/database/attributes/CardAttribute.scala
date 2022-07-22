@@ -21,6 +21,7 @@ import java.text.Collator
 import java.time.LocalDate
 import scala.reflect.ClassTag
 import editor.util.SeqOrdering
+import editor.util.OptionOrdering
 
 // D: type returned from CardTableEntry.apply
 // F: type of filter that filters by the attribute
@@ -34,6 +35,10 @@ sealed trait CardAttribute[D : ClassTag, F <: FilterLeaf](name: String, val desc
   override def toString = name
 }
 
+sealed trait ComparesOrdered[T : Ordering] { this: CardAttribute[T, ?] =>
+  override def compare(x: T, y: T) = implicitly[Ordering[T]].compare(x, y)
+}
+
 sealed trait ComparesColors { this: CardAttribute[Set[ManaType], ?] =>
   override def compare(x: Set[ManaType], y: Set[ManaType]) = {
     val diff = x.size - y.size
@@ -42,10 +47,6 @@ sealed trait ComparesColors { this: CardAttribute[Set[ManaType], ?] =>
     else
       diff
   }
-}
-
-sealed trait ComparesOptions[T : Ordering] { this: CardAttribute[Seq[Option[T]], ?] =>
-  override def compare(x: Seq[Option[T]], y: Seq[Option[T]]) = SeqOrdering[Option[T]]().compare(x, y)
 }
 
 sealed trait CantCompare[T] { this: CardAttribute[T, ?] =>
@@ -103,18 +104,17 @@ object CardAttribute {
     with HasTextFilter(_.normalizedPrinted)
     with CantCompare[Seq[String]]
 
-  case object ManaCost extends CardAttribute[Seq[ManaCost], ManaCostFilter]("Mana Cost", "Mana cost, including symbols") {
-    override def compare(x: Seq[ManaCost], y: Seq[ManaCost]) = x(0).compare(y(0))
+  case object ManaCost extends CardAttribute[Seq[ManaCost], ManaCostFilter]("Mana Cost", "Mana cost, including symbols") with ComparesOrdered[Seq[ManaCost]] {
     override def filter = ManaCostFilter()
   }
 
-  case object RealManaValue extends CardAttribute[Double, NumberFilter]("Real Mana Value", "Card mana value as defined by the rules") with HasNumberFilter(true, _.manaValue, None) {
-    override def compare(x: Double, y: Double) = x.compare(y)
-  }
+  case object RealManaValue extends CardAttribute[Double, NumberFilter]("Real Mana Value", "Card mana value as defined by the rules")
+    with ComparesOrdered[Double]
+    with HasNumberFilter(true, _.manaValue, None)
 
-  case object EffManaValue extends CardAttribute[Seq[Double], NumberFilter]("Eff. Mana Value", "Spell or permament mana value on the stack or battlefield of each face") with HasNumberFilter(false, _.manaValue, None) {
-    override def compare(x: Seq[Double], y: Seq[Double]) = x(0).compare(y(0))
-  }
+  case object EffManaValue extends CardAttribute[Seq[Double], NumberFilter]("Eff. Mana Value", "Spell or permament mana value on the stack or battlefield of each face")
+    with ComparesOrdered[Seq[Double]]
+    with HasNumberFilter(false, _.manaValue, None)
 
   case object Colors extends CardAttribute[Set[ManaType], ColorFilter]("Colors", "Card colors derived from mana cost or color indicator")
     with ComparesColors
@@ -124,15 +124,7 @@ object CardAttribute {
     with ComparesColors
     with HasColorFilter(_.colorIdentity)
 
-  case object TypeLine extends CardAttribute[Seq[TypeLine], TypeLineFilter]("Type Line", "Full type line, including supertypes, card types, and subtypes") {
-    override def compare(x: Seq[TypeLine], y: Seq[TypeLine]) = {
-      if (x.size > y.size)
-        1
-      else if (y.size > x.size)
-        -1
-      else
-        (x zip y).map(_.compare(_)).find(_ > 0).headOption.getOrElse(0)
-    }
+  case object TypeLine extends CardAttribute[Seq[TypeLine], TypeLineFilter]("Type Line", "Full type line, including supertypes, card types, and subtypes") with ComparesOrdered[Seq[TypeLine]] {
     override def filter = TypeLineFilter()
   }
 
@@ -156,20 +148,21 @@ object CardAttribute {
     with HasAssignableOptions[String, MultiOptionsFilter[String]]
 
   case object Power extends CardAttribute[Seq[Option[CombatStat]], NumberFilter]("Power", "Creature power")
-    with ComparesOptions[CombatStat]
+    with ComparesOrdered[Seq[Option[CombatStat]]]
     with HasNumberFilter(false, _.power.map(_.value).getOrElse(Double.NaN), Some(_.powerVariable))
 
   case object Toughness extends CardAttribute[Seq[Option[CombatStat]], NumberFilter]("Toughness", "Creature toughness")
-    with ComparesOptions[CombatStat]
+    with ComparesOrdered[Seq[Option[CombatStat]]]
     with HasNumberFilter(false, _.toughness.map(_.value).getOrElse(Double.NaN), Some(_.powerVariable))
 
   case object Loyalty extends CardAttribute[Seq[Option[Loyalty]], NumberFilter]("Loyalty", "Planeswalker starting loyalty")
-    with ComparesOptions[Loyalty]
+    with ComparesOrdered[Seq[Option[Loyalty]]]
     with HasNumberFilter(false, _.loyalty.map(_.value).getOrElse(Double.NaN), Some(_.loyaltyVariable))
 
-  case object Layout extends CardAttribute[CardLayout, SingletonOptionsFilter[CardLayout]]("Layout", "Layout of card faces") with HasSingletonOptionsFilter[CardLayout](_.layout) {
+  case object Layout extends CardAttribute[CardLayout, SingletonOptionsFilter[CardLayout]]("Layout", "Layout of card faces")
+      with ComparesOrdered[CardLayout]
+      with HasSingletonOptionsFilter[CardLayout](_.layout) {
     override def options = CardLayout.values
-    override def compare(x: CardLayout, y: CardLayout) = x.compare(y)
   }
 
   case object Expansion extends CardAttribute[editor.database.attributes.Expansion, SingletonOptionsFilter[editor.database.attributes.Expansion]]("Expansion", "Expansion a card belongs to") with HasSingletonOptionsFilter[editor.database.attributes.Expansion](_.expansion) {
@@ -182,9 +175,10 @@ object CardAttribute {
     override def compare(x: String, y: String) = Collator.getInstance.compare(x, y)
   }
 
-  case object Rarity extends CardAttribute[editor.database.attributes.Rarity, SingletonOptionsFilter[editor.database.attributes.Rarity]]("Rarity", "Printed rarity") with HasSingletonOptionsFilter[editor.database.attributes.Rarity](_.rarity) {
+  case object Rarity extends CardAttribute[editor.database.attributes.Rarity, SingletonOptionsFilter[editor.database.attributes.Rarity]]("Rarity", "Printed rarity")
+      with ComparesOrdered[Rarity]
+      with HasSingletonOptionsFilter[editor.database.attributes.Rarity](_.rarity) {
     override def options = editor.database.attributes.Rarity.values
-    override def compare(x: Rarity, y: Rarity) = x.compare(y)
   }
 
   case object Artist extends CardAttribute[Seq[String], TextFilter]("Artist", "Credited artist") with HasTextFilter(_.faces.map(_.artist)) {
@@ -216,13 +210,13 @@ object CardAttribute {
     }
   }
 
-  case object Count extends CardAttribute[Int, Nothing]("Count", "") with CantBeFiltered {
-    override def compare(x: Int, y: Int) = x.compare(y)
-  }
+  case object Count extends CardAttribute[Int, Nothing]("Count", "")
+    with ComparesOrdered[Int]
+    with CantBeFiltered
 
-  case object DateAdded extends CardAttribute[LocalDate, Nothing]("Date Added", "") with CantBeFiltered {
-    override def compare(x: LocalDate, y: LocalDate) = x.compareTo(y)
-  }
+  case object DateAdded extends CardAttribute[LocalDate, Nothing]("Date Added", "")
+    with ComparesOrdered[LocalDate]
+    with CantBeFiltered
 
   case object AnyCard extends CardAttribute[Unit, BinaryFilter]("<Any Card>", "Match any card") with CantCompare[Unit] {
     override def filter = BinaryFilter(true)

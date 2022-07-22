@@ -18,7 +18,6 @@ import javax.swing.table.TableCellRenderer
 import javax.swing.table.TableModel
 import javax.swing.table.TableRowSorter
 import scala.jdk.CollectionConverters._
-import editor.database.attributes.ComparesOptions
 import scala.reflect.ClassTag
 import editor.util.SeqOrdering
 import editor.util.OptionOrdering
@@ -124,11 +123,9 @@ private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[Tabl
   override def getComparator(column: Int) = model match {
     case m: CardTableModel =>
       val ascending = getSortKeys.asScala.exists(_.getSortOrder == SortOrder.ASCENDING)
-      implicit def ordering[T : Ordering]: Ordering[Option[T]] = OptionOrdering[T](ascending)
-
       m.columns(column) match {
-        case CardAttribute.Power | CardAttribute.Toughness => SeqOrdering[Option[CombatStat]]()
-        case CardAttribute.Loyalty => SeqOrdering[Option[Loyalty]]()
+        case CardAttribute.Power | CardAttribute.Toughness => SeqOrdering[Option[CombatStat]](OptionOrdering[CombatStat](ascending))
+        case CardAttribute.Loyalty => SeqOrdering[Option[Loyalty]](OptionOrdering[Loyalty](ascending))
         case attribute => attribute
       }
     case _ => super.getComparator(column)
