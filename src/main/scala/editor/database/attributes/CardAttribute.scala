@@ -28,12 +28,6 @@ sealed trait CardAttribute[D : ClassTag, F <: FilterLeaf](name: String, val desc
   def filter: F
 
   def ordinal = CardAttribute.values.indexOf(this)
-  def any_compare(x: Any, y: Any): Int = (x, y) match {
-    case (a: D, b: D) => compare(a, b)
-    case (a: D, b) => throw ClassCastException(s"$b: ${b.getClass} is not an instance of ${dataType}")
-    case (a, b: D) => throw ClassCastException(s"$a: ${a.getClass} is not an instance of ${dataType}")
-    case (a, b) => throw ClassCastException(s"$a: ${a.getClass} is not an instance of ${dataType} and $b: ${b.getClass} is not an instance of ${dataType}")
-  }
   def comparingEntry: Ordering[CardListEntry] = (a: CardListEntry, b: CardListEntry) => compare(a(this) match { case v: D => v }, b(this) match { case v: D => v})
   def dataType = implicitly[ClassTag[D]].runtimeClass.asInstanceOf[Class[D]]
 
