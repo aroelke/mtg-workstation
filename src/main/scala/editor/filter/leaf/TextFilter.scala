@@ -101,12 +101,8 @@ final case class TextFilter(attribute: CardAttribute[Seq[String], TextFilter], v
       else
         !r.findFirstIn(_).isDefined
     case SomeOf => !createSimpleMatcher(text)(_)
-    case Exactly | NotExactly =>
-      val r = s"(?i)${replaceTokens(text)}".r
-      if (contain == Exactly)
-        r.findFirstIn(_).isDefined
-      else
-        !r.findFirstIn(_).isDefined
+    case Exactly => text.equalsIgnoreCase
+    case NotExactly => !text.equalsIgnoreCase(_)
   }
 
   override val unified = false
