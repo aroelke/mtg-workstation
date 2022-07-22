@@ -16,12 +16,12 @@ import editor.filter.leaf.OptionsFilter
 import editor.filter.leaf.SingletonOptionsFilter
 import editor.filter.leaf.TextFilter
 import editor.filter.leaf.TypeLineFilter
+import editor.util.OptionOrdering
+import editor.util.SeqOrdering
 
 import java.text.Collator
 import java.time.LocalDate
 import scala.reflect.ClassTag
-import editor.util.SeqOrdering
-import editor.util.OptionOrdering
 
 // D: type returned from CardTableEntry.apply
 // F: type of filter that filters by the attribute
@@ -35,8 +35,13 @@ sealed trait CardAttribute[D : ClassTag, F <: FilterLeaf](name: String, val desc
   override def toString = name
 }
 
+
 sealed trait ComparesOrdered[T : Ordering] { this: CardAttribute[T, ?] =>
   override def compare(x: T, y: T) = implicitly[Ordering[T]].compare(x, y)
+}
+
+sealed trait ComparesCollator[T](convert: (T) => String) { this: CardAttribute[T, ?] =>
+  override def compare(x: T, y: T) = Collator.getInstance.compare(convert(x), convert(y))
 }
 
 sealed trait ComparesColors { this: CardAttribute[Set[ManaType], ?] =>
@@ -52,6 +57,7 @@ sealed trait ComparesColors { this: CardAttribute[Set[ManaType], ?] =>
 sealed trait CantCompare[T] { this: CardAttribute[T, ?] =>
   override def compare(x: T, y: T) = throw UnsupportedOperationException(s"$toString can't be used to compare attributes")
 }
+
 
 sealed trait HasTextFilter(text: (Card) => Seq[String]) { this: CardAttribute[Seq[String], TextFilter] =>
   override def filter = TextFilter(this, text)
@@ -87,10 +93,11 @@ sealed trait CantBeFiltered { this: CardAttribute[?, Nothing] =>
   override def filter = throw UnsupportedOperationException(s"$toString can't be filtered")
 }
 
+
 object CardAttribute {
-  case object Name extends CardAttribute[Seq[String], TextFilter]("Name", "Card Name") with HasTextFilter(_.normalizedName) {
-    override def compare(x: Seq[String], y: Seq[String]) = Collator.getInstance.compare(x(0), y(0))
-  }
+  case object Name extends CardAttribute[Seq[String], TextFilter]("Name", "Card Name")
+    with ComparesCollator[Seq[String]](_.mkString)
+    with HasTextFilter(_.normalizedName)
 
   case object RulesText extends CardAttribute[Seq[String], TextFilter]("Rules Text", "Up-to-date Oracle text")
       with HasTextFilter(_.normalizedOracle)
@@ -165,14 +172,16 @@ object CardAttribute {
     override def options = CardLayout.values
   }
 
-  case object Expansion extends CardAttribute[editor.database.attributes.Expansion, SingletonOptionsFilter[editor.database.attributes.Expansion]]("Expansion", "Expansion a card belongs to") with HasSingletonOptionsFilter[editor.database.attributes.Expansion](_.expansion) {
+  case object Expansion extends CardAttribute[editor.database.attributes.Expansion, SingletonOptionsFilter[editor.database.attributes.Expansion]]("Expansion", "Expansion a card belongs to")
+      with ComparesCollator[editor.database.attributes.Expansion](_.name)
+      with HasSingletonOptionsFilter[editor.database.attributes.Expansion](_.expansion) {
     override def options = editor.database.attributes.Expansion.expansions
-    override def compare(x: editor.database.attributes.Expansion, y: editor.database.attributes.Expansion) = Collator.getInstance.compare(x.name, y.name)
   }
 
-  case object Block extends CardAttribute[String, SingletonOptionsFilter[String]]("Block", "Block of expansions, if any, a card's expansion belongs to") with HasSingletonOptionsFilter[String](_.expansion.block) {
+  case object Block extends CardAttribute[String, SingletonOptionsFilter[String]]("Block", "Block of expansions, if any, a card's expansion belongs to")
+      with ComparesCollator[String](identity)
+      with HasSingletonOptionsFilter[String](_.expansion.block) {
     override def options = editor.database.attributes.Expansion.blocks
-    override def compare(x: String, y: String) = Collator.getInstance.compare(x, y)
   }
 
   case object Rarity extends CardAttribute[editor.database.attributes.Rarity, SingletonOptionsFilter[editor.database.attributes.Rarity]]("Rarity", "Printed rarity")
@@ -181,27 +190,29 @@ object CardAttribute {
     override def options = editor.database.attributes.Rarity.values
   }
 
-  case object Artist extends CardAttribute[Seq[String], TextFilter]("Artist", "Credited artist") with HasTextFilter(_.faces.map(_.artist)) {
-    override def compare(x: Seq[String], y: Seq[String]) = Collator.getInstance.compare(x(0), y(0))
-  }
+  case object Artist extends CardAttribute[Seq[String], TextFilter]("Artist", "Credited artist")
+    with ComparesCollator[Seq[String]](_(0)) // assume same artist for all faces
+    with HasTextFilter(_.faces.map(_.artist))
 
-  case object CardNumber extends CardAttribute[Seq[String], NumberFilter]("Card Number", "Collector number in expansion") with HasNumberFilter(false, (f) => {
-    try {
-      f.number.replace("--", "0").replaceAll(raw"[\D]", "").toDouble
-    } catch case e: NumberFormatException => 0.0
-  }, None) {
-    override def compare(x: Seq[String], y: Seq[String]) = Collator.getInstance.compare(x(0), y(0))
-  }
+  case object CardNumber extends CardAttribute[Seq[String], NumberFilter]("Card Number", "Collector number in expansion")
+    with ComparesCollator[Seq[String]](_.mkString)
+    with HasNumberFilter(false, (f) => {
+      try {
+        f.number.replace("--", "0").replaceAll(raw"[\D]", "").toDouble
+      } catch case e: NumberFormatException => 0.0
+    }, None)
 
-  case object LegalIn extends CardAttribute[Set[String], LegalityFilter]("Format Legality", "Formats a card can be legally be played in and if it is restricted") with HasOptions[String, LegalityFilter] {
+  case object LegalIn extends CardAttribute[Set[String], LegalityFilter]("Format Legality", "Formats a card can be legally be played in and if it is restricted")
+      with ComparesCollator[Set[String]](_.toSeq.sorted.mkString)
+      with HasOptions[String, LegalityFilter] {
     override def options = FormatConstraints.FormatNames
-    override def compare(x: Set[String], y: Set[String]) = Collator.getInstance.compare(x.toSeq.sorted.mkString(","), y.toSeq.sorted.mkString(","))
     override def filter = LegalityFilter()
   }
 
-  case object Tags extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Tags", "Tags you have created and assigned") with HasMultiOptionsFilter[String](Card.tags.get(_).map(_.toSet).getOrElse(Set.empty)) {
+  case object Tags extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Tags", "Tags you have created and assigned")
+      with ComparesCollator[Set[String]](_.toSeq.sorted.mkString)
+      with HasMultiOptionsFilter[String](Card.tags.get(_).map(_.toSet).getOrElse(Set.empty)) {
     override def options = Card.tags.flatMap{ case (_, s) => s }.toSeq.sorted
-    override def compare(x: Set[String], y: Set[String]) = Collator.getInstance.compare(x.toSeq.sorted.mkString(","), y.toSeq.sorted.mkString(","))
   }
 
   case object Categories extends CardAttribute[Set[Categorization], Nothing]("Categories", "") with CantBeFiltered {
