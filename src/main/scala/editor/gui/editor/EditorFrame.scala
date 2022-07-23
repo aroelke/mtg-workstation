@@ -300,7 +300,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       }
     }
 
-    override def apply(index: Int) = current(index)
+    override def apply(index: Int): Deck#Entry = current(index)
     override def length = current.length
     override def total = current.total
 

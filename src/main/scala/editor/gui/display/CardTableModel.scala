@@ -30,8 +30,8 @@ class CardTableModel(private var cards: CardList, private var attributes: Indexe
 
   override def setValueAt(value: Object, row: Int, column: Int) = if (isCellEditable(row, column)) {
     (cards, attributes(column), value) match {
-      case (deck: Deck, CardAttribute.Count, i: java.lang.Integer) => deck(row).count = i
-      case (deck: Deck, CardAttribute.Categories, ie: IncludeExcludePanel) => editor.foreach(_.categories.update(ie.updates.map((c) => c.name -> c).toMap))
+      case (deck: EditorFrame#DeckData, CardAttribute.Count, i: java.lang.Integer) => deck(row).count = i
+      case (deck: EditorFrame#DeckData, CardAttribute.Categories, ie: IncludeExcludePanel) => editor.foreach(_.categories.update(ie.updates.map((c) => c.name -> c).toMap))
       case _ => throw IllegalArgumentException(s"cannot edit data type ${attributes(column)} to $value (${cards.getClass} | ${value.getClass}")
     }
     fireTableDataChanged()
