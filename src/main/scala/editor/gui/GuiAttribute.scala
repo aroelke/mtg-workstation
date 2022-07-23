@@ -20,31 +20,31 @@ import scala.reflect.ClassTag
 
 sealed trait GuiAttribute[T, F <: FilterLeaf] {
   def attribute: CardAttribute[T, F]
-  def panel(selector: FilterSelectorPanel): FilterEditorPanel[F]
+  def filter(selector: FilterSelectorPanel): FilterEditorPanel[F]
 
   override def toString = attribute.toString
 }
 
 sealed trait TextFilterAttribute { this: GuiAttribute[Seq[String], TextFilter] =>
-  override def panel(selector: FilterSelectorPanel) = TextFilterPanel(attribute.filter, selector)
+  override def filter(selector: FilterSelectorPanel) = TextFilterPanel(attribute.filter, selector)
 }
 
 sealed trait NumberFilterAttribute { this: GuiAttribute[?, NumberFilter] =>
-  override def panel(selector: FilterSelectorPanel) = NumberFilterPanel(attribute.filter, selector)
+  override def filter(selector: FilterSelectorPanel) = NumberFilterPanel(attribute.filter, selector)
 }
 
 sealed trait ColorFilterAttribute { this: GuiAttribute[Set[ManaType], ColorFilter] =>
-  override def panel(selector: FilterSelectorPanel) = ColorFilterPanel(attribute.filter, selector)
+  override def filter(selector: FilterSelectorPanel) = ColorFilterPanel(attribute.filter, selector)
 }
 
 sealed trait SingletonOptionsFilterAttribute[T <: AnyRef : ClassTag] { this: GuiAttribute[T, SingletonOptionsFilter[T]] =>
   override def attribute: CardAttribute[T, SingletonOptionsFilter[T]] with HasSingletonOptionsFilter[T]
-  override def panel(selector: FilterSelectorPanel) = OptionsFilterPanel(attribute.filter, attribute.options, selector)
+  override def filter(selector: FilterSelectorPanel) = OptionsFilterPanel(attribute.filter, attribute.options, selector)
 }
 
 sealed trait MultiOptionsFilterAttribute[T <: AnyRef : ClassTag, F <: MultiOptionsFilter[T] : ClassTag] { this: GuiAttribute[Set[T], F] =>
   override def attribute: CardAttribute[Set[T], F] with HasMultiOptionsFilter[T]
-  override def panel(selector: FilterSelectorPanel) = OptionsFilterPanel(attribute.filter, attribute.options, selector)
+  override def filter(selector: FilterSelectorPanel) = OptionsFilterPanel(attribute.filter, attribute.options, selector)
 }
 
 object GuiAttribute {
@@ -62,7 +62,7 @@ object GuiAttribute {
 
   case object ManaCostFilter extends GuiAttribute[Seq[ManaCost], ManaCostFilter] {
     override def attribute = CardAttribute.ManaCost
-    override def panel(selector: FilterSelectorPanel) = ManaCostFilterPanel(selector)
+    override def filter(selector: FilterSelectorPanel) = ManaCostFilterPanel(selector)
   }
 
   case object RealManaValueFilter extends GuiAttribute[Double, NumberFilter] with NumberFilterAttribute {
@@ -83,7 +83,7 @@ object GuiAttribute {
 
   case object TypeLineFilter extends GuiAttribute[Seq[TypeLine], _root_.editor.filter.leaf.TypeLineFilter] {
     override def attribute = CardAttribute.TypeLine
-    override def panel(selector: FilterSelectorPanel) = TypeLineFilterPanel(selector)
+    override def filter(selector: FilterSelectorPanel) = TypeLineFilterPanel(selector)
   }
 
   case object PrintedTypesFilter extends GuiAttribute[Seq[String], TextFilter] with TextFilterAttribute {
@@ -140,7 +140,7 @@ object GuiAttribute {
 
   case object LegalInFilter extends GuiAttribute[Set[String], LegalityFilter] {
     override def attribute = CardAttribute.LegalIn
-    override def panel(selector: FilterSelectorPanel) = LegalityFilterPanel(attribute.filter, selector)
+    override def filter(selector: FilterSelectorPanel) = LegalityFilterPanel(attribute.filter, selector)
   }
 
   case object TagsFilter extends GuiAttribute[Set[String], MultiOptionsFilter[String]] with MultiOptionsFilterAttribute[String, MultiOptionsFilter[String]] {
@@ -149,12 +149,12 @@ object GuiAttribute {
 
   case object AnyCardFilter extends GuiAttribute[Unit, BinaryFilter] {
     override def attribute = CardAttribute.AnyCard
-    override def panel(selector: FilterSelectorPanel) = BinaryFilterPanel(true)
+    override def filter(selector: FilterSelectorPanel) = BinaryFilterPanel(true)
   }
 
   case object NoCardFilter extends GuiAttribute[Unit, BinaryFilter] {
     override def attribute = CardAttribute.NoCard
-    override def panel(selector: FilterSelectorPanel) = BinaryFilterPanel(false)
+    override def filter(selector: FilterSelectorPanel) = BinaryFilterPanel(false)
   }
 
   val values: IndexedSeq[GuiAttribute[?, ?]] = IndexedSeq(NameFilter, RulesTextFilter, PrintedTextFilter, ManaCostFilter, RealManaValueFilter, EffManaValueFilter, ColorsFilter, ColorIdentityFilter, TypeLineFilter, PrintedTypesFilter, CardTypeFilter, SubtypeFilter, SupertypeFilter, PowerFilter, ToughnessFilter, LoyaltyFilter, LayoutFilter, ExpansionFilter, BlockFilter, RarityFilter, ArtistFilter, CardNumberFilter, LegalInFilter, TagsFilter, AnyCardFilter, NoCardFilter)

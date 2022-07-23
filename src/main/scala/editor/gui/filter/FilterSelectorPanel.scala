@@ -69,7 +69,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   private val filtersPanel = JPanel(java.awt.CardLayout())
   add(filtersPanel)
   GuiAttribute.values.foreach((a) => {
-    val panel = a.panel(this)
+    val panel = a.filter(this)
     filterPanels(a) = panel
     filtersPanel.add(panel, a.attribute.toString)
   })
