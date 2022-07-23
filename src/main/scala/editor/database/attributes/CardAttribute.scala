@@ -38,7 +38,7 @@ sealed trait CardAttribute[T : ClassTag, F <: FilterLeaf](name: String, val desc
 
 
 sealed trait IsVirtualAttribute { this: CardAttribute[Unit, ?] =>
-  override def apply(e: CardListEntry) = {}
+  override def apply(e: CardListEntry) = throw UnsupportedOperationException(s"attribute $this is not a real card attribute")
 }
 
 
