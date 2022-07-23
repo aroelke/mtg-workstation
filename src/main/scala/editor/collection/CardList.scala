@@ -46,31 +46,6 @@ trait CardListEntry extends Equals {
   /** If applicable, the [[Categorization]]s that match the card in the list. */
   def categories: Set[Categorization]
 
-  /** @return the value of the given attribute for the card */
-  def apply(data: CardAttribute[?, ?]) = data match {
-    case Name => card.faces.map(_.name)
-    case Layout => card.layout
-    case ManaCost => card.faces.map(_.manaCost)
-    case RealManaValue => card.manaValue
-    case EffManaValue => card.faces.map(_.manaValue)
-    case Colors => card.colors
-    case ColorIdentity => card.colorIdentity
-    case TypeLine => card.faces.map(_.typeLine)
-    case Expansion => card.expansion
-    case Block => card.expansion.block
-    case Rarity => card.rarity
-    case Power => card.faces.map(_.power)
-    case Toughness => card.faces.map(_.toughness)
-    case Loyalty => card.faces.map(_.loyalty)
-    case Artist => card.faces.map(_.artist)
-    case CardNumber => card.faces.map(_.number)
-    case LegalIn => card.legalIn.toSeq.sorted
-    case Count => count
-    case Categories => categories
-    case DateAdded => dateAdded
-    case Tags => Card.tags(card).toSet
-  }
-
   override def canEqual(that: Any) = that.isInstanceOf[CardListEntry]
 
   /** @return a new [[CardListEntry]] that is a copy of this one except it is not associated with any list and may have a new count or date. */
