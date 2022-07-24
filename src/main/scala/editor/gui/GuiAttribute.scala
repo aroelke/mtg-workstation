@@ -36,10 +36,10 @@ import _root_.editor.collection.mutable.Deck
 sealed trait GuiAttribute[T : ClassTag, F <: FilterLeaf] {
   def attribute: CardAttribute[T, F]
   def filter(selector: FilterSelectorPanel): FilterEditorPanel[F]
-  def renderValue(value: T): JComponent
+  def render(value: T): JComponent
   def tooltip(value: T): String
 
-  final def render(value: AnyRef) = value match { case t: T => renderValue(t) }
+  final def getRendererComponent(value: AnyRef) = value match { case t: T => render(t) }
   final def getToolTipText(value: AnyRef) = value match { case t: T => s"<html>${tooltip(t)}</html>" }
 
   override def toString = attribute.toString
@@ -55,7 +55,7 @@ sealed trait NumberFilterAttribute { this: GuiAttribute[?, NumberFilter] =>
 
 sealed trait ColorFilterAttribute { this: GuiAttribute[Set[ManaType], ColorFilter] =>
   override def filter(selector: FilterSelectorPanel) = ColorFilterPanel(attribute.filter, selector)
-  override def renderValue(value: Set[ManaType]) = {
+  override def render(value: Set[ManaType]) = {
     val panel = JPanel()
     panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))
     ManaType.sorted(value).foreach((t) => panel.add(JLabel(ColorSymbol(t).scaled(ComponentUtils.TextSize))))
@@ -77,25 +77,25 @@ sealed trait MultiOptionsFilterAttribute[T <: AnyRef : ClassTag, F <: MultiOptio
 }
 
 sealed trait SimpleStringRenderer[T] { this: GuiAttribute[T, ?] =>
-  override def renderValue(value: T) = JLabel(value.toString)
+  override def render(value: T) = JLabel(value.toString)
   override def tooltip(value: T) = value.toString
 }
 
 sealed trait SimpleIterableRenderer[T, I <: Iterable[T]](toSeq: (I) => Seq[T] = (it: I) => it.toSeq, delim: String = Card.FaceSeparator) { this: GuiAttribute[I, ?] =>
   private def getString(value: I) = toSeq(value).mkString(delim)
-  override def renderValue(value: I) = JLabel(getString(value))
+  override def render(value: I) = JLabel(getString(value))
   override def tooltip(value: I) = getString(value)
 }
 
 sealed trait OptionIterableRenderer[T, I <: Iterable[Option[T]]](toSeq: (I) => Seq[Option[T]] = (it: I) => it.toSeq, delim: String = Card.FaceSeparator) { this: GuiAttribute[I, ?] =>
   private def getString(value: I) = if (value.flatten.isEmpty) "" else value.map(_.map(_.toString).getOrElse("")).mkString(Card.FaceSeparator)
-  override def renderValue(value: I) = JLabel(getString(value))
+  override def render(value: I) = JLabel(getString(value))
   override def tooltip(value: I) = getString(value)
 }
 
 sealed trait CantBeRendered[T] { this: GuiAttribute[T, ?] =>
   override def attribute: CardAttribute[T, ?] with CantCompare[T]
-  override def renderValue(value: T) = throw UnsupportedOperationException(s"$attribute can't be rendered")
+  override def render(value: T) = throw UnsupportedOperationException(s"$attribute can't be rendered")
   override def tooltip(value: T) = throw UnsupportedOperationException(s"$attribute can't be rendered")
 }
 
@@ -117,7 +117,7 @@ object GuiAttribute {
 
     override def attribute = CardAttribute.ManaCost
     override def filter(selector: FilterSelectorPanel) = ManaCostFilterPanel(selector)
-    override def renderValue(value: Seq[ManaCost]) = {
+    override def render(value: Seq[ManaCost]) = {
       val icons = cache.getOrElseUpdate(value, value.map(_.map(_.getIcon(ComponentUtils.TextSize))))
       val panel = JPanel()
       panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))
@@ -138,13 +138,13 @@ object GuiAttribute {
   case object RealManaValueFilter extends GuiAttribute[Double, NumberFilter] with NumberFilterAttribute {
     private[GuiAttribute] def getString(value: Double) = if (value == value.toInt) value.toInt.toString else value.toString
     override def attribute = CardAttribute.RealManaValue
-    override def renderValue(value: Double) = JLabel(getString(value))
+    override def render(value: Double) = JLabel(getString(value))
     override def tooltip(value: Double) = getString(value)
   }
 
   case object EffManaValueFilter extends GuiAttribute[Seq[Double], NumberFilter] with NumberFilterAttribute {
     override def attribute = CardAttribute.EffManaValue
-    override def renderValue(value: Seq[Double]) = JLabel(value.map(RealManaValueFilter.getString).mkString(Card.FaceSeparator))
+    override def render(value: Seq[Double]) = JLabel(value.map(RealManaValueFilter.getString).mkString(Card.FaceSeparator))
     override def tooltip(value: Seq[Double]) = value.map(RealManaValueFilter.getString).mkString(Card.FaceSeparator)
   }
 
@@ -213,7 +213,7 @@ object GuiAttribute {
 
   case object ArtistFilter extends GuiAttribute[Seq[String], TextFilter] with TextFilterAttribute {
     override def attribute = CardAttribute.Artist
-    override def renderValue(value: Seq[String]) = JLabel(value(0)) // assume artist of all faces is the same
+    override def render(value: Seq[String]) = JLabel(value(0)) // assume artist of all faces is the same
     override def tooltip(value: Seq[String]) = value(0)
   }
 
@@ -245,7 +245,7 @@ object GuiAttribute {
   case object CategoriesFilter extends GuiAttribute[Set[Categorization], Nothing] {
     override def attribute = CardAttribute.Categories
     override def filter(selector: FilterSelectorPanel) = throw UnsupportedOperationException("can't filter by category")
-    override def renderValue(value: Set[Categorization]) = {
+    override def render(value: Set[Categorization]) = {
       val categories = value.toSeq.sortBy(_.name)
       val panel = new JPanel {
         override def paintComponent(g: Graphics) = {
@@ -277,7 +277,7 @@ object GuiAttribute {
   case object DateAddedFilter extends GuiAttribute[LocalDate, Nothing] {
     override def attribute = CardAttribute.DateAdded
     override def filter(selector: FilterSelectorPanel) = throw UnsupportedOperationException("can't filter by date")
-    override def renderValue(value: LocalDate) = JLabel(Deck.DateFormatter.format(value))
+    override def render(value: LocalDate) = JLabel(Deck.DateFormatter.format(value))
     override def tooltip(value: LocalDate) = Deck.DateFormatter.format(value)
   }
 

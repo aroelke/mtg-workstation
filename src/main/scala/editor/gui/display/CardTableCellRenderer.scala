@@ -26,7 +26,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
     table.getModel match {
       case m: CardTableModel =>
         val panel = JPanel(BorderLayout())
-        panel.add(GuiAttribute.fromAttribute(m.columns(column)).render(value), BorderLayout.CENTER)
+        panel.add(GuiAttribute.fromAttribute(m.columns(column)).getRendererComponent(value), BorderLayout.CENTER)
         ComponentUtils.propagateColors(panel, c.getForeground, c.getBackground)
         panel.setBorder(if (hasFocus) UIManager.getBorder("Table.focusCellHighlightBorder") else BorderFactory.createEmptyBorder(0, 1, 0, 0))
         panel
