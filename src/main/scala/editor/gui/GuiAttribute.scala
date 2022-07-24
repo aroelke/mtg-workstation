@@ -262,11 +262,7 @@ object GuiAttribute {
       }
       panel
     }
-    override def tooltip(value: Set[Categorization]) = value.map(_.name).toSeq.sorted.mkString(
-      s"Categories:<br>${UnicodeSymbols.Bullet} ",
-      s"<br>${UnicodeSymbols.Bullet} ",
-      ""
-    )
+    override def tooltip(value: Set[Categorization]) = s"""Categories:${value.map((c) => s"<br>${UnicodeSymbols.Bullet} ${c.name}").toSeq.sorted.mkString}"""
   }
 
   case object CountFilter extends GuiAttribute[Int, Nothing] with SimpleStringRenderer[Int] {
