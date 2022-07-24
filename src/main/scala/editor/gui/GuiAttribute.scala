@@ -1,6 +1,7 @@
 package editor.gui
 
 import _root_.editor.collection.Categorization
+import _root_.editor.collection.mutable.Deck
 import _root_.editor.database.attributes.CantCompare
 import _root_.editor.database.attributes.CardAttribute
 import _root_.editor.database.attributes.CombatStat
@@ -24,14 +25,13 @@ import _root_.editor.util.UnicodeSymbols
 
 import java.awt.Color
 import java.awt.Graphics
+import java.time.LocalDate
 import javax.swing.BoxLayout
 import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
 import scala.reflect.ClassTag
-import java.time.LocalDate
-import _root_.editor.collection.mutable.Deck
 
 sealed trait GuiAttribute[T : ClassTag, F <: FilterLeaf] {
   def attribute: CardAttribute[T, F]
