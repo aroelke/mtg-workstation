@@ -7,10 +7,14 @@ import editor.database.attributes.ManaCost
 import editor.database.card.Card
 import editor.gui.editor.EditorFrame
 import editor.gui.editor.InclusionCellEditor
+import editor.gui.generic.ComponentUtils
 import editor.gui.generic.SpinnerCellEditor
+import editor.util.OptionOrdering
+import editor.util.SeqOrdering
 
 import java.awt.Color
 import java.awt.Component
+import java.awt.Container
 import java.awt.event.MouseEvent
 import javax.swing.JTable
 import javax.swing.SortOrder
@@ -19,8 +23,6 @@ import javax.swing.table.TableModel
 import javax.swing.table.TableRowSorter
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
-import editor.util.SeqOrdering
-import editor.util.OptionOrdering
 
 /**
  * Companion used for global card table operations.
@@ -104,8 +106,7 @@ class CardTable(model: TableModel) extends JTable(model) {
 
   override def prepareRenderer(r: TableCellRenderer, row: Int, column: Int) = {
     val c = super.prepareRenderer(r, row, column)
-    if (!isRowSelected(row) || !getRowSelectionAllowed())
-      c.setBackground(rowColor(row))
+    ComponentUtils.propagateColors(c, c.getForeground, if (!isRowSelected(row) || !getRowSelectionAllowed) rowColor(row) else c.getBackground)
     c
   }
 

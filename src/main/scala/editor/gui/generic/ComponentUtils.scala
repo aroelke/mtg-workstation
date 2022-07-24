@@ -1,5 +1,6 @@
 package editor.gui.generic
 
+import java.awt.Color
 import java.awt.Component
 import java.awt.Container
 import java.awt.Dimension
@@ -29,6 +30,14 @@ object ComponentUtils {
     component match {
       case container: Container => container.getComponents.foreach(changeFontRecursive(_, font))
       case _ =>
+    }
+  }
+
+  def propagateColors(component: Component, fg: Color, bg: Color): Unit = {
+    component.setForeground(fg)
+    component.setBackground(bg)
+    component match {
+      case container: Container => container.getComponents.foreach(propagateColors(_, fg, bg))
     }
   }
 
