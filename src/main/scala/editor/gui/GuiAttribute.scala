@@ -37,8 +37,10 @@ sealed trait GuiAttribute[T : ClassTag, F <: FilterLeaf] {
   def attribute: CardAttribute[T, F]
   def filter(selector: FilterSelectorPanel): FilterEditorPanel[F]
   def renderValue(value: T): JComponent
+  def tooltip(value: T): String
 
   final def render(value: AnyRef) = value match { case t: T => renderValue(t) }
+  final def getToolTipText(value: AnyRef) = value match { case t: T => s"<html>${tooltip(t)}</html>" }
 
   override def toString = attribute.toString
 }
@@ -59,6 +61,9 @@ sealed trait ColorFilterAttribute { this: GuiAttribute[Set[ManaType], ColorFilte
     ManaType.sorted(value).foreach((t) => panel.add(JLabel(ColorSymbol(t).scaled(ComponentUtils.TextSize))))
     panel
   }
+  override def tooltip(value: Set[ManaType]) = ManaType.sorted(value).map((t) => {
+    s"""<img src="${getClass.getResource(s"/images/icons/${ColorSymbol(t).name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
+  }).mkString
 }
 
 sealed trait SingletonOptionsFilterAttribute[T <: AnyRef : ClassTag] { this: GuiAttribute[T, SingletonOptionsFilter[T]] =>
@@ -73,19 +78,25 @@ sealed trait MultiOptionsFilterAttribute[T <: AnyRef : ClassTag, F <: MultiOptio
 
 sealed trait SimpleStringRenderer[T] { this: GuiAttribute[T, ?] =>
   override def renderValue(value: T) = JLabel(value.toString)
+  override def tooltip(value: T) = value.toString
 }
 
 sealed trait SimpleIterableRenderer[T, I <: Iterable[T]](toSeq: (I) => Seq[T] = (it: I) => it.toSeq, delim: String = Card.FaceSeparator) { this: GuiAttribute[I, ?] =>
-  override def renderValue(value: I) = JLabel(toSeq(value).mkString(delim))
+  private def getString(value: I) = toSeq(value).mkString(delim)
+  override def renderValue(value: I) = JLabel(getString(value))
+  override def tooltip(value: I) = getString(value)
 }
 
 sealed trait OptionIterableRenderer[T, I <: Iterable[Option[T]]](toSeq: (I) => Seq[Option[T]] = (it: I) => it.toSeq, delim: String = Card.FaceSeparator) { this: GuiAttribute[I, ?] =>
-  override def renderValue(value: I) = JLabel(if (value.flatten.isEmpty) "" else value.map(_.map(_.toString).getOrElse("")).mkString(Card.FaceSeparator))
+  private def getString(value: I) = if (value.flatten.isEmpty) "" else value.map(_.map(_.toString).getOrElse("")).mkString(Card.FaceSeparator)
+  override def renderValue(value: I) = JLabel(getString(value))
+  override def tooltip(value: I) = getString(value)
 }
 
 sealed trait CantBeRendered[T] { this: GuiAttribute[T, ?] =>
   override def attribute: CardAttribute[T, ?] with CantCompare[T]
   override def renderValue(value: T) = throw UnsupportedOperationException(s"$attribute can't be rendered")
+  override def tooltip(value: T) = throw UnsupportedOperationException(s"$attribute can't be rendered")
 }
 
 object GuiAttribute {
@@ -119,16 +130,22 @@ object GuiAttribute {
       }
       panel
     }
+    override def tooltip(value: Seq[ManaCost]) = {
+      value.map(_.map((s) => s"""<img src="${getClass.getResource(s"/images/icons/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>""").mkString).mkString(Card.FaceSeparator)
+    }
   }
 
   case object RealManaValueFilter extends GuiAttribute[Double, NumberFilter] with NumberFilterAttribute {
+    private[GuiAttribute] def getString(value: Double) = if (value == value.toInt) value.toInt.toString else value.toString
     override def attribute = CardAttribute.RealManaValue
-    override def renderValue(value: Double) = JLabel(if (value == value.toInt) value.toInt.toString else value.toString)
+    override def renderValue(value: Double) = JLabel(getString(value))
+    override def tooltip(value: Double) = getString(value)
   }
 
   case object EffManaValueFilter extends GuiAttribute[Seq[Double], NumberFilter] with NumberFilterAttribute {
     override def attribute = CardAttribute.EffManaValue
-    override def renderValue(value: Seq[Double]) = JLabel(value.map((v) => if (v == v.toInt) v.toInt.toString else v.toString).mkString(Card.FaceSeparator))
+    override def renderValue(value: Seq[Double]) = JLabel(value.map(RealManaValueFilter.getString).mkString(Card.FaceSeparator))
+    override def tooltip(value: Seq[Double]) = value.map(RealManaValueFilter.getString).mkString(Card.FaceSeparator)
   }
 
   case object ColorsFilter extends GuiAttribute[Set[ManaType], ColorFilter] with ColorFilterAttribute {
@@ -197,6 +214,7 @@ object GuiAttribute {
   case object ArtistFilter extends GuiAttribute[Seq[String], TextFilter] with TextFilterAttribute {
     override def attribute = CardAttribute.Artist
     override def renderValue(value: Seq[String]) = JLabel(value(0)) // assume artist of all faces is the same
+    override def tooltip(value: Seq[String]) = value(0)
   }
 
   case object CardNumberFilter extends GuiAttribute[Seq[String], NumberFilter] with NumberFilterAttribute with SimpleIterableRenderer[String, Seq[String]]() {
@@ -242,15 +260,13 @@ object GuiAttribute {
           }
         }
       }
-      if (!categories.isEmpty) {
-        panel.setToolTipText(categories.map(_.name).mkString(
-          s"<html>Categories:<br>${UnicodeSymbols.Bullet} ",
-          s"<br>${UnicodeSymbols.Bullet} ",
-          "</html>"
-        ))
-      }
       panel
     }
+    override def tooltip(value: Set[Categorization]) = value.map(_.name).toSeq.sorted.mkString(
+      s"Categories:<br>${UnicodeSymbols.Bullet} ",
+      s"<br>${UnicodeSymbols.Bullet} ",
+      ""
+    )
   }
 
   case object CountFilter extends GuiAttribute[Int, Nothing] with SimpleStringRenderer[Int] {
@@ -262,6 +278,7 @@ object GuiAttribute {
     override def attribute = CardAttribute.DateAdded
     override def filter(selector: FilterSelectorPanel) = throw UnsupportedOperationException("can't filter by date")
     override def renderValue(value: LocalDate) = JLabel(Deck.DateFormatter.format(value))
+    override def tooltip(value: LocalDate) = Deck.DateFormatter.format(value)
   }
 
   val values: IndexedSeq[GuiAttribute[?, ?]] = IndexedSeq(NameFilter, RulesTextFilter, PrintedTextFilter, ManaCostFilter, RealManaValueFilter, EffManaValueFilter, ColorsFilter, ColorIdentityFilter, TypeLineFilter, PrintedTypesFilter, CardTypeFilter, SubtypeFilter, SupertypeFilter, PowerFilter, ToughnessFilter, LoyaltyFilter, LayoutFilter, ExpansionFilter, BlockFilter, RarityFilter, ArtistFilter, CardNumberFilter, LegalInFilter, TagsFilter, AnyCardFilter, NoCardFilter, CategoriesFilter, CountFilter, DateAddedFilter)

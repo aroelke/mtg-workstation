@@ -82,7 +82,7 @@ case class ManaCost(private val cost: Seq[ManaSymbol] = Seq.empty) extends Seq[M
   }
 
   /** String containing HTML code to display this mana cost in HTML documents. */
-  lazy val toHTMLString = cost.map((s) => s"""<img src="${getClass.getResource(s"/images/icons/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>""").mkString
+//  lazy val toHTMLString = cost.map((s) => s"""<img src="${getClass.getResource(s"/images/icons/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>""").mkString
 
   override lazy val toString = map(_.toString).mkString
 }

@@ -23,6 +23,7 @@ import javax.swing.table.TableModel
 import javax.swing.table.TableRowSorter
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
+import editor.gui.GuiAttribute
 
 /**
  * Companion used for global card table operations.
@@ -86,18 +87,9 @@ class CardTable(model: TableModel) extends JTable(model) {
       val col = columnAtPoint(e.getPoint)
       if (col >= 0 && row >= 0) {
         val bounds = getCellRect(row, col, false)
-        prepareRenderer(getCellRenderer(row, col), row, col) match {
-          case c: Component if c.getPreferredSize.width > bounds.width => model match {
-            case m: CardTableModel =>
-              if (m.columns(col) == CardAttribute.ManaCost)
-                s"""<html>${getValueAt(row, col) match {
-                  case s: Seq[?] => s.collect{ case cost: ManaCost => cost.toHTMLString }.mkString(Card.FaceSeparator)
-                  case _ => ""
-                }}</html>"""
-              else
-                s"<html>${getValueAt(row, col)}</html>"
-            case _ => null
-          }
+        (prepareRenderer(getCellRenderer(row, col), row, col), model) match {
+          case (c: Component, m: CardTableModel) if c.getPreferredSize.width > bounds.width || m.columns(col) == CardAttribute.Categories =>
+            GuiAttribute.fromAttribute(m.columns(col)).getToolTipText(getValueAt(row, col))
           case _ => null
         }
       } else null
