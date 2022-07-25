@@ -1,6 +1,6 @@
 package editor.gui.display
 
-import editor.gui.GuiAttribute
+import editor.gui.ElementAttribute
 import editor.gui.generic.ComponentUtils
 
 import java.awt.BorderLayout
@@ -26,7 +26,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
     table.getModel match {
       case m: CardTableModel =>
         val panel = JPanel(BorderLayout())
-        panel.add(GuiAttribute.fromAttribute(m.columns(column)).getRendererComponent(value), BorderLayout.CENTER)
+        panel.add(ElementAttribute.fromAttribute(m.columns(column)).getRendererComponent(value), BorderLayout.CENTER)
         ComponentUtils.propagateColors(panel, c.getForeground, c.getBackground)
         panel.setBorder(if (hasFocus) UIManager.getBorder("Table.focusCellHighlightBorder") else BorderFactory.createEmptyBorder(0, 1, 0, 0))
         panel

@@ -6,7 +6,7 @@ import _root_.editor.database.attributes.Rarity
 import _root_.editor.database.card.Card
 import _root_.editor.filter.FaceSearchOptions
 import _root_.editor.filter.leaf._
-import _root_.editor.gui.GuiAttribute
+import _root_.editor.gui.ElementAttribute
 import _root_.editor.gui.filter.editor.FilterEditorPanel
 import _root_.editor.gui.filter.editor._
 import _root_.editor.gui.generic.ComboBoxPanel
@@ -52,11 +52,11 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
   // Filter type selector
-  private val filterTypes = ComboBoxPanel(GuiAttribute.values.toArray)
+  private val filterTypes = ComboBoxPanel(ElementAttribute.values.toArray)
   filterTypes.setToolTipText(filterTypes.getSelectedItem.attribute.description)
   private val renderer = filterTypes.getRenderer
-  filterTypes.setRenderer(new ListCellRenderer[GuiAttribute[?, ?]] {
-    override def getListCellRendererComponent(list: JList[? <: GuiAttribute[?, ?]], value: GuiAttribute[?, ?], index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
+  filterTypes.setRenderer(new ListCellRenderer[ElementAttribute[?, ?]] {
+    override def getListCellRendererComponent(list: JList[? <: ElementAttribute[?, ?]], value: ElementAttribute[?, ?], index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
       val component = renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
       component match { case j: JComponent => j.setToolTipText(value.attribute.description) }
       component
@@ -65,10 +65,10 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   add(filterTypes)
 
   // Panel containing each editor panel
-  private val filterPanels = collection.mutable.Map[GuiAttribute[?, ?], FilterEditorPanel[?]]()
+  private val filterPanels = collection.mutable.Map[ElementAttribute[?, ?], FilterEditorPanel[?]]()
   private val filtersPanel = JPanel(java.awt.CardLayout())
   add(filtersPanel)
-  GuiAttribute.values.foreach((a) => {
+  ElementAttribute.values.foreach((a) => {
     val panel = a.filter(this)
     filterPanels(a) = panel
     filtersPanel.add(panel, a.attribute.toString)
@@ -119,8 +119,8 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   override def filter = filterPanels(filterTypes.getSelectedItem).filter
 
   override def setContents(filter: FilterLeaf) = {
-    filterTypes.setSelectedItem(GuiAttribute.fromAttribute(filter.attribute))
-    filterPanels(GuiAttribute.fromAttribute(filter.attribute)).setContents(filter)
+    filterTypes.setSelectedItem(ElementAttribute.fromAttribute(filter.attribute))
+    filterPanels(ElementAttribute.fromAttribute(filter.attribute)).setContents(filter)
     faces = filter.faces
     filtersPanel.getLayout match {
       case card: java.awt.CardLayout => card.show(filtersPanel, filter.attribute.toString)
