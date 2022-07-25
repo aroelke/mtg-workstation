@@ -7,6 +7,19 @@ import editor.gui.editor.EditorFrame
 import editor.gui.editor.IncludeExcludePanel
 
 import javax.swing.table.AbstractTableModel
+import editor.gui.ElementAttribute
+import scala.annotation.targetName
+
+object CardTableModel {
+  @targetName("element_some_apply")
+  def apply(cards: CardList, attributes: IndexedSeq[ElementAttribute[?, ?]], editor: Option[EditorFrame]): CardTableModel = new CardTableModel(cards, attributes, editor)
+  @targetName("element_none_apply")
+  def apply(cards: CardList, attributes: IndexedSeq[ElementAttribute[?, ?]]): CardTableModel = apply(cards, attributes, None)
+  @targetName("card_some_apply")
+  def apply(cards: CardList, attributes: IndexedSeq[CardAttribute[?, ?]], editor: Option[EditorFrame]): CardTableModel = new CardTableModel(cards, attributes.map(ElementAttribute.fromAttribute), editor)
+  @targetName("card_none_apply")
+  def apply(cards: CardList, attributes: IndexedSeq[CardAttribute[?, ?]]): CardTableModel = apply(cards, attributes, None)
+}
 
 /**
  * A model telling a [[CardTable]] how to display cards in a [[CardList]].
@@ -20,18 +33,18 @@ import javax.swing.table.AbstractTableModel
  * 
  * @author Alec Roelke
  */
-class CardTableModel(private var cards: CardList, private var attributes: IndexedSeq[CardAttribute[?, ?]], editor: Option[EditorFrame] = None) extends AbstractTableModel {
+class CardTableModel(private var cards: CardList, private var attributes: IndexedSeq[ElementAttribute[?, ?]], editor: Option[EditorFrame] = None) extends AbstractTableModel {
   override def getColumnCount = attributes.size
-  override def getColumnName(column: Int) = attributes(column).toString
-  override def getColumnClass(column: Int) = attributes(column).dataType
+  override def getColumnName(column: Int) = attributes(column).attribute.toString
+  override def getColumnClass(column: Int) = attributes(column).attribute.dataType
   override def getRowCount = cards.size
-  override def getValueAt(row: Int, column: Int) = attributes(column)(cards(row))
+  override def getValueAt(row: Int, column: Int) = attributes(column).attribute(cards(row))
   override def isCellEditable(row: Int, column: Int) = editor.isDefined && (attributes(column) == CardAttribute.Count || attributes(column) == CardAttribute.Categories)
 
   override def setValueAt(value: Object, row: Int, column: Int) = if (isCellEditable(row, column)) {
     (cards, attributes(column), value) match {
-      case (deck: EditorFrame#DeckData, CardAttribute.Count, i: java.lang.Integer) => deck(row).count = i
-      case (deck: EditorFrame#DeckData, CardAttribute.Categories, ie: IncludeExcludePanel) => editor.foreach(_.categories.update(ie.updates.map((c) => c.name -> c).toMap))
+      case (deck: EditorFrame#DeckData, ElementAttribute.CountElement, i: java.lang.Integer) => deck(row).count = i
+      case (deck: EditorFrame#DeckData, ElementAttribute.CategoriesElement, ie: IncludeExcludePanel) => editor.foreach(_.categories.update(ie.updates.map((c) => c.name -> c).toMap))
       case _ => throw IllegalArgumentException(s"cannot edit data type ${attributes(column)} to $value (${cards.getClass} | ${value.getClass}")
     }
     fireTableDataChanged()
@@ -44,10 +57,12 @@ class CardTableModel(private var cards: CardList, private var attributes: Indexe
    * Change the attributes to be displayed by the table.
    * @param c new attributes to show
    */
-  def columns_=(c: IndexedSeq[CardAttribute[?, ?]]) = {
+  @targetName("element_columns_=") def columns_=(c: IndexedSeq[ElementAttribute[?, ?]]): Unit = {
     attributes = c
     fireTableStructureChanged()
   }
+
+  @targetName("card_columns_=") def columns_=(c: IndexedSeq[CardAttribute[?, ?]]): Unit = columns = c.map(ElementAttribute.fromAttribute)
 
   /** @return the list of cards shown by the table. */
   def list = cards

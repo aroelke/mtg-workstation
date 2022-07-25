@@ -39,9 +39,9 @@ object CardTable {
    * @param attr attribute to be edited by the editor
    * @return a component that can edit the value of the specified attribute
    */
-  def createCellEditor(frame: EditorFrame, attr: CardAttribute[?, ?]) = attr match {
-    case CardAttribute.Count => SpinnerCellEditor()
-    case CardAttribute.Categories => InclusionCellEditor(frame)
+  def createCellEditor(frame: EditorFrame, attr: ElementAttribute[?, ?]) = attr match {
+    case ElementAttribute.CountElement => SpinnerCellEditor()
+    case ElementAttribute.CategoriesElement => InclusionCellEditor(frame)
     case _ => throw IllegalArgumentException(s"values of type $attr can't be edited")
   }
 }
@@ -88,8 +88,8 @@ class CardTable(model: TableModel) extends JTable(model) {
       if (col >= 0 && row >= 0) {
         val bounds = getCellRect(row, col, false)
         (prepareRenderer(getCellRenderer(row, col), row, col), model) match {
-          case (c: Component, m: CardTableModel) if c.getPreferredSize.width > bounds.width || m.columns(col) == CardAttribute.Categories =>
-            ElementAttribute.fromAttribute(m.columns(col)).getToolTipText(getValueAt(row, col))
+          case (c: Component, m: CardTableModel) if c.getPreferredSize.width > bounds.width || m.columns(col) == ElementAttribute.CategoriesElement =>
+            m.columns(col).getToolTipText(getValueAt(row, col))
           case _ => null
         }
       } else null
@@ -117,9 +117,9 @@ private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[Tabl
     case m: CardTableModel =>
       val ascending = getSortKeys.asScala.exists(_.getSortOrder == SortOrder.ASCENDING)
       m.columns(column) match {
-        case CardAttribute.Power | CardAttribute.Toughness => SeqOrdering[Option[CombatStat]](OptionOrdering[CombatStat](ascending))
-        case CardAttribute.Loyalty => SeqOrdering[Option[Loyalty]](OptionOrdering[Loyalty](ascending))
-        case attribute => attribute
+        case ElementAttribute.PowerElement | ElementAttribute.ToughnessElement => SeqOrdering[Option[CombatStat]](OptionOrdering[CombatStat](ascending))
+        case ElementAttribute.LoyaltyElement => SeqOrdering[Option[Loyalty]](OptionOrdering[Loyalty](ascending))
+        case attribute => attribute.attribute
       }
     case _ => super.getComparator(column)
   }

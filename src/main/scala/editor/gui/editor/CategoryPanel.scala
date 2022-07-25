@@ -40,6 +40,7 @@ import javax.swing.Timer
 import javax.swing.event.MouseInputAdapter
 import scala.collection.immutable.ListMap
 import scala.jdk.CollectionConverters._
+import editor.gui.ElementAttribute
 
 /**
  * A panel displaying information about a deck category.  In addition to the cards contained by the category,
