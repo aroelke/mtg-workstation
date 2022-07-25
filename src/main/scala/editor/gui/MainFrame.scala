@@ -214,13 +214,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    * @author Alec Roelke
    */
   private class InventoryTableCellRenderer extends CardTableCellRenderer {
-    override def getTableCellRendererComponent(table: JTable, value: Object, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int) = {
+    override def getTableCellRendererComponent(table: JTable, value: AnyRef, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int) = {
       val c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
       val card = inventory(table.convertRowIndexToModel(row)).card
       val main = selectedFrame.exists(_.deck.contains(card))
       val extra = selectedFrame.exists(_.extras.exists(_.contains(card)))
       try {
-        ComponentUtils.changeFontRecursive(c, c.getFont.deriveFont((if (main) Font.BOLD else 0) | (if (extra) Font.ITALIC else 0)))
+        ComponentUtils.propagateFont(c, c.getFont.deriveFont((if (main) Font.BOLD else 0) | (if (extra) Font.ITALIC else 0)))
       } catch case e: NullPointerException => {
         System.err.println(s"renderer component ${c.getClass} for value $value does not have a font")
       }
@@ -1059,10 +1059,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   // Create the inventory and put it in the table
   private val inventoryModel = CardTableModel(Inventory(), Settings().inventory.columns)
   private val inventoryTable = CardTable(inventoryModel)
-  inventoryTable.setDefaultRenderer(classOf[String], InventoryTableCellRenderer())
-  inventoryTable.setDefaultRenderer(classOf[Int], InventoryTableCellRenderer())
-  inventoryTable.setDefaultRenderer(classOf[Rarity], InventoryTableCellRenderer())
-  inventoryTable.setDefaultRenderer(classOf[java.util.List[?]], InventoryTableCellRenderer())
+  CardAttribute.values.foreach((a) => inventoryTable.setDefaultRenderer(a.dataType, InventoryTableCellRenderer()))
   inventoryTable.stripe = SettingsDialog.settings.inventory.stripe
   inventoryTable.addMouseListener(MouseListenerFactory.createMouseListener(clicked = (e) => selectedFrame.foreach((f) => {
     if (e.getClickCount % 2 == 0)

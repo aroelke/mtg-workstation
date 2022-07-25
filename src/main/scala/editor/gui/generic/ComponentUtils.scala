@@ -25,10 +25,10 @@ object ComponentUtils {
    * @param component component to change
    * @param font font to change to
    */
-  def changeFontRecursive(component: Component, font: Font): Unit = {
+  def propagateFont(component: Component, font: Font): Unit = {
     component.setFont(font)
     component match {
-      case container: Container => container.getComponents.foreach(changeFontRecursive(_, font))
+      case container: Container => container.getComponents.foreach(propagateFont(_, font))
       case _ =>
     }
   }
@@ -38,6 +38,7 @@ object ComponentUtils {
     component.setBackground(bg)
     component match {
       case container: Container => container.getComponents.foreach(propagateColors(_, fg, bg))
+      case _ =>
     }
   }
 
