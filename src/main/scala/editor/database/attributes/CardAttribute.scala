@@ -31,7 +31,7 @@ import scala.reflect.ClassTag
  * @param name name of the attribute
  * @param description short description of the attribute
  * @tparam T type of data used to represent the value of the attribute; for cards with multiple faces, should be a sequence type
- * @tparam F type of filter used to filter by the attribute
+ * @tparam F type of [[Filter]] used to filter by the attribute
  * 
  * @author Alec Roelke
  */
