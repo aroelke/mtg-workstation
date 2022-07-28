@@ -22,6 +22,7 @@ import editor.util.SeqOrdering
 import java.text.Collator
 import java.time.LocalDate
 import scala.reflect.ClassTag
+import java.time.format.DateTimeFormatter
 
 /**
  * An attribute of a Magic: The Gathering card that can be used for filtering or display in a GUI. Generally corresponds to a field of [[Card]].
@@ -408,6 +409,11 @@ object CardAttribute {
   case object DateAdded extends CardAttribute[LocalDate, Nothing]("Date Added", "")
       with ComparesOrdered[LocalDate]
       with CantBeFiltered {
+    private val formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy")
+
+    /** Format a date in "month day, year" format. */
+    def format(date: LocalDate) = formatter.format(date)
+
     override def apply(e: CardListEntry) = e.dateAdded
   }
 

@@ -36,7 +36,7 @@ class CardFormat(pattern: String) {
       }
       case c @ (Colors | ColorIdentity) => c(card).mkString(",")
       case Categories => Categories(card).map(_.name).toSeq.sorted.mkString(",")
-      case DateAdded => Deck.DateFormatter.format(DateAdded(card))
+      case DateAdded => CardAttribute.DateAdded.format(DateAdded(card))
       case _ => a(card).toString
     }))
   }

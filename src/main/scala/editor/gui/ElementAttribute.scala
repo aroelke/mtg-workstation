@@ -406,12 +406,13 @@ object ElementAttribute {
     override def filter(selector: FilterSelectorPanel) = throw UnsupportedOperationException("can't filter by count")
   }
 
-  /** Element for rendering the date a card was added to a deck. Uses "MMMM d, yyyy" to format dates. */
+  /** Element for rendering the date a card was added to a deck. Uses "month day, year" to format dates. */
   case object DateAddedElement extends ElementAttribute[LocalDate, Nothing] {
-    override def attribute = CardAttribute.DateAdded
+    import CardAttribute.DateAdded
+    override def attribute = DateAdded
     override def filter(selector: FilterSelectorPanel) = throw UnsupportedOperationException("can't filter by date")
-    override def render(value: LocalDate) = JLabel(Deck.DateFormatter.format(value))
-    override def tooltip(value: LocalDate) = Deck.DateFormatter.format(value)
+    override def render(value: LocalDate) = JLabel(DateAdded.format(value))
+    override def tooltip(value: LocalDate) = DateAdded.format(value)
   }
 
   /** Array of GUI element attributes. */
