@@ -35,30 +35,6 @@ object Card {
 
   /** String used to represent a card's own name in its text box. */
   val This = "~"
-
-  /**
-   * User-defined, per-card tags. Every card effectively starts with an empty tag set, and the user can add and remove them as
-   * they like, and apply filters based on them for categories or inventory searches.
-   */
-  val tags = new collection.mutable.AbstractMap[Card, collection.mutable.Set[String]] {
-    val tags = collection.mutable.Map[Card, collection.mutable.Set[String]]()
-
-    override def iterator = tags.iterator
-    override def get(c: Card) = Some(tags.getOrElseUpdate(c, collection.mutable.Set[String]()))
-    override def addOne(e: (Card, collection.mutable.Set[String])) = { e match { case (c, s) => apply(c) ++= s }; this }
-    override def subtractOne(c: Card) = { tags.subtractOne(c); this }
-  }
-
-  /**
-   * Reset the user-defined tags.
-   * 
-   * @param elems new set of tags to replace the old ones
-   * @return the tags after resetting to their new values
-   */
-  def tags_=(elems: IterableOnce[(Card, collection.mutable.Set[String])]) = {
-    tags.clear()
-    tags ++= elems
-  }
 }
 
 /**

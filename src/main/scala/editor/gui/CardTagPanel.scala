@@ -1,5 +1,6 @@
 package editor.gui
 
+import _root_.editor.database.attributes.CardAttribute
 import _root_.editor.database.card.Card
 import _root_.editor.gui.generic.ScrollablePanel
 import _root_.editor.gui.generic.TristateCheckBox
@@ -61,10 +62,10 @@ object CardTagPanel {
       val tagged = cardTagPanel.tagged
       val untagged = cardTagPanel.untagged
       cards.foreach((c) => {
-        tagged.foreach((tag) => Card.tags(c) += tag)
-        untagged.foreach((tag) => Card.tags(c) -= tag)
+        tagged.foreach((tag) => CardAttribute.Tags.tags(c) += tag)
+        untagged.foreach((tag) => CardAttribute.Tags.tags(c) -= tag)
       })
-      Card.tags.foreach((x: (Card, collection.mutable.Set[String])) => x match { case (_, t) => t --= cardTagPanel.removed })
+      CardAttribute.Tags.tags.foreach((x: (Card, collection.mutable.Set[String])) => x match { case (_, t) => t --= cardTagPanel.removed })
     }
   }
 }
@@ -90,10 +91,10 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
   private val _removed = collection.mutable.HashSet[String]()
   private var preferredViewportHeight = 0
 
-  setTags(Card.tags.flatMap{ case (_, s) => s }.toSeq.sorted)
+  setTags(CardAttribute.Tags.tags.flatMap{ case (_, s) => s }.toSeq.sorted)
 
   tagBoxes.foreach((box) => {
-    val matches = cards.count((c) => Option(Card.tags(c)).exists(_.contains(box.getText)))
+    val matches = cards.count((c) => Option(CardAttribute.Tags.tags(c)).exists(_.contains(box.getText)))
     if (matches == 0)
       box.state = TristateCheckBoxState.Unselected
     else if (matches < cards.size)
