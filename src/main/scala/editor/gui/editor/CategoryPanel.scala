@@ -138,7 +138,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
 
   // Table showing the cards in the category
   private var tableRows = SettingsDialog.settings.editor.categories.rows
-  private val model = CardTableModel(deck.categories(name).list, SettingsDialog.settings.editor.columns, Some(editor))
+  private val model = CardTableModel(deck.categories(name).list, SettingsDialog.settings.editor.columns, editor)
   val table = new CardTable(model) {
     override def getPreferredScrollableViewportSize = Dimension(getPreferredSize.width, tableRows*getRowHeight)
   }

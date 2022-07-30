@@ -3,22 +3,59 @@ package editor.gui.display
 import editor.collection.CardList
 import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
+import editor.gui.ElementAttribute
 import editor.gui.editor.EditorFrame
 import editor.gui.editor.IncludeExcludePanel
 
 import javax.swing.table.AbstractTableModel
-import editor.gui.ElementAttribute
 import scala.annotation.targetName
 
+/**
+ * Companion object containing convenience constructors for [[CardTableModel]].
+ * @author Alec Roelke
+ */
 object CardTableModel {
+  /**
+   * Create a new [[CardTableModel]] using [[ElementAttribute]]s and an [[EditorFrame]].
+   * 
+   * @param cards list of cards to display
+   * @param attributes inital attributes to display
+   * @param editor parent frame
+   * @return a new [[CardTableModel]] for the frame
+   */
   @targetName("element_some_apply")
-  def apply(cards: CardList, attributes: IndexedSeq[ElementAttribute[?, ?]], editor: Option[EditorFrame]): CardTableModel = new CardTableModel(cards, attributes, editor)
+  def apply(cards: CardList, attributes: IndexedSeq[ElementAttribute[?, ?]], editor: EditorFrame): CardTableModel = new CardTableModel(cards, attributes, Some(editor))
+
+  /**
+   * Create a new [[CardTableModel]] using [[ElementAttribute]]s without an [[EditorFrame]].
+   * 
+   * @param cards list of cards to display
+   * @param attributes initial attributes to display
+   * @return a new, frameless [[CardTableModel]]
+   */
   @targetName("element_none_apply")
-  def apply(cards: CardList, attributes: IndexedSeq[ElementAttribute[?, ?]]): CardTableModel = apply(cards, attributes, None)
+  def apply(cards: CardList, attributes: IndexedSeq[ElementAttribute[?, ?]]): CardTableModel = new CardTableModel(cards, attributes, None)
+
+  /**
+   * Create a new [[CardTableModel]] using [[CardAttribute]]s and an [[EditorFrame]].
+   * 
+   * @param cards list of cards to display
+   * @param attributes initial attributes to display
+   * @param editor parent frame
+   * @return a new [[CardTableModel]] for the frame
+   */
   @targetName("card_some_apply")
-  def apply(cards: CardList, attributes: IndexedSeq[CardAttribute[?, ?]], editor: Option[EditorFrame]): CardTableModel = new CardTableModel(cards, attributes.map(ElementAttribute.fromAttribute), editor)
+  def apply(cards: CardList, attributes: IndexedSeq[CardAttribute[?, ?]], editor: EditorFrame): CardTableModel = new CardTableModel(cards, attributes.map(ElementAttribute.fromAttribute), Some(editor))
+
+  /**
+   * Create a new [[CardTableModel]] using [[CardAttribute]]s without an [[EditorFrame]].
+   * 
+   * @param cards list of cards to display
+   * @param attributes initial attributes to display
+   * @return a new, frameless [[CardTableModel]]
+   */
   @targetName("card_none_apply")
-  def apply(cards: CardList, attributes: IndexedSeq[CardAttribute[?, ?]]): CardTableModel = apply(cards, attributes, None)
+  def apply(cards: CardList, attributes: IndexedSeq[CardAttribute[?, ?]]): CardTableModel = new CardTableModel(cards, attributes.map(ElementAttribute.fromAttribute), None)
 }
 
 /**

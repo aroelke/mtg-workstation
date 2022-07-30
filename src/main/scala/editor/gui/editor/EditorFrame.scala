@@ -319,7 +319,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       changes.result
     }
 
-    private[EditorFrame] lazy val model = CardTableModel(this, SettingsDialog.settings.editor.columns, Some(EditorFrame.this))
+    private[EditorFrame] lazy val model = CardTableModel(this, SettingsDialog.settings.editor.columns, EditorFrame.this)
     private[EditorFrame] lazy val table = {
       val table = CardTable(model)
       table.stripe = SettingsDialog.settings.editor.stripe
