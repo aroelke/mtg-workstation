@@ -2,6 +2,7 @@ package editor.gui
 
 import _root_.editor.collection.Categorization
 import _root_.editor.collection.mutable.Deck
+import _root_.editor.database.attributes.CantBeFiltered
 import _root_.editor.database.attributes.CantCompare
 import _root_.editor.database.attributes.CardAttribute
 import _root_.editor.database.attributes.CombatStat
@@ -417,6 +418,9 @@ object ElementAttribute {
 
   /** Array of GUI element attributes. */
   val values: IndexedSeq[ElementAttribute[?, ?]] = IndexedSeq(NameElement, RuleTextElement, PrintedTextElement, ManaCostElement, RealManaValueElement, EffManaValueElement, ColorsElement, ColorIdentityElement, TypeLineElement, PrintedTypesElement, CardTypeElement, SubtypeElement, SupertypeElement, PowerElement, ToughnessElement, LoyaltyElement, LayoutElement, ExpansionElement, BlockElement, RarityElement, ArtistElement, CardNumberElement, LegalInElement, TagsElement, AnyCardElement, NoCardElement, CategoriesElement, CountElement, DateAddedElement)
+
+  /** Array of GUI element attributes that can create filters. */
+  val filterableValues = values.filter(!_.attribute.isInstanceOf[CantBeFiltered])
 
   /** Get the GUI element attribute corresponding to a [[CardAttribute]], if there is one. */
   val fromAttribute = values.map((a) => a.attribute -> a).toMap

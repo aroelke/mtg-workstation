@@ -68,7 +68,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   private val filterPanels = collection.mutable.Map[ElementAttribute[?, ?], FilterEditorPanel[?]]()
   private val filtersPanel = JPanel(java.awt.CardLayout())
   add(filtersPanel)
-  ElementAttribute.values.foreach((a) => {
+  ElementAttribute.filterableValues.foreach((a) => {
     val panel = a.filter(this)
     filterPanels(a) = panel
     filtersPanel.add(panel, a.attribute.toString)

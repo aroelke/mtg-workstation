@@ -467,9 +467,6 @@ object CardAttribute {
   /** Array of all card attributes. */
   val values: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(Name, RulesText, FlavorText, PrintedText, ManaCost, RealManaValue, EffManaValue, Colors, ColorIdentity, TypeLine, PrintedTypes, CardType, Subtype, Supertype, Power, Toughness, Loyalty, Layout, Expansion, Block, Rarity, Artist, CardNumber, LegalIn, Tags, Categories, Count, DateAdded, AnyCard, NoCard, Group)
 
-  /** Array of all card attributes that can be used to filter. */
-  lazy val filterableValues = values.filter(!_.isInstanceOf[CantBeFiltered])
-
   /** Array of all card attributes that can be displayed in a GUI. */
   lazy val displayableValues = values.filter(!_.isInstanceOf[CantCompare[?]])
 
