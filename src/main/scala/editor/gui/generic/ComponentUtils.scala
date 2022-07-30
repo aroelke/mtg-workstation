@@ -33,6 +33,13 @@ object ComponentUtils {
     }
   }
 
+  /**
+   * Change the foreground and background colors of a component and all its child components, and so on.
+   * 
+   * @param component component to change
+   * @param fg new foreground color
+   * @param bg new background color
+   */
   def propagateColors(component: Component, fg: Color, bg: Color): Unit = {
     component.setForeground(fg)
     component.setBackground(bg)
