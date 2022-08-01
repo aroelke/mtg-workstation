@@ -225,7 +225,7 @@ object ElementAttribute {
     override def attribute = CardAttribute.ManaCost
     override def filter(selector: FilterSelectorPanel) = ManaCostFilterPanel(selector)
     override def render(value: Seq[ManaCost]) = {
-      val icons = cache.getOrElseUpdate(value, value.map(_.map(_.getIcon(ComponentUtils.TextSize))))
+      val icons = cache.getOrElseUpdate(value, value.map(_.map(_.scaled(ComponentUtils.TextSize))))
       val panel = JPanel()
       panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))
       for (i <- 0 until icons.size) {

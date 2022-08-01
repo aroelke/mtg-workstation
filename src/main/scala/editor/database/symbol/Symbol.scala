@@ -89,8 +89,4 @@ abstract class Symbol(val name: String, private val text: String) {
     case ref: AnyRef if ref eq this => true
     case _ => other.getClass == getClass && other.toString == toString
   }
-
-  @deprecated def getIcon = icon
-  @deprecated def getIcon(size: Int) = scaled(size)
-  @deprecated def getName = name
 }

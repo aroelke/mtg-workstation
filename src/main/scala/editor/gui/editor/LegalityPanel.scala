@@ -148,7 +148,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
   warningsList.setCellRenderer((_, v, _, _, _) => s"(?:${ManaCost.Pattern.regex})+".r.findFirstMatchIn(v).map((m) => {
     val cell = Box.createHorizontalBox
     cell.add(JLabel(v.substring(0, m.start(0))))
-    ManaCost.parse(m.group(0)).get.foreach((symbol) => cell.add(JLabel(symbol.getIcon(ComponentUtils.TextSize))))
+    ManaCost.parse(m.group(0)).get.foreach((symbol) => cell.add(JLabel(symbol.scaled(ComponentUtils.TextSize))))
     cell
   }).getOrElse(JLabel(v)))
   warningsPanel.add(JScrollPane(warningsList), BorderLayout.CENTER)
