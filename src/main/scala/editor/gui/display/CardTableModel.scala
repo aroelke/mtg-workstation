@@ -76,7 +76,7 @@ class CardTableModel(private var cards: CardList, private var attributes: Indexe
   override def getColumnClass(column: Int) = attributes(column).attribute.dataType
   override def getRowCount = cards.size
   override def getValueAt(row: Int, column: Int) = attributes(column).attribute(cards(row))
-  override def isCellEditable(row: Int, column: Int) = editor.isDefined && (attributes(column) == CardAttribute.Count || attributes(column) == CardAttribute.Categories)
+  override def isCellEditable(row: Int, column: Int) = editor.isDefined && (attributes(column) == ElementAttribute.CountElement || attributes(column) == ElementAttribute.CategoriesElement)
 
   override def setValueAt(value: Object, row: Int, column: Int) = if (isCellEditable(row, column)) {
     (cards, attributes(column), value) match {
