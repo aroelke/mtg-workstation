@@ -50,8 +50,6 @@ object ChangeTitleListener {
  * @author Alec Roelke
  */
 class ChangeTitleListener(component: JComponent, border: TitledBorder, change: (String) => Unit, hgap: (String) => Int, vgap: (String) => Int) extends MouseAdapter {
-  @deprecated def this(component: JComponent, border: TitledBorder, change: java.util.function.Consumer[String], hgap: (String) => Int, vgap: (String) => Int) = this(component, border, change.accept(_), hgap, vgap)
-
   private val field = JTextField();
   private val popup = JPopupMenu();
   popup.setBorder(BorderFactory.createEmptyBorder);
