@@ -31,9 +31,6 @@ object MouseListenerFactory {
     override def mouseEntered(e: MouseEvent) = entered(e)
     override def mouseExited(e: MouseEvent) = exited(e)
   }
-  @deprecated def createClickListener(clicked: java.util.function.Consumer[MouseEvent]) = createMouseListener(clicked = clicked.accept)
-  @deprecated def createPressListener(pressed: java.util.function.Consumer[MouseEvent]) = createMouseListener(pressed = pressed.accept)
-  @deprecated def createReleaseListener(released: java.util.function.Consumer[MouseEvent]) = createMouseListener(released = released.accept)
 
   /**
    * Create a mouse listener that specifically listens for a double click.
