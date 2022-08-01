@@ -4,7 +4,6 @@ import editor.collection.CardListEntry
 import editor.collection.Categorization
 import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
-import editor.util.CollectionUtils
 
 import java.time.LocalDate
 import scala.jdk.CollectionConverters._
