@@ -19,9 +19,12 @@ import _root_.editor.database.card.Card
 import _root_.editor.database.card.CardLayout
 import _root_.editor.database.symbol.ManaSymbolInstances.ColorSymbol
 import _root_.editor.filter.leaf._
+import _root_.editor.gui.editor.EditorFrame
+import _root_.editor.gui.editor.InclusionCellEditor
 import _root_.editor.gui.filter.FilterSelectorPanel
 import _root_.editor.gui.filter.editor._
 import _root_.editor.gui.generic.ComponentUtils
+import _root_.editor.gui.generic.SpinnerCellEditor
 import _root_.editor.util.UnicodeSymbols
 
 import java.awt.Color
@@ -32,6 +35,7 @@ import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.table.TableCellEditor
 import scala.reflect.ClassTag
 
 /**
@@ -61,6 +65,14 @@ sealed trait ElementAttribute[T : ClassTag, F <: FilterLeaf] {
   def tooltip(value: T): String
 
   /**
+   * If the attribute can be edited in-place in a [[CardTable]], create an editor for doing that.
+   * 
+   * @param editor deck frame for which the editor component should be created, if there is one
+   * @return a cell editor for the frame, or None if there is no frame or the value can't be edited in-place
+   */
+  def cellEditor(editor: Option[EditorFrame]): Option[TableCellEditor]
+
+  /**
    * Create a component rendering a value of the corresponding attribute. Exists for compatibility with GUI elements that don't specify types of provided values.
    * 
    * @param value value to render; should be castable to the type of the attribute
@@ -76,6 +88,9 @@ sealed trait ElementAttribute[T : ClassTag, F <: FilterLeaf] {
    * @return a component rendering the given attribute value
    */
   final def getToolTipText(value: AnyRef) = value match { case t: T => s"<html>${tooltip(t)}</html>" }
+
+  /** Create a cell editor for a frame, if the value can be edited */
+  final def cellEditor(editor: EditorFrame): Option[TableCellEditor] = cellEditor(Some(editor))
 
   override def toString = attribute.toString
 }
@@ -165,7 +180,9 @@ sealed trait SimpleStringRenderer[T](str: (T) => String = (v: T) => v.toString) 
  * 
  * @author Alec Roelke
  */
-sealed trait SimpleIterableRenderer[T, I <: Iterable[T]](toSeq: (I) => Seq[T] = (it: I) => it.toSeq, delim: String = Card.FaceSeparator, str: (T) => String = (v: T) => v.toString) { this: ElementAttribute[I, ?] =>
+sealed trait SimpleIterableRenderer[T, I <: Iterable[T]](toSeq: (I) => Seq[T] = (it: I) => it.toSeq, delim: String = Card.FaceSeparator, str: (T) => String = (v: T) => v.toString) {
+  this: ElementAttribute[I, ?] =>
+
   private def getString(value: I) = toSeq(value).map(str).mkString(delim)
   override def render(value: I) = JLabel(getString(value))
   override def tooltip(value: I) = getString(value)
@@ -182,7 +199,9 @@ sealed trait SimpleIterableRenderer[T, I <: Iterable[T]](toSeq: (I) => Seq[T] = 
  * 
  * @author Alec Roelke
  */
-sealed trait OptionIterableRenderer[T, I <: Iterable[Option[T]]](toSeq: (I) => Seq[Option[T]] = (it: I) => it.toSeq, delim: String = Card.FaceSeparator, str: (T) => String = (v: T) => v.toString) { this: ElementAttribute[I, ?] =>
+sealed trait OptionIterableRenderer[T, I <: Iterable[Option[T]]](toSeq: (I) => Seq[Option[T]] = (it: I) => it.toSeq, delim: String = Card.FaceSeparator, str: (T) => String = (v: T) => v.toString) {
+  this: ElementAttribute[I, ?] =>
+
   private def getString(value: I) = if (value.flatten.isEmpty) "" else value.map(_.map(str).getOrElse("")).mkString(Card.FaceSeparator)
   override def render(value: I) = JLabel(getString(value))
   override def tooltip(value: I) = getString(value)
@@ -198,28 +217,36 @@ sealed trait CantBeRendered[T] { this: ElementAttribute[T, ?] =>
   override def tooltip(value: T) = throw UnsupportedOperationException(s"$attribute can't be rendered")
 }
 
+////////////////////////
+// TABLE CELL EDITORS //
+////////////////////////
+
+sealed trait CantBeEdited { this: ElementAttribute[?, ?] =>
+  override def cellEditor(editor: Option[EditorFrame]) = None
+}
+
 /**
  * Companion object containing all element attributes and global data about them.
  * @author Alec Roelke
  */
 object ElementAttribute {
   /** Element for filtering and renderng card names. */
-  case object NameElement extends ElementAttribute[Seq[String], TextFilter] with TextElement with SimpleIterableRenderer[String, Seq[String]]() {
+  case object NameElement extends ElementAttribute[Seq[String], TextFilter] with TextElement with SimpleIterableRenderer[String, Seq[String]]() with CantBeEdited {
     override def attribute = CardAttribute.Name
   }
 
   /** Element for rendering card rules text. */
-  case object RuleTextElement extends ElementAttribute[Seq[String], TextFilter] with TextElement with CantBeRendered[Seq[String]] {
+  case object RuleTextElement extends ElementAttribute[Seq[String], TextFilter] with TextElement with CantBeRendered[Seq[String]] with CantBeEdited {
     override def attribute = CardAttribute.RulesText
   }
 
   /** Element for rendering card printed text. */
-  case object PrintedTextElement extends ElementAttribute[Seq[String], TextFilter] with TextElement with CantBeRendered[Seq[String]] {
+  case object PrintedTextElement extends ElementAttribute[Seq[String], TextFilter] with TextElement with CantBeRendered[Seq[String]] with CantBeEdited {
     override def attribute = CardAttribute.FlavorText
   }
 
   /** Element for rendering and filtering card mana costs. Mana costs are rendered as sequences of [[ManaSymbol]]s as they appear on the card separated by // for multi-faced cards. */
-  case object ManaCostElement extends ElementAttribute[Seq[ManaCost], ManaCostFilter] {
+  case object ManaCostElement extends ElementAttribute[Seq[ManaCost], ManaCostFilter] with CantBeEdited {
     private val cache = collection.mutable.Map[Seq[ManaCost], Seq[Seq[Icon]]]()
 
     override def attribute = CardAttribute.ManaCost
@@ -238,7 +265,9 @@ object ElementAttribute {
       panel
     }
     override def tooltip(value: Seq[ManaCost]) = {
-      value.map(_.map((s) => s"""<img src="${getClass.getResource(s"/images/icons/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>""").mkString).mkString(Card.FaceSeparator)
+      value.map(_.map((s) => {
+        s"""<img src="${getClass.getResource(s"/images/icons/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
+      }).mkString).mkString(Card.FaceSeparator)
     }
   }
 
@@ -246,7 +275,7 @@ object ElementAttribute {
    * Element for rendering and filtering card "real" (global) mana value.
    * @see [[CardAttribute.RealManaValue]]
    */
-  case object RealManaValueElement extends ElementAttribute[Double, NumberFilter] with NumberElement {
+  case object RealManaValueElement extends ElementAttribute[Double, NumberFilter] with NumberElement with CantBeEdited {
     private[ElementAttribute] def getString(value: Double) = if (value == value.toInt) value.toInt.toString else value.toString
     override def attribute = CardAttribute.RealManaValue
     override def render(value: Double) = JLabel(getString(value))
@@ -257,103 +286,133 @@ object ElementAttribute {
    * Element for rendering and filtering card "effective" (per-face) mana value.
    * @see [[CardAttribute.EffManaValue]]
    */
-  case object EffManaValueElement extends ElementAttribute[Seq[Double], NumberFilter] with NumberElement {
+  case object EffManaValueElement extends ElementAttribute[Seq[Double], NumberFilter] with NumberElement with CantBeEdited {
     override def attribute = CardAttribute.EffManaValue
     override def render(value: Seq[Double]) = JLabel(value.map(RealManaValueElement.getString).mkString(Card.FaceSeparator))
     override def tooltip(value: Seq[Double]) = value.map(RealManaValueElement.getString).mkString(Card.FaceSeparator)
   }
 
   /** Element filtering by and rendering card colors across all faces. */
-  case object ColorsElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement {
+  case object ColorsElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement with CantBeEdited {
     override def attribute = CardAttribute.Colors
   }
 
   /** Element for filtering by and rendering color identity. */
-  case object ColorIdentityElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement {
+  case object ColorIdentityElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement with CantBeEdited {
     override def attribute = CardAttribute.ColorIdentity
   }
 
   /** Element for filtering by and rendering type line. */
-  case object TypeLineElement extends ElementAttribute[Seq[TypeLine], TypeLineFilter] with SimpleIterableRenderer[TypeLine, Seq[TypeLine]]() {
+  case object TypeLineElement extends ElementAttribute[Seq[TypeLine], TypeLineFilter] with SimpleIterableRenderer[TypeLine, Seq[TypeLine]]() with CantBeEdited {
     override def attribute = CardAttribute.TypeLine
     override def filter(selector: FilterSelectorPanel) = TypeLineFilterPanel(selector)
   }
 
   /** Element for filtering by and rendering printed type line. */
-  case object PrintedTypesElement extends ElementAttribute[Seq[String], TextFilter] with TextElement with SimpleIterableRenderer[String, Seq[String]]() {
+  case object PrintedTypesElement extends ElementAttribute[Seq[String], TextFilter]
+      with TextElement
+      with SimpleIterableRenderer[String, Seq[String]]()
+      with CantBeEdited {
     override def attribute = CardAttribute.PrintedTypes
   }
 
   /** Element for filtering by and rendering card types. */
   case object CardTypeElement extends ElementAttribute[Set[String], MultiOptionsFilter[String]]
       with MultiOptionsElement[String, MultiOptionsFilter[String]]
-      with SimpleIterableRenderer[String, Set[String]](_.toSeq.sorted, ", ") {
+      with SimpleIterableRenderer[String, Set[String]](_.toSeq.sorted, ", ")
+      with CantBeEdited {
     override def attribute = CardAttribute.CardType
   }
 
   /** Element for filtering by and rendering subtypes. */
   case object SubtypeElement extends ElementAttribute[Set[String], MultiOptionsFilter[String]]
       with MultiOptionsElement[String, MultiOptionsFilter[String]]
-      with SimpleIterableRenderer[String, Set[String]](_.toSeq.sorted, ", ") {
+      with SimpleIterableRenderer[String, Set[String]](_.toSeq.sorted, ", ")
+      with CantBeEdited {
     override def attribute = CardAttribute.Subtype
   }
 
   /** Element for filtering by and rendering supertypes. */
   case object SupertypeElement extends ElementAttribute[Set[String], MultiOptionsFilter[String]]
       with MultiOptionsElement[String, MultiOptionsFilter[String]]
-      with SimpleIterableRenderer[String, Set[String]](_.toSeq.sorted, ", ") {
+      with SimpleIterableRenderer[String, Set[String]](_.toSeq.sorted, ", ")
+      with CantBeEdited {
     override def attribute = CardAttribute.Supertype
   }
 
   /** Element for filtering by and rendering creature (and Vehicle) power. */
-  case object PowerElement extends ElementAttribute[Seq[Option[CombatStat]], NumberFilter] with NumberElement with OptionIterableRenderer[CombatStat, Seq[Option[CombatStat]]]() {
+  case object PowerElement extends ElementAttribute[Seq[Option[CombatStat]], NumberFilter]
+      with NumberElement
+      with OptionIterableRenderer[CombatStat, Seq[Option[CombatStat]]]()
+      with CantBeEdited {
     override def attribute = CardAttribute.Power
   }
 
   /** Element for filtering by and rendering creature (and Vehicle) toughness. */
-  case object ToughnessElement extends ElementAttribute[Seq[Option[CombatStat]], NumberFilter] with NumberElement with OptionIterableRenderer[CombatStat, Seq[Option[CombatStat]]]() {
+  case object ToughnessElement extends ElementAttribute[Seq[Option[CombatStat]], NumberFilter]
+      with NumberElement
+      with OptionIterableRenderer[CombatStat, Seq[Option[CombatStat]]]()
+      with CantBeEdited {
     override def attribute = CardAttribute.Toughness
   }
 
   /** Element for filtering by and rendering planeswalker loyalty. */
-  case object LoyaltyElement extends ElementAttribute[Seq[Option[Loyalty]], NumberFilter] with NumberElement with OptionIterableRenderer[Loyalty, Seq[Option[Loyalty]]]() {
+  case object LoyaltyElement extends ElementAttribute[Seq[Option[Loyalty]], NumberFilter]
+      with NumberElement
+      with OptionIterableRenderer[Loyalty, Seq[Option[Loyalty]]]()
+      with CantBeEdited {
     override def attribute = CardAttribute.Loyalty
   }
 
   /** Element for filtering by and rendering card layout. */
-  case object LayoutElement extends ElementAttribute[CardLayout, SingletonOptionsFilter[CardLayout]] with SingletonOptionsElement[CardLayout] with SimpleStringRenderer[CardLayout]() {
+  case object LayoutElement extends ElementAttribute[CardLayout, SingletonOptionsFilter[CardLayout]]
+      with SingletonOptionsElement[CardLayout]
+      with SimpleStringRenderer[CardLayout]()
+      with CantBeEdited {
     override def attribute = CardAttribute.Layout
   }
 
   /** Element for filtering by and rendering printing expansion. */
-  case object ExpansionElement extends ElementAttribute[Expansion, SingletonOptionsFilter[Expansion]] with SingletonOptionsElement[Expansion] with SimpleStringRenderer[Expansion]() {
+  case object ExpansionElement extends ElementAttribute[Expansion, SingletonOptionsFilter[Expansion]]
+      with SingletonOptionsElement[Expansion]
+      with SimpleStringRenderer[Expansion]()
+      with CantBeEdited {
     override def attribute = CardAttribute.Expansion
   }
 
   /** Element for filtering by and rendering block containing printing expansion. */
-  case object BlockElement extends ElementAttribute[String, SingletonOptionsFilter[String]] with SingletonOptionsElement[String] with SimpleStringRenderer[String]() {
+  case object BlockElement extends ElementAttribute[String, SingletonOptionsFilter[String]]
+      with SingletonOptionsElement[String]
+      with SimpleStringRenderer[String]()
+      with CantBeEdited {
     override def attribute = CardAttribute.Block
   }
 
   /** Element for filtering by and rendering printing rarity. */
-  case object RarityElement extends ElementAttribute[Rarity, SingletonOptionsFilter[Rarity]] with SingletonOptionsElement[Rarity] with SimpleStringRenderer[Rarity]() {
+  case object RarityElement extends ElementAttribute[Rarity, SingletonOptionsFilter[Rarity]]
+      with SingletonOptionsElement[Rarity]
+      with SimpleStringRenderer[Rarity]()
+      with CantBeEdited {
     override def attribute = CardAttribute.Rarity
   }
 
   /** Element for filtering by and rendering printing artist. Assumes all faces of a card have the same artist. */
-  case object ArtistElement extends ElementAttribute[Seq[String], TextFilter] with TextElement {
+  case object ArtistElement extends ElementAttribute[Seq[String], TextFilter] with TextElement with CantBeEdited {
     override def attribute = CardAttribute.Artist
     override def render(value: Seq[String]) = JLabel(value(0))
     override def tooltip(value: Seq[String]) = value(0)
   }
 
   /** Element for filtering by and rendering collector number. */
-  case object CardNumberElement extends ElementAttribute[Seq[String], NumberFilter] with NumberElement with SimpleIterableRenderer[String, Seq[String]]() {
+  case object CardNumberElement extends ElementAttribute[Seq[String], NumberFilter]
+      with NumberElement
+      with SimpleIterableRenderer[String, Seq[String]]()
+      with CantBeEdited {
     override def attribute = CardAttribute.CardNumber
   }
 
   /** Element for filtering by and rendering legal tournament formats. */
-  case object LegalInElement extends ElementAttribute[Set[String], LegalityFilter] with SimpleIterableRenderer[String, Set[String]](_.toSeq.sorted, ", ") {
+  case object LegalInElement extends ElementAttribute[Set[String], LegalityFilter] with SimpleIterableRenderer[String, Set[String]](_.toSeq.sorted, ", ") with CantBeEdited {
     override def attribute = CardAttribute.LegalIn
     override def filter(selector: FilterSelectorPanel) = LegalityFilterPanel(attribute.filter, selector)
   }
@@ -361,18 +420,19 @@ object ElementAttribute {
   /** Element for filtering by and rendering user-defined tags. Tags are sorted alphabetically for rendering. */
   case object TagsElement extends ElementAttribute[Set[String], MultiOptionsFilter[String]]
       with MultiOptionsElement[String, MultiOptionsFilter[String]]
-      with SimpleIterableRenderer[String, Set[String]](_.toSeq.sorted, ", ") {
+      with SimpleIterableRenderer[String, Set[String]](_.toSeq.sorted, ", ")
+      with CantBeEdited {
     override def attribute = CardAttribute.Tags
   }
 
   /** Element for creating "filters" that pass any card. */
-  case object AnyCardElement extends ElementAttribute[Unit, BinaryFilter] with CantBeRendered[Unit] {
+  case object AnyCardElement extends ElementAttribute[Unit, BinaryFilter] with CantBeRendered[Unit] with CantBeEdited {
     override def attribute = CardAttribute.AnyCard
     override def filter(selector: FilterSelectorPanel) = BinaryFilterPanel(true)
   }
 
   /** Element for creating "filters" that pass no card. */
-  case object NoCardElement extends ElementAttribute[Unit, BinaryFilter] with CantBeRendered[Unit] {
+  case object NoCardElement extends ElementAttribute[Unit, BinaryFilter] with CantBeRendered[Unit] with CantBeEdited {
     override def attribute = CardAttribute.NoCard
     override def filter(selector: FilterSelectorPanel) = BinaryFilterPanel(false)
   }
@@ -399,16 +459,18 @@ object ElementAttribute {
       panel
     }
     override def tooltip(value: Set[Categorization]) = s"""Categories:${value.map((c) => s"<br>${UnicodeSymbols.Bullet} ${c.name}").toSeq.sorted.mkString}"""
+    override def cellEditor(editor: Option[EditorFrame]) = editor.map(InclusionCellEditor(_))
   }
 
   /** Element for rendering number of copies of a card in a deck. */
   case object CountElement extends ElementAttribute[Int, Nothing] with SimpleStringRenderer[Int]() {
     override def attribute = CardAttribute.Count
     override def filter(selector: FilterSelectorPanel) = throw UnsupportedOperationException("can't filter by count")
+    override def cellEditor(editor: Option[EditorFrame]) = editor.map(_ => SpinnerCellEditor())
   }
 
   /** Element for rendering the date a card was added to a deck. Uses "month day, year" to format dates. */
-  case object DateAddedElement extends ElementAttribute[LocalDate, Nothing] {
+  case object DateAddedElement extends ElementAttribute[LocalDate, Nothing] with CantBeEdited {
     import CardAttribute.DateAdded
     override def attribute = DateAdded
     override def filter(selector: FilterSelectorPanel) = throw UnsupportedOperationException("can't filter by date")

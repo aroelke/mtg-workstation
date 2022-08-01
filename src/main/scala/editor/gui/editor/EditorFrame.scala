@@ -327,8 +327,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       table.getSelectionModel.addListSelectionListener(listener)
       // Create cell editors for applicable table columns
       for (i <- 0 until table.getColumnCount)
-        if (model.isCellEditable(0, i))
-          table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(EditorFrame.this, model.columns(i)))
+        model.columns(i).cellEditor(EditorFrame.this).foreach(table.getColumn(model.getColumnName(i)).setCellEditor)
       // Set up drag-and-drop for the table
       table.setTransferHandler(EditorTableTransferHandler(EditorFrame.this, id))
       table.setDragEnabled(true)
@@ -1126,8 +1125,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
                                           (_.editor.manaAnalysis.line)(landRenderer.setSeriesPaint(0, _))
 
     for (i <- 0 until deck.table.getColumnCount)
-      if (deck.model.isCellEditable(0, i))
-        deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.columns(i)))
+      deck.model.columns(i).cellEditor(this).foreach(deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor)
     updateStats()
     update()
   }

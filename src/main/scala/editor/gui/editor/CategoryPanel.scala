@@ -143,8 +143,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   }
   table.stripe = SettingsDialog.settings.editor.stripe
   for (i <- 0 until table.getColumnCount)
-    if (model.isCellEditable(0, i))
-      table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.columns(i)))
+      model.columns(i).cellEditor(editor).foreach(table.getColumn(model.getColumnName(i)).setCellEditor)
   private val tablePane = JScrollPane(table)
   tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS)
   tablePane.addMouseWheelListener(new MouseWheelListener {
@@ -261,8 +260,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
     applyChanges(oldSettings, newSettings)(_.editor.columns)(model.columns = _)
                                           (_.editor.stripe)(table.stripe = _)
     for (i <- 0 until table.getColumnCount)
-      if (model.isCellEditable(0, i))
-        table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.columns(i)))
+      model.columns(i).cellEditor(editor).foreach(table.getColumn(model.getColumnName(i)).setCellEditor)
   }
 
   /** @return the list of cards corresponding to the selected rows in the category's table */

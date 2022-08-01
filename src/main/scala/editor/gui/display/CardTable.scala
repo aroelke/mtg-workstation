@@ -26,27 +26,6 @@ import scala.reflect.ClassTag
 import editor.gui.ElementAttribute
 
 /**
- * Companion used for global card table operations.
- * @author Alec Roelke
- */
-object CardTable {
-  /**
-   * Create a new instance of a cell editor for a particular card attribute if values of that
-   * attribute can be edited in a card table (by double-clicking).
-   * 
-   * @param frame [[EditorFrame]] containing the deck that contains the card whose attribute should
-   * be edited
-   * @param attr attribute to be edited by the editor
-   * @return a component that can edit the value of the specified attribute
-   */
-  def createCellEditor(frame: EditorFrame, attr: ElementAttribute[?, ?]) = attr match {
-    case ElementAttribute.CountElement => SpinnerCellEditor()
-    case ElementAttribute.CategoriesElement => InclusionCellEditor(frame)
-    case _ => throw IllegalArgumentException(s"values of type $attr can't be edited")
-  }
-}
-
-/**
  * Table for displaying information about cards.  Which cards are displayed and what data
  * to show in each column is customizable via the model.  Rows alternate in color between
  * white and another customizable color.
