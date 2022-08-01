@@ -29,11 +29,6 @@ object FunctionalSymbol extends SymbolParser[FunctionalSymbol] with HasSymbolVal
   )
 
   override def parse(s: String) = values.get(s.toUpperCase)
-
-  @deprecated val CHAOS = Chaos
-  @deprecated val SYMBOLS = values.asJava
-  @deprecated def tryParseFunctionalSymbol(s: String) = parse(s).toJava
-  @deprecated def parseFunctionalSymbol(s: String) = values(s)
 }
 
 /**
