@@ -19,8 +19,6 @@ import javax.swing.TransferHandler
  * @author Alec Roelke
  */
 class CategoryImportHandler(contains: (Categorization) => Boolean, add: (Categorization) => Boolean) extends TransferHandler with ImportHandler {
-  @deprecated def this(contains: java.util.function.Predicate[Categorization], add: java.util.function.Predicate[Categorization]) = this(contains.test, add.test)
-
   override def supportedFlavor = DataFlavors.categoryFlavor
 
   override def canImport(supp: TransferHandler.TransferSupport) = if (supp.isDrop) false else if (supp.isDataFlavorSupported(supportedFlavor)) {
