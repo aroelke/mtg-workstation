@@ -179,7 +179,7 @@ object MainFrame {
   def inventory_=(i: Inventory) = _inventory = Some(i)
 
   /** Serializer for saving and loading external information. */
-  def Serializer = (new GsonBuilder)
+  lazy val Serializer = (new GsonBuilder)
     .registerTypeAdapter(classOf[Settings], SettingsAdapter())
     .registerTypeAdapter(classOf[Categorization], CategoryAdapter())
     .registerTypeHierarchyAdapter(classOf[Filter], FilterAdapter())
@@ -192,7 +192,6 @@ object MainFrame {
     .registerTypeAdapter(classOf[UpdateFrequency], UpdateAdapter())
     .setPrettyPrinting
     .create()
-  @deprecated def SERIALIZER() = Serializer
 }
 
 /**
