@@ -23,8 +23,6 @@ class EntryTransferData(val source: EditorFrame, val from: Int, val cards: Map[C
   /** ID of the list to transfer to. */
   var to = -1
 
-  @deprecated def entries = cards.map{ case (c, i) => c -> Integer(i) }.asJava
-
   @throws[UnsupportedFlavorException]
   override def getTransferData(flavor: DataFlavor) = if (flavor == DataFlavors.entryFlavor) this else super.getTransferData(flavor)
   override def getTransferDataFlavors = DataFlavors.entryFlavor +: super.getTransferDataFlavors
