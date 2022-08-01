@@ -33,8 +33,6 @@ object ScrollablePanel {
  * @author Alec Roelke
  */
 class ScrollablePanel(tracking: Byte = ScrollablePanel.TrackNeither, layout: LayoutManager = JPanel().getLayout) extends JPanel(layout) with Scrollable {
-  @deprecated def this(tracking: Byte) = this(tracking, JPanel().getLayout)
-
   private var preferredScrollableViewportSize = Dimension(0, 0)
 
   /** @param size new preferred size of the viewport (contents can be different depending on tracking) */
