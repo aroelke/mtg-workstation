@@ -25,9 +25,7 @@ import scala.jdk.CollectionConverters._
  * 
  * @author Alec Roelke
  */
-case class Settings(inventory: InventorySettings = InventorySettings(), editor: EditorSettings = EditorSettings(), cwd: String = System.getProperty("user.home")) {
-  @deprecated def this() = this(InventorySettings(), EditorSettings(), System.getProperty("user.home"))
-}
+case class Settings(inventory: InventorySettings = InventorySettings(), editor: EditorSettings = EditorSettings(), cwd: String = System.getProperty("user.home"))
 
 /**
  * Settings structure containing global inventory and card settings.
