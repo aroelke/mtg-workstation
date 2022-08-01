@@ -8,7 +8,6 @@ import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
 import editor.database.attributes.TypeLine
-import editor.util.Lazy
 import editor.util.UnicodeSymbols
 
 import java.text.Collator
@@ -20,7 +19,6 @@ import scala.collection.immutable.AbstractSet
 import scala.collection.immutable.TreeMap
 import scala.collection.mutable.Growable
 import scala.collection.mutable.Shrinkable
-import scala.jdk.CollectionConverters._
 
 /**
  * Object containing global card data and data to aid with displaying card information.
@@ -35,30 +33,6 @@ object Card {
 
   /** String used to represent a card's own name in its text box. */
   val This = "~"
-
-  /**
-   * User-defined, per-card tags. Every card effectively starts with an empty tag set, and the user can add and remove them as
-   * they like, and apply filters based on them for categories or inventory searches.
-   */
-  val tags = new collection.mutable.AbstractMap[Card, collection.mutable.Set[String]] {
-    val tags = collection.mutable.Map[Card, collection.mutable.Set[String]]()
-
-    override def iterator = tags.iterator
-    override def get(c: Card) = Some(tags.getOrElseUpdate(c, collection.mutable.Set[String]()))
-    override def addOne(e: (Card, collection.mutable.Set[String])) = { e match { case (c, s) => apply(c) ++= s }; this }
-    override def subtractOne(c: Card) = { tags.subtractOne(c); this }
-  }
-
-  /**
-   * Reset the user-defined tags.
-   * 
-   * @param elems new set of tags to replace the old ones
-   * @return the tags after resetting to their new values
-   */
-  def tags_=(elems: IterableOnce[(Card, collection.mutable.Set[String])]) = {
-    tags.clear()
-    tags ++= elems
-  }
 }
 
 /**
@@ -160,10 +134,10 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def avgManaValue: Double
 
   /** @return the colors of the card. */
-  def colors: Seq[ManaType]
+  def colors: Set[ManaType]
 
   /** @return the color identity of the card, which is the set of colors across all of its faces plus those of any mana symbols in its text boxes. */
-  def colorIdentity: Seq[ManaType]
+  def colorIdentity: Set[ManaType]
 
   /** @return the card's type line. */
   def typeLine: TypeLine
@@ -192,14 +166,14 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   /** @return the card's flavor text. */
   def flavorText: String
 
-  /** @return the card's power, if it's a creature. */
-  def power: CombatStat
+  /** @return the card's power if it has one, or None otherwise. */
+  def power: Option[CombatStat]
 
-  /** @return the card's toughness, if it's a creature. */
-  def toughness: CombatStat
+  /** @return the card's toughness if it has one, or None otherwise. */
+  def toughness: Option[CombatStat]
 
-  /** @return the card's loyalty, if it's a planeswalker. */
-  def loyalty: Loyalty
+  /** @return the card's loyalty if it's a planeswalker, or None otherwise. */
+  def loyalty: Option[Loyalty]
 
   /** @return the car'd artist. */
   def artist: String
@@ -255,13 +229,13 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def compareName(other: Card) = Collator.getInstance(Locale.US).compare(name, other.name)
 
   /** @return true if the card has a power value and it's variable (contains *), or false otherwise. */
-  def powerVariable = faces.exists(_.power.variable)
+  def powerVariable = faces.exists(_.power.exists(_.variable))
 
   /** @return true if the card has a toughness value and it's variable (contains *) or false otherwise. */
-  def toughnessVariable = faces.exists(_.toughness.variable)
+  def toughnessVariable = faces.exists(_.toughness.exists(_.variable))
 
   /** @return true if the card has a loyalty value and it's variable (contains * or X) or false otherwise. */
-  def loyaltyVariable = faces.exists(_.loyalty.variable)
+  def loyaltyVariable = faces.exists(_.loyalty.exists(_.variable))
 
   /**
    * Determine the card's legality in a particular format.

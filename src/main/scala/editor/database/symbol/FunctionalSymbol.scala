@@ -1,8 +1,5 @@
 package editor.database.symbol
 
-import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
-
 /**
  * Companion to [[FunctionalSymbol]] that contains all the existing non-mana symbols and functions for parsing strings
  * into [[FunctionalSymbol]]s. The possible [[FunctionalSymbol]]s are:
@@ -29,11 +26,6 @@ object FunctionalSymbol extends SymbolParser[FunctionalSymbol] with HasSymbolVal
   )
 
   override def parse(s: String) = values.get(s.toUpperCase)
-
-  @deprecated val CHAOS = Chaos
-  @deprecated val SYMBOLS = values.asJava
-  @deprecated def tryParseFunctionalSymbol(s: String) = parse(s).toJava
-  @deprecated def parseFunctionalSymbol(s: String) = values(s)
 }
 
 /**

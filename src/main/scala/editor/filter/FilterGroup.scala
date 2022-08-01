@@ -3,9 +3,6 @@ package editor.filter
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 
-import java.util.Objects
-import scala.jdk.CollectionConverters._
-
 /**
  * Object containing global information about filter groups.
  * @author Alec Roelke
@@ -43,40 +40,17 @@ object FilterGroup {
  * 
  * @author Alec Roelke
  */
-class FilterGroup(filters: Iterable[Filter] = Seq.empty) extends Filter(CardAttribute.GROUP) with Iterable[Filter] {
+final case class FilterGroup(children: Iterable[Filter] = Seq.empty, mode: FilterGroup.Mode = FilterGroup.Mode.And, comment: String = "") extends Filter with Iterable[Filter] {
   import FilterGroup._
 
   /** How filters in the group are combined. */
-  var mode = Mode.And
+//  var mode = Mode.And
   /** User-defined title or comment for the group. */
-  var comment = ""
+//  var comment = ""
 
-  private val children = collection.mutable.Buffer[Filter]()
+//  private val children = collection.mutable.Buffer[Filter]()
 
-  /**
-   * Add a new filter to the group.
-   * @param filter filter to add
-   */
-  def addChild(filter: Filter) = children += filter
-
-  filters.foreach(addChild)
-
+  override def attribute = CardAttribute.Group
   override def apply(c: Card) = mode(children, c)
-
-  override def copy = {
-    val filter = FilterGroup()
-    children.foreach((f) => filter.addChild(f.copy))
-    filter.mode = mode
-    filter.comment = comment
-    filter
-  }
-
   override def iterator = children.iterator
-
-  override def equals(other: Any) = other match {
-    case o: FilterGroup => o.mode == mode && o.comment == comment && o.children == children
-    case _ => false
-  }
-
-  override def hashCode = Objects.hash(mode, comment, children)
 }

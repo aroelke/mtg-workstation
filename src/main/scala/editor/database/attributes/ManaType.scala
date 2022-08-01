@@ -53,10 +53,8 @@ object ManaType {
         sorted
       case s => s
     }
-    Seq.fill(counts(Colorless))(Colorless) ++ sorted.flatMap((c) => Seq.fill(counts(c))(c))
+    Seq.fill(counts.get(Colorless).getOrElse(0))(Colorless) ++ sorted.flatMap((c) => Seq.fill(counts(c))(c))
   }
-
-  @deprecated def COLORLESS() = Colorless
 }
 
 /**

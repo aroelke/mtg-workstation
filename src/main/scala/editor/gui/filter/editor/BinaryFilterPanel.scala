@@ -1,6 +1,7 @@
 package editor.gui.filter.editor
 
 import editor.database.attributes.CardAttribute
+import editor.filter.leaf.BinaryFilter
 import editor.filter.leaf.FilterLeaf
 
 import java.awt.GridLayout
@@ -15,7 +16,7 @@ import javax.swing.JLabel
  * 
  * @author Alec Roelke
  */
-class BinaryFilterPanel(allow: Boolean) extends FilterEditorPanel[FilterLeaf] {
+class BinaryFilterPanel(allow: Boolean) extends FilterEditorPanel[BinaryFilter] {
   val All = "This clause will match every card."
   val None = "This clause will not match any card."
 
@@ -23,7 +24,7 @@ class BinaryFilterPanel(allow: Boolean) extends FilterEditorPanel[FilterLeaf] {
   setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0))
   add(JLabel(if (allow) All else None))
 
-  protected override val attribute = if (allow) CardAttribute.ANY else CardAttribute.NONE
-  override lazy val filter = CardAttribute.createFilter(if (allow) CardAttribute.ANY else CardAttribute.NONE)
-  override def setFields(filter: FilterLeaf) = {}
+  protected override val attribute = if (allow) CardAttribute.AnyCard else CardAttribute.NoCard
+  override lazy val filter = attribute.filter
+  override def setFields(filter: BinaryFilter) = {}
 }

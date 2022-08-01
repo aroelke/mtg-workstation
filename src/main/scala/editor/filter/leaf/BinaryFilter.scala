@@ -2,8 +2,7 @@ package editor.filter.leaf
 
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
-
-import java.util.Objects
+import editor.filter.FaceSearchOptions
 
 /**
  * A filter that either statically passes every card or no card.
@@ -13,15 +12,9 @@ import java.util.Objects
  * 
  * @author Alec Roelke
  */
-class BinaryFilter(all: Boolean) extends FilterLeaf(if (all) CardAttribute.ANY else CardAttribute.NONE, true) {
+final class BinaryFilter(all: Boolean) extends FilterLeaf {
+  override def faces = FaceSearchOptions.ANY
+  override def attribute = if (all) CardAttribute.AnyCard else CardAttribute.NoCard
+  override val unified = true
   override protected def testFace(c: Card) = all
-
-  override protected def copyLeaf = CardAttribute.createFilter(attribute).asInstanceOf[BinaryFilter]
-
-  override def leafEquals(other: Any) = other match {
-    case o: BinaryFilter => o.attribute == attribute
-    case _ => false
-  }
-
-  override def hashCode = Objects.hash(attribute)
 }

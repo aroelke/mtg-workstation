@@ -16,9 +16,6 @@ import _root_.editor.database.version.UpdateFrequency
 import _root_.editor.database.{symbol => mtg}
 import _root_.editor.filter.Filter
 import _root_.editor.filter.leaf.TextFilter
-import _root_.editor.filter.leaf.options.multi.CardTypeFilter
-import _root_.editor.filter.leaf.options.multi.SubtypeFilter
-import _root_.editor.filter.leaf.options.multi.SupertypeFilter
 import _root_.editor.gui.ccp.CCPItems
 import _root_.editor.gui.ccp.data.DataFlavors
 import _root_.editor.gui.ccp.handler.InventoryExportHandler
@@ -150,7 +147,6 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
 import scala.util.Failure
 import scala.util.Success
 
@@ -182,20 +178,19 @@ object MainFrame {
   def inventory_=(i: Inventory) = _inventory = Some(i)
 
   /** Serializer for saving and loading external information. */
-  def Serializer = (new GsonBuilder)
+  lazy val Serializer = (new GsonBuilder)
     .registerTypeAdapter(classOf[Settings], SettingsAdapter())
     .registerTypeAdapter(classOf[Categorization], CategoryAdapter())
     .registerTypeHierarchyAdapter(classOf[Filter], FilterAdapter())
     .registerTypeAdapter(classOf[Color], ColorAdapter())
     .registerTypeHierarchyAdapter(classOf[Card], CardAdapter())
-    .registerTypeAdapter(classOf[CardAttribute], AttributeAdapter())
+    .registerTypeAdapter(classOf[CardAttribute[?, ?]], AttributeAdapter())
     .registerTypeAdapter(classOf[Deck], DeckAdapter())
     .registerTypeAdapter(classOf[DeckSerializer], DeckSerializer())
     .registerTypeAdapter(classOf[DatabaseVersion], VersionAdapter())
     .registerTypeAdapter(classOf[UpdateFrequency], UpdateAdapter())
     .setPrettyPrinting
     .create()
-  @deprecated def SERIALIZER() = Serializer
 }
 
 /**
@@ -217,13 +212,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    * @author Alec Roelke
    */
   private class InventoryTableCellRenderer extends CardTableCellRenderer {
-    override def getTableCellRendererComponent(table: JTable, value: Object, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int) = {
+    override def getTableCellRendererComponent(table: JTable, value: AnyRef, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int) = {
       val c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
       val card = inventory(table.convertRowIndexToModel(row)).card
       val main = selectedFrame.exists(_.deck.contains(card))
       val extra = selectedFrame.exists(_.extras.exists(_.contains(card)))
       try {
-        ComponentUtils.changeFontRecursive(c, c.getFont.deriveFont((if (main) Font.BOLD else 0) | (if (extra) Font.ITALIC else 0)))
+        ComponentUtils.propagateFont(c, c.getFont.deriveFont((if (main) Font.BOLD else 0) | (if (extra) Font.ITALIC else 0)))
       } catch case e: NullPointerException => {
         System.err.println(s"renderer component ${c.getClass} for value $value does not have a font")
       }
@@ -349,7 +344,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           includeCheckBox.setSelected(true)
           optionsPanel.add(includeCheckBox)
           dataPanel.add(optionsPanel, BorderLayout.NORTH)
-          val headersList = JList(CardAttribute.displayableValues)
+          val headersList = JList(CardAttribute.displayableValues.toArray)
           headersList.setEnabled(!includeCheckBox.isSelected)
           val headersPane = JScrollPane(headersList)
           val headersPanel = Box(BoxLayout.X_AXIS)
@@ -358,12 +353,12 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           rearrangeButtons.foreach(_.setEnabled(!includeCheckBox.isSelected))
           headersPanel.add(rearrangeButtons)
           headersPanel.add(Box.createHorizontalStrut(5))
-          val selectedHeadersModel = DefaultListModel[CardAttribute]()
-          selectedHeadersModel.addElement(CardAttribute.NAME)
-          selectedHeadersModel.addElement(CardAttribute.EXPANSION)
-          selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER)
-          selectedHeadersModel.addElement(CardAttribute.COUNT)
-          selectedHeadersModel.addElement(CardAttribute.DATE_ADDED)
+          val selectedHeadersModel = DefaultListModel[CardAttribute[?, ?]]()
+          selectedHeadersModel.addElement(CardAttribute.Name)
+          selectedHeadersModel.addElement(CardAttribute.Expansion)
+          selectedHeadersModel.addElement(CardAttribute.CardNumber)
+          selectedHeadersModel.addElement(CardAttribute.Count)
+          selectedHeadersModel.addElement(CardAttribute.DateAdded)
           val selectedHeadersList = JList(selectedHeadersModel)
           selectedHeadersList.setEnabled(!includeCheckBox.isSelected)
           headersPanel.add(new JScrollPane(selectedHeadersList) {
@@ -492,8 +487,8 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           val sortPanel = JPanel(FlowLayout(FlowLayout.CENTER))
           val sortCheck = JCheckBox("Sort by:", true)
           sortPanel.add(sortCheck)
-          val sortBox = JComboBox(CardAttribute.displayableValues)
-          sortBox.setSelectedItem(CardAttribute.NAME)
+          val sortBox = JComboBox(CardAttribute.displayableValues.toArray)
+          sortBox.setSelectedItem(CardAttribute.Name)
           sortCheck.addItemListener(_ => sortBox.setEnabled(sortCheck.isSelected))
           sortPanel.add(sortBox)
 
@@ -539,7 +534,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             fieldPanel.add(formatField)
             val addDataPanel = JPanel(FlowLayout(FlowLayout.LEFT))
             addDataPanel.add(new JLabel("Add Data: "))
-            val addDataBox = JComboBox(CardAttribute.displayableValues)
+            val addDataBox = JComboBox(CardAttribute.displayableValues.toArray)
             fieldPanel.add(addDataPanel)
             addDataPanel.add(addDataBox)
             wizardPanel.add(fieldPanel)
@@ -589,20 +584,20 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           } else if (exportChooser.getFileFilter == delimited) {
             val panels = collection.mutable.ArrayBuffer[JComponent]()
             val dataPanel = Box(BoxLayout.Y_AXIS)
-            val headersList = JList(CardAttribute.displayableValues)
+            val headersList = JList(CardAttribute.displayableValues.toArray)
             val headersPane = JScrollPane(headersList)
             val headersPanel = Box(BoxLayout.X_AXIS)
             headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"))
             val rearrangeButtons = VerticalButtonList(Seq(UnicodeSymbols.UpArrow.toString, UnicodeSymbols.DownArrow.toString))
             headersPanel.add(rearrangeButtons)
             headersPanel.add(Box.createHorizontalStrut(5))
-            val selectedHeadersModel = DefaultListModel[CardAttribute]()
-            selectedHeadersModel.addElement(CardAttribute.NAME)
-            selectedHeadersModel.addElement(CardAttribute.EXPANSION)
-            selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER)
-            selectedHeadersModel.addElement(CardAttribute.COUNT)
-            selectedHeadersModel.addElement(CardAttribute.DATE_ADDED)
-            val selectedHeadersList = JList(selectedHeadersModel)
+            val selectedHeadersModel = DefaultListModel[CardAttribute[?, ?]]()
+            selectedHeadersModel.addElement(CardAttribute.Name)
+            selectedHeadersModel.addElement(CardAttribute.Expansion)
+            selectedHeadersModel.addElement(CardAttribute.CardNumber)
+            selectedHeadersModel.addElement(CardAttribute.Count)
+            selectedHeadersModel.addElement(CardAttribute.DateAdded)
+            val selectedHeadersList = JList(selectedHeadersModel.toArray)
             headersPanel.add(new JScrollPane(selectedHeadersList) {
               override def getPreferredSize = headersPane.getPreferredSize
             })
@@ -679,7 +674,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             None
           }
           format.foreach((fmt) => {
-            val sorted = new Ordering[CardListEntry] { def compare(a: CardListEntry, b: CardListEntry) = sortBox.getItemAt(sortBox.getSelectedIndex).comparingCard.compare(a, b) }
+            val sorted = new Ordering[CardListEntry] { def compare(a: CardListEntry, b: CardListEntry) = sortBox.getItemAt(sortBox.getSelectedIndex).comparingEntry.compare(a, b) }
             val unsorted = new Ordering[CardListEntry] { def compare(a: CardListEntry, b: CardListEntry) = 0 }
             f.exportList(fmt, if (sortCheck.isSelected) sorted else unsorted, extras.collect{ case (e, s) if s => e }.toSeq, exportChooser.getSelectedFile) match {
               case Success(_) =>
@@ -1062,10 +1057,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   // Create the inventory and put it in the table
   private val inventoryModel = CardTableModel(Inventory(), Settings().inventory.columns)
   private val inventoryTable = CardTable(inventoryModel)
-  inventoryTable.setDefaultRenderer(classOf[String], InventoryTableCellRenderer())
-  inventoryTable.setDefaultRenderer(classOf[Int], InventoryTableCellRenderer())
-  inventoryTable.setDefaultRenderer(classOf[Rarity], InventoryTableCellRenderer())
-  inventoryTable.setDefaultRenderer(classOf[java.util.List[?]], InventoryTableCellRenderer())
+  CardAttribute.values.foreach((a) => inventoryTable.setDefaultRenderer(a.dataType, InventoryTableCellRenderer()))
   inventoryTable.stripe = SettingsDialog.settings.inventory.stripe
   inventoryTable.addMouseListener(MouseListenerFactory.createMouseListener(clicked = (e) => selectedFrame.foreach((f) => {
     if (e.getClickCount % 2 == 0)
@@ -1121,25 +1113,25 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
   // Action to be taken when the user presses the Enter key after entering text into the quick-filter bar
   nameFilterField.addActionListener(_ => {
-    inventory.filter = TextFilter(CardAttribute.NAME, nameFilterField.getText.toLowerCase)
+    inventory.filter = TextFilter(CardAttribute.Name, nameFilterField.getText.toLowerCase)
     inventoryModel.fireTableDataChanged()
   })
 
   // Action to be taken when the clear button is pressed (reset the filter)
   clearButton.addActionListener(_ => {
     nameFilterField.setText("")
-    inventory.filter = CardAttribute.createFilter(CardAttribute.ANY)
+    inventory.filter = CardAttribute.AnyCard.filter
     inventoryModel.fireTableDataChanged()
   })
 
   // Action to be taken when the advanced filter button is pressed (show the advanced filter dialog)
   advancedFilterButton.addActionListener(_ => {
     val panel = FilterGroupPanel()
-    if (inventory.filter.equals(CardAttribute.createFilter(CardAttribute.ANY)))
-      panel.setContents(CardAttribute.createFilter(CardAttribute.NAME))
+    if (inventory.filter.attribute == CardAttribute.AnyCard)
+      panel.setContents(CardAttribute.Name.filter)
     else
       panel.setContents(inventory.filter)
-    panel.addChangeListener((c) => SwingUtilities.getWindowAncestor(c.getSource.asInstanceOf[Component]).pack())
+    panel.listeners += ((c) => SwingUtilities.getWindowAncestor(c.getSource.asInstanceOf[Component]).pack())
 
     val panelPanel = new ScrollablePanel(ScrollablePanel.TrackWidth, BorderLayout()) {
       override def getPreferredScrollableViewportSize = {
@@ -1358,9 +1350,9 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     val data = InventoryLoader.loadInventory(this, SettingsDialog.settings.inventory.inventoryFile)
     inventory = data.inventory
     Expansion.expansions = data.expansions.toArray
-    SupertypeFilter.supertypeList = data.supertypes.toArray
-    CardTypeFilter.typeList = data.types
-    SubtypeFilter.subtypeList = data.subtypes.toArray
+    CardAttribute.Supertype.options = data.supertypes.toArray
+    CardAttribute.CardType.options = data.types
+    CardAttribute.Subtype.options = data.subtypes.toArray
     SettingsDialog.inventoryWarnings = data.warnings
 
     inventoryModel.list = inventory
@@ -1551,14 +1543,14 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
                   rulingsDocument.insertString(rulingsDocument.getLength(), ruling.substring(start, i), rulingStyle)
                   start = i + 1
                 case '}'=>
-                  val symbol = mtg.Symbol.tryParseSymbol(ruling.substring(start, i))
-                  if (symbol.isEmpty) {
-                    System.err.println(s"Unexpected symbol {${ruling.substring(start, i)}} in ruling for ${card.name}.")
-                    rulingsDocument.insertString(rulingsDocument.getLength, ruling.substring(start, i), rulingStyle)
-                  } else {
-                    val symbolStyle = rulingsDocument.addStyle(symbol.get.toString, null)
-                    StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TextSize))
-                    rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle)
+                  mtg.Symbol.parse(ruling.substring(start, i)) match {
+                    case Some(symbol) =>
+                      val symbolStyle = rulingsDocument.addStyle(symbol.toString, null)
+                      StyleConstants.setIcon(symbolStyle, symbol.scaled(ComponentUtils.TextSize))
+                      rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle)
+                    case None =>
+                      System.err.println(s"Unexpected symbol {${ruling.substring(start, i)}} in ruling for ${card.name}.")
+                      rulingsDocument.insertString(rulingsDocument.getLength, ruling.substring(start, i), rulingStyle)
                   }
                   start = i + 1
                 case _ =>

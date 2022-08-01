@@ -8,13 +8,11 @@ import editor.database.card.CardLayout
 import editor.database.card.MultiCard
 import editor.database.version.DatabaseVersion
 import editor.database.version.UpdateFrequency
-import editor.filter.leaf.options.multi.CardTypeFilter
 
 import java.awt.Color
 import java.io.File
 import java.net.MalformedURLException
 import java.net.URL
-import scala.jdk.CollectionConverters._
 
 /**
  * Global settings structure, modifiable only using the [[editor.gui.settings.SettingsDialog]].
@@ -26,9 +24,7 @@ import scala.jdk.CollectionConverters._
  * 
  * @author Alec Roelke
  */
-case class Settings(inventory: InventorySettings = InventorySettings(), editor: EditorSettings = EditorSettings(), cwd: String = System.getProperty("user.home")) {
-  @deprecated def this() = this(InventorySettings(), EditorSettings(), System.getProperty("user.home"))
-}
+case class Settings(inventory: InventorySettings = InventorySettings(), editor: EditorSettings = EditorSettings(), cwd: String = System.getProperty("user.home"))
 
 /**
  * Settings structure containing global inventory and card settings.
@@ -68,7 +64,7 @@ case class InventorySettings(
   tags: String = SettingsDialog.EditorHome.resolve("tags.json").toString(),
   update: UpdateFrequency = UpdateFrequency.Daily,
   warn: Boolean = true,
-  columns: IndexedSeq[CardAttribute] = IndexedSeq(NAME, MANA_COST, TYPE_LINE, EXPANSION),
+  columns: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(Name, ManaCost, TypeLine, Expansion),
   background: Color = Color.WHITE,
   stripe: Color = Color(0xCC, 0xCC, 0xCC, 0xFF)
 ) {
@@ -102,7 +98,7 @@ case class InventorySettings(
 case class EditorSettings(
   recents: RecentsSettings = RecentsSettings(),
   categories: CategoriesSettings = CategoriesSettings(),
-  columns: IndexedSeq[CardAttribute] = IndexedSeq(NAME, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, COUNT, DATE_ADDED),
+  columns: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(Name, ManaCost, TypeLine, Expansion, Categories, Count, DateAdded),
   stripe: Color = Color(0xCC, 0xCC, 0xCC, 0xFF),
   hand: HandSettings = HandSettings(),
   legality: LegalitySettings = LegalitySettings(),
@@ -171,9 +167,7 @@ case class CategoriesSettings(
     "Lands" -> Seq("Land"),
     "Instants/Sorceries" -> Seq("Instant", "Sorcery")
   ).map{ case (name, types) => {
-    val filter = CardAttribute.createFilter(CardAttribute.CARD_TYPE).asInstanceOf[CardTypeFilter]
-    filter.selected ++= types
-    Categorization(name, filter, Set.empty, Set.empty, Color.WHITE)
+    Categorization(name, CardAttribute.CardType.filter.copy(selected = types.toSet), Set.empty, Set.empty, Color.WHITE)
   }}.toSeq,
   rows: Int = 6,
   explicits: Int = 3

@@ -20,7 +20,6 @@ import javax.swing.text.StyleConstants
 import javax.swing.text.StyledDocument
 import scala.collection.immutable.ListSet
 import scala.collection.immutable.TreeMap
-import scala.jdk.CollectionConverters._
 
 /**
  * A single-faced [[Card]], or a single face of a [[MultiCard]].
@@ -56,8 +55,8 @@ case class SingleCard(
   override val layout: CardLayout,
   name: String,
   manaCost: ManaCost,
-  colors: Seq[ManaType],
-  colorIdentity: Seq[ManaType],
+  colors: Set[ManaType],
+  colorIdentity: Set[ManaType],
   private val superts: ListSet[String],
   private val cardts: ListSet[String],
   private val subts: ListSet[String],
@@ -71,9 +70,9 @@ case class SingleCard(
   multiverseid: Int,
   scryfallid: String,
   number: String,
-  power: CombatStat,
-  toughness: CombatStat,
-  loyalty: Loyalty,
+  power: Option[CombatStat],
+  toughness: Option[CombatStat],
+  loyalty: Option[Loyalty],
   rulings: TreeMap[Date, Seq[String]],
   legality: Map[String, Legality],
   commandFormats: Seq[String]
@@ -214,10 +213,10 @@ case class SingleCard(
         document.insertString(document.getLength, "\n", reminderStyle)
       }
 
-      if (power.exists && toughness.exists)
-        document.insertString(document.getLength, s"$power/$toughness\n", textStyle)
-      else if (loyalty.exists)
-          document.insertString(document.getLength, s"$loyalty\n", textStyle)
+      if (power.isDefined && toughness.isDefined)
+        document.insertString(document.getLength, s"${power.get}/${toughness.get}\n", textStyle)
+      else if (loyalty.isDefined)
+          document.insertString(document.getLength, s"${loyalty.get}\n", textStyle)
 
       document.insertString(document.getLength, s"$artist $number/${expansion.count}", textStyle)
     } catch case e: BadLocationException => e.printStackTrace()

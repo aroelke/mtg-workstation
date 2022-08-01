@@ -5,7 +5,6 @@ import editor.database.card.Card
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.Transferable
 import java.awt.datatransfer.UnsupportedFlavorException
-import scala.jdk.CollectionConverters._
 
 /**
  * Data that can be transferred from an [[Inventory]] via drag-and-drop or cut/copy/paste. Supports transferring to

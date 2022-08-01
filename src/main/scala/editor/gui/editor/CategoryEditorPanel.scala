@@ -21,7 +21,7 @@ import javax.swing.JPanel
 import javax.swing.JScrollPane
 import javax.swing.JTextField
 import javax.swing.SwingUtilities
-import scala.jdk.CollectionConverters._
+import javax.swing.event.ChangeEvent
 
 /**
  * Companion object to [[CategoryEditorPanel]] containing global information about it and a convenience function
@@ -43,7 +43,7 @@ object CategoryEditorPanel {
    */
   def showCategoryEditor(parent: Container, specification: Option[Categorization] = None) = {
     val editor = CategoryEditorPanel(specification)
-    editor.filter.addChangeListener(_.getSource match {
+    editor.filter.listeners += (_.getSource match {
       case c: Component => SwingUtilities.getWindowAncestor(c).pack()
       case _ =>
     })

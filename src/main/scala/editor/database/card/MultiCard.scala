@@ -4,7 +4,6 @@ import editor.database.attributes.ManaType
 
 import javax.swing.text.StyledDocument
 import scala.collection.immutable.TreeMap
-import scala.jdk.CollectionConverters._
 
 /**
  * A card with multiple faces, or multiple mini-cards printed on the same side. Attributes are
@@ -17,7 +16,7 @@ import scala.jdk.CollectionConverters._
  * @param faces single-faced cards making up the faces
  * @author Alec Roelke
  */
-abstract class MultiCard(layout: CardLayout, override val faces: Seq[Card]) extends Card(faces(0).expansion, layout) {
+abstract class MultiCard(layout: CardLayout, override val faces: IndexedSeq[Card]) extends Card(faces(0).expansion, layout) {
   if (faces.exists(_.isInstanceOf[MultiCard]))
     throw IllegalArgumentException("only normal, single-faced cards can be joined into a multi-faced card")
 
@@ -26,8 +25,8 @@ abstract class MultiCard(layout: CardLayout, override val faces: Seq[Card]) exte
   override def minManaValue = faces.map(_.manaValue).min
   override def maxManaValue = faces.map(_.manaValue).max
   override def avgManaValue = faces.map(_.manaValue).sum/faces.size
-  override lazy val colors = faces.flatMap(_.colors).distinct
-  override lazy val colorIdentity = faces.flatMap(_.colorIdentity)
+  override lazy val colors = faces.flatMap(_.colors).toSet
+  override lazy val colorIdentity = faces.flatMap(_.colorIdentity).toSet
   override lazy val typeLine = faces.map(_.typeLine).reduce(_ ++ _)
   override lazy val printedTypes = faces.map(_.printedTypes).mkString(Card.FaceSeparator)
   override lazy val oracleText = faces.map(_.oracleText).mkString(s"\n${Card.TextSeparator}\n")

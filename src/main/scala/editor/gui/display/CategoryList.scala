@@ -17,7 +17,6 @@ import javax.swing.JList
 import javax.swing.JOptionPane
 import javax.swing.JPopupMenu
 import javax.swing.ListSelectionModel
-import scala.jdk.CollectionConverters._
 
 /**
  * UI element displaying a list of categorizations by name. Optionally, a line at the bottom can

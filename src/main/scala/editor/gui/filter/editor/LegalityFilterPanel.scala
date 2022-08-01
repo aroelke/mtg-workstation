@@ -3,8 +3,8 @@ package editor.gui.filter.editor
 import editor.database.FormatConstraints
 import editor.database.attributes.CardAttribute
 import editor.filter.leaf.FilterLeaf
-import editor.filter.leaf.options.OptionsFilter
-import editor.filter.leaf.options.multi.LegalityFilter
+import editor.filter.leaf.LegalityFilter
+import editor.filter.leaf.OptionsFilter
 import editor.gui.filter.FilterSelectorPanel
 
 import java.awt.BorderLayout
@@ -37,20 +37,16 @@ object LegalityFilterPanel {
  * 
  * @author Alec Roelke
  */
-class LegalityFilterPanel(selector: FilterSelectorPanel) extends OptionsFilterPanel(CardAttribute.LEGAL_IN, FormatConstraints.FormatNames.toArray, selector) {
+class LegalityFilterPanel(selector: FilterSelectorPanel) extends OptionsFilterPanel(CardAttribute.LegalIn, FormatConstraints.FormatNames.toArray, selector) {
   private val restricted = JCheckBox("Restricted")
   add(restricted, BorderLayout.EAST)
 
   override def filter = super.filter match {
-    case legality: LegalityFilter =>
-      legality.restricted = restricted.isSelected
-      legality
+    case legality: LegalityFilter => legality.copy(restricted = restricted.isSelected)
   }
 
-  override def setFields(filter: OptionsFilter[String]) = filter match {
-    case legality: LegalityFilter =>
-      super.setFields(legality)
-      restricted.setSelected(legality.restricted)
-    case _ => throw IllegalArgumentException(s"${filter.attribute} is not a legality filter")
+  override def setFields(filter: LegalityFilter) = {
+    super.setFields(filter)
+    restricted.setSelected(filter.restricted)
   }
 }

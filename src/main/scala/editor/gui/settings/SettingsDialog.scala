@@ -264,7 +264,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   // Columns
   private val inventoryColumnsPanel = JPanel(GridLayout(0, 5))
   inventoryColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"))
-  private val inventoryColumnCheckBoxes = collection.mutable.HashMap[CardAttribute, JCheckBox]()
+  private val inventoryColumnCheckBoxes = collection.mutable.HashMap[CardAttribute[?, ?], JCheckBox]()
   private val inventoryAttributes = CardAttribute.inventoryValues.sortBy(_.toString).toSeq
   for (characteristic <- inventoryAttributes) {
     val checkBox = JCheckBox(characteristic.toString())
@@ -385,7 +385,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   // Editor table columns
   private val editorColumnsPanel = JPanel(GridLayout(0, 5))
   editorColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"))
-  private val editorColumnCheckBoxes = collection.mutable.HashMap[CardAttribute, JCheckBox]()
+  private val editorColumnCheckBoxes = collection.mutable.HashMap[CardAttribute[?, ?], JCheckBox]()
   private val editorAttributes = CardAttribute.displayableValues.sortBy(_.toString)
   for (characteristic <- editorAttributes) {
     val checkBox = JCheckBox(characteristic.toString())
@@ -939,9 +939,9 @@ object SettingsDialog {
   /** Save settings in JSON format to [[PropertiesFile]]. */
   @throws[IOException]
   def save(): Unit = {
-    if (!Card.tags.flatMap{ case (_, s) => s }.isEmpty) {
+    if (!CardAttribute.Tags.tags.flatMap{ case (_, s) => s }.isEmpty) {
       Files.createDirectories(Path.of(settings.inventory.tags).getParent)
-      Files.writeString(Path.of(settings.inventory.tags), MainFrame.Serializer.toJson(Card.tags.collect{ case (card, tags) if !tags.isEmpty => card.scryfallid(0) -> tags.asJava }.toMap.asJava))
+      Files.writeString(Path.of(settings.inventory.tags), MainFrame.Serializer.toJson(CardAttribute.Tags.tags.collect{ case (card, tags) if !tags.isEmpty => card.faces(0).scryfallid -> tags.asJava }.toMap.asJava))
     } else
       Files.deleteIfExists(Path.of(settings.inventory.tags))
     Files.writeString(PropertiesFile, MainFrame.Serializer.toJson(settings))

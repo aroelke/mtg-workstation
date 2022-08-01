@@ -1,15 +1,20 @@
 package editor.gui.display
 
 import editor.database.attributes.CardAttribute
+import editor.database.attributes.CombatStat
+import editor.database.attributes.Loyalty
 import editor.database.attributes.ManaCost
-import editor.database.attributes.OptionalAttribute
 import editor.database.card.Card
 import editor.gui.editor.EditorFrame
 import editor.gui.editor.InclusionCellEditor
+import editor.gui.generic.ComponentUtils
 import editor.gui.generic.SpinnerCellEditor
+import editor.util.OptionOrdering
+import editor.util.SeqOrdering
 
 import java.awt.Color
 import java.awt.Component
+import java.awt.Container
 import java.awt.event.MouseEvent
 import javax.swing.JTable
 import javax.swing.SortOrder
@@ -17,27 +22,8 @@ import javax.swing.table.TableCellRenderer
 import javax.swing.table.TableModel
 import javax.swing.table.TableRowSorter
 import scala.jdk.CollectionConverters._
-
-/**
- * Companion used for global card table operations.
- * @author Alec Roelke
- */
-object CardTable {
-  /**
-   * Create a new instance of a cell editor for a particular card attribute if values of that
-   * attribute can be edited in a card table (by double-clicking).
-   * 
-   * @param frame [[EditorFrame]] containing the deck that contains the card whose attribute should
-   * be edited
-   * @param attr attribute to be edited by the editor
-   * @return a component that can edit the value of the specified attribute
-   */
-  def createCellEditor(frame: EditorFrame, attr: CardAttribute) = attr match {
-    case CardAttribute.COUNT => SpinnerCellEditor()
-    case CardAttribute.CATEGORIES => InclusionCellEditor(frame)
-    case _ => throw IllegalArgumentException(s"values of type $attr can't be edited")
-  }
-}
+import scala.reflect.ClassTag
+import editor.gui.ElementAttribute
 
 /**
  * Table for displaying information about cards.  Which cards are displayed and what data
@@ -80,18 +66,9 @@ class CardTable(model: TableModel) extends JTable(model) {
       val col = columnAtPoint(e.getPoint)
       if (col >= 0 && row >= 0) {
         val bounds = getCellRect(row, col, false)
-        prepareRenderer(getCellRenderer(row, col), row, col) match {
-          case c: Component if c.getPreferredSize.width > bounds.width => model match {
-            case m: CardTableModel =>
-              if (m.columns(col) == CardAttribute.MANA_COST)
-                s"""<html>${getValueAt(row, col) match {
-                  case s: java.util.List[?] => s.asScala.collect{ case cost: ManaCost => cost.toHTMLString }.mkString(Card.FaceSeparator)
-                  case _ => ""
-                }}</html>"""
-              else
-                s"<html>${getValueAt(row, col)}</html>"
-            case _ => null
-          }
+        (prepareRenderer(getCellRenderer(row, col), row, col), model) match {
+          case (c: Component, m: CardTableModel) if c.getPreferredSize.width > bounds.width || m.columns(col) == ElementAttribute.CategoriesElement =>
+            m.columns(col).getToolTipText(getValueAt(row, col))
           case _ => null
         }
       } else null
@@ -100,8 +77,7 @@ class CardTable(model: TableModel) extends JTable(model) {
 
   override def prepareRenderer(r: TableCellRenderer, row: Int, column: Int) = {
     val c = super.prepareRenderer(r, row, column)
-    if (!isRowSelected(row) || !getRowSelectionAllowed())
-      c.setBackground(rowColor(row))
+    ComponentUtils.propagateColors(c, c.getForeground, if (!isRowSelected(row) || !getRowSelectionAllowed) rowColor(row) else c.getBackground)
     c
   }
 
@@ -116,52 +92,16 @@ class CardTable(model: TableModel) extends JTable(model) {
  * with other values the row could have.
  */
 private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[TableModel](model) {
-  private val NoString = Set(
-    CardAttribute.MANA_COST,
-    CardAttribute.EFF_MANA_VALUE,
-    CardAttribute.COLORS,
-    CardAttribute.COLOR_IDENTITY,
-    CardAttribute.TYPE_LINE,
-    CardAttribute.POWER,
-    CardAttribute.TOUGHNESS,
-    CardAttribute.LOYALTY,
-    CardAttribute.LEGAL_IN,
-    CardAttribute.TAGS,
-    CardAttribute.CATEGORIES
-  )
-
   override def getComparator(column: Int) = model match {
     case m: CardTableModel =>
-      val ascending = getSortKeys.get(0).getSortOrder == SortOrder.ASCENDING
-      val attribute = m.columns(column)
-      attribute match {
-        case CardAttribute.POWER | CardAttribute.TOUGHNESS | CardAttribute.LOYALTY => (a: AnyRef, b: AnyRef) => {
-          val first = a match {
-            case s: Seq[?] => s.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
-            case l: java.util.List[?] => l.asScala.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
-            case _ => OptionalAttribute.empty
-          }
-          val second = b match {
-            case s: Seq[?] => s.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
-            case l: java.util.List[?] => l.asScala.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
-            case _ => OptionalAttribute.empty
-          }
-          if (!first.exists && !second.exists)
-            0
-          else if (!first.exists)
-            if (ascending) 1 else -1
-          else if (!second.exists)
-            if (ascending) -1 else 1
-          else
-            attribute.compare(first, second)
-        }
-        case _ => m.columns(column)
+      val ascending = getSortKeys.asScala.exists(_.getSortOrder == SortOrder.ASCENDING)
+      m.columns(column) match {
+        case ElementAttribute.PowerElement | ElementAttribute.ToughnessElement => SeqOrdering[Option[CombatStat]](OptionOrdering[CombatStat](ascending))
+        case ElementAttribute.LoyaltyElement => SeqOrdering[Option[Loyalty]](OptionOrdering[Loyalty](ascending))
+        case attribute => attribute.attribute
       }
     case _ => super.getComparator(column)
   }
 
-  override protected def useToString(column: Int) = model match {
-    case m: CardTableModel => !NoString.contains(m.columns(column)) && super.useToString(column)
-    case _ => super.useToString(column)
-  }
+  override protected def useToString(column: Int) = false
 }

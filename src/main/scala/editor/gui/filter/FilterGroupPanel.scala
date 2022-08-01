@@ -180,12 +180,7 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     }
   }
 
-  override def filter = {
-    val group = FilterGroup(children.map(_.filter))
-    group.mode = modeBox.getItemAt(modeBox.getSelectedIndex)
-    group.comment = border.getTitle
-    group
-  }
+  override def filter = FilterGroup(children.map(_.filter), modeBox.getItemAt(modeBox.getSelectedIndex), border.getTitle)
 
   override def setContents(filter: Filter) = {
     clear()

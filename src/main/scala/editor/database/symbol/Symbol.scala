@@ -4,7 +4,6 @@ import java.awt.Image
 import java.io.IOException
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
-import scala.jdk.OptionConverters._
 import scala.util.matching._
 
 /**
@@ -63,9 +62,6 @@ object Symbol extends SymbolParser[Symbol] {
    * @return the [[Symbol]] represented by the string, or None if there isn't one
    */
   override def parse(s: String) = ManaSymbol.parse(s) orElse FunctionalSymbol.parse(s)
-
-  @deprecated val SYMBOL_PATTERN = Regex.pattern
-  @deprecated def tryParseSymbol(s: String) = parse(s).toJava
 }
 
 /**
@@ -92,8 +88,4 @@ abstract class Symbol(val name: String, private val text: String) {
     case ref: AnyRef if ref eq this => true
     case _ => other.getClass == getClass && other.toString == toString
   }
-
-  @deprecated def getIcon = icon
-  @deprecated def getIcon(size: Int) = scaled(size)
-  @deprecated def getName = name
 }

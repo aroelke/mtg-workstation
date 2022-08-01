@@ -5,7 +5,6 @@ import editor.gui.editor.EditorFrame
 
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.UnsupportedFlavorException
-import scala.jdk.CollectionConverters._
 
 /**
  * Cards being transferred from a card list to another element.
@@ -22,8 +21,6 @@ class EntryTransferData(val source: EditorFrame, val from: Int, val cards: Map[C
   var target: EditorFrame = null
   /** ID of the list to transfer to. */
   var to = -1
-
-  @deprecated def entries = cards.map{ case (c, i) => c -> Integer(i) }.asJava
 
   @throws[UnsupportedFlavorException]
   override def getTransferData(flavor: DataFlavor) = if (flavor == DataFlavors.entryFlavor) this else super.getTransferData(flavor)

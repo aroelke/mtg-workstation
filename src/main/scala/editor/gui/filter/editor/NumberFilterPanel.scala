@@ -9,6 +9,7 @@ import editor.util.Comparison
 
 import java.awt.Dimension
 import javax.swing.BoxLayout
+import javax.swing.JCheckBox
 import javax.swing.JSpinner
 import javax.swing.SpinnerNumberModel
 
@@ -18,7 +19,7 @@ import javax.swing.SpinnerNumberModel
  */
 object NumberFilterPanel {
   /** @return a new, empty [[NumberFilterPanel]] */
-  def apply(selector: FilterSelectorPanel) = new NumberFilterPanel(selector)
+  def apply(selector: FilterSelectorPanel, v: String = "") = new NumberFilterPanel(selector, v)
 
   /**
    * Create a new [[NumberFilterPanel]] and pre-populate it with the contents of a [[NumberFilter]].
@@ -27,7 +28,11 @@ object NumberFilterPanel {
    * @return a new number filter panel set to compare with the value from the filter using the comparison from it
    */
   def apply(filter: NumberFilter, selector: FilterSelectorPanel) = {
-    val panel = new NumberFilterPanel(selector)
+    val panel = new NumberFilterPanel(selector, filter.attribute match {
+      case CardAttribute.Power | CardAttribute.Toughness => "*"
+      case CardAttribute.Loyalty => "X or *"
+      case _ => ""
+    })
     panel.setContents(filter)
     panel
   }
@@ -39,7 +44,7 @@ object NumberFilterPanel {
  * 
  * @author Alec Roelke
  */
-class NumberFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[NumberFilter] {
+class NumberFilterPanel(selector: FilterSelectorPanel, v: String = "") extends FilterEditorPanel[NumberFilter] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
   // Combo box for choosing the type of comparison to make
@@ -52,19 +57,22 @@ class NumberFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel
   spinner.setMaximumSize(Dimension(100, Int.MaxValue))
   add(spinner)
 
-  protected override var attribute = CardAttribute.CARD_NUMBER
+  val variable = JCheckBox(s"Contains $v", false)
+  variable.addActionListener(_ => spinner.setEnabled(!variable.isSelected))
+  add(variable)
+  variable.setVisible(false)
 
-  override def filter = (CardAttribute.createFilter(attribute), spinner.getValue) match {
-    case (number: NumberFilter, value: Double) =>
-      number.faces = selector.faces
-      number.operation = comparison.getSelectedItem
-      number.operand = value
-      number
+  protected override var attribute = CardAttribute.CardNumber
+
+  override def filter = spinner.getValue match {
+    case v: Double => attribute.filter.copy(faces = selector.faces, operation = comparison.getSelectedItem, operand = v, varies = variable.isVisible && variable.isSelected)
   }
 
   override def setFields(filter: NumberFilter) = {
     attribute = filter.attribute
     comparison.setSelectedItem(filter.operation)
     spinner.setValue(filter.operand)
+    variable.setVisible(filter.variable.isDefined)
+    variable.setSelected(filter.varies)
   }
 }

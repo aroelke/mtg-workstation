@@ -17,8 +17,6 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.StringJoiner
 import scala.collection.immutable.ListMap
-import scala.io.Source
-import scala.jdk.CollectionConverters._
 
 /**
  * Object containing useful information and functions for formatting and parsing delimited files.
@@ -29,7 +27,7 @@ object DelimitedCardListFormat {
   val DefaultDelimiter = ","
 
   /** Default list of attributes to use for columns (name, expansion, and count) */
-  val DefaultData = Seq(CardAttribute.NAME, CardAttribute.EXPANSION, CardAttribute.COUNT)
+  val DefaultData = Seq(CardAttribute.Name, CardAttribute.Expansion, CardAttribute.Count)
 
   /** Common delimiters used for separating cells on a line (comma, semicolon, colon, tab, and space) */
   val Delimiters = Seq(",", ";", ":", "{tab}", "{space}")
@@ -62,7 +60,7 @@ object DelimitedCardListFormat {
  * 
  * @author Alec Roelke
  */
-class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) extends CardListFormat {
+class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute[?, ?]]) extends CardListFormat {
   import DelimitedCardListFormat._
 
   private val delimiter = delim match {
@@ -89,20 +87,20 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
     var extras = ListMap[String, Deck]()
     var pos = 0
 
-    var name = attributes.indexOf(CardAttribute.NAME)
-    var expansion = attributes.indexOf(CardAttribute.EXPANSION)
-    var number = attributes.indexOf(CardAttribute.CARD_NUMBER)
-    var count = attributes.indexOf(CardAttribute.COUNT)
-    var date = attributes.indexOf(CardAttribute.DATE_ADDED)
+    var name = attributes.indexOf(CardAttribute.Name)
+    var expansion = attributes.indexOf(CardAttribute.Expansion)
+    var number = attributes.indexOf(CardAttribute.CardNumber)
+    var count = attributes.indexOf(CardAttribute.Count)
+    var date = attributes.indexOf(CardAttribute.DateAdded)
     IterableReader(source).foreach((line) => {
       if (name < 0) {
         val headers = line.split(delimiter)
         val attrs = headers.map((h) => CardAttribute.displayableValues.find(_.toString.equalsIgnoreCase(h)).getOrElse(throw ParseException(s"unknown data type $h", pos))).toSeq
-        name = attrs.indexOf(CardAttribute.NAME)
-        expansion = attrs.indexOf(CardAttribute.EXPANSION)
-        number = attrs.indexOf(CardAttribute.CARD_NUMBER)
-        count = attrs.indexOf(CardAttribute.COUNT)
-        date = attrs.indexOf(CardAttribute.DATE_ADDED)
+        name = attrs.indexOf(CardAttribute.Name)
+        expansion = attrs.indexOf(CardAttribute.Expansion)
+        number = attrs.indexOf(CardAttribute.CardNumber)
+        count = attrs.indexOf(CardAttribute.Count)
+        date = attrs.indexOf(CardAttribute.DateAdded)
         if (name < 0)
           throw IllegalStateException("can't parse cards without names")
         if (count < 0)

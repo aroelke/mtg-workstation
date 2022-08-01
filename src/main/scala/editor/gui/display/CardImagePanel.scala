@@ -309,7 +309,7 @@ class CardImagePanel(private var card: Option[Card] = None) extends JPanel {
         if (card.get.imageNames.size > 1) {
           val size = 15
           val border = 3
-          FunctionalSymbol.SYMBOLS.get(if (face % 2 == 0) "T" else "Q").getIcon(size).paintIcon(this, g2, getWidth - size - border, getHeight - size - border)
+          FunctionalSymbol.values(if (face % 2 == 0) "T" else "Q").scaled(size).paintIcon(this, g2, getWidth - size - border, getHeight - size - border)
         }
     }}
   }

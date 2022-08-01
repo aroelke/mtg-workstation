@@ -12,15 +12,6 @@ import scala.collection.mutable.Growable
 import scala.collection.mutable.Shrinkable
 
 /**
- * Global information about [[Deck]]s.
- * @author Alec Roelke
- */
-object Deck {
-  /** Formatter used to format the date a card was added to a deck. */
-  val DateFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy")
-}
-
-/**
  * A mutable list of [[CardListEntry]]s and collection of categories that can be used to filter them.  Adding duplicates of
  * individual cards or removing them causes the 'count' field of the existing entry to increase or decrease rather than adding or
  * removing whole entries. Entries are only removed when their 'count' fields are reduced to 0. Categories are added, removed, and updated using

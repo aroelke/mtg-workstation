@@ -18,9 +18,6 @@ import editor.filter.FaceSearchOptions
 import editor.filter.Filter
 import editor.filter.FilterGroup
 import editor.filter.leaf._
-import editor.filter.leaf.options.OptionsFilter
-import editor.filter.leaf.options.multi._
-import editor.filter.leaf.options.single._
 import editor.util.Comparison
 import editor.util.Containment
 
@@ -32,108 +29,51 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter] {
-  import CardAttribute._
-
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
     val obj = json.getAsJsonObject
-    context.deserialize[CardAttribute](obj.get("type"), classOf[CardAttribute]) match {
-      case NAME => TextFilter(NAME, _.normalizedName)
-      case RULES_TEXT => TextFilter(RULES_TEXT, _.normalizedOracle)
-      case FLAVOR_TEXT => TextFilter(FLAVOR_TEXT, _.normalizedFlavor)
-      case MANA_COST => ManaCostFilter()
-      case REAL_MANA_VALUE => NumberFilter(REAL_MANA_VALUE, true, _.manaValue)
-      case EFF_MANA_VALUE => NumberFilter(EFF_MANA_VALUE, false, _.manaValue)
-      case COLORS => ColorFilter(COLORS, _.colors)
-      case COLOR_IDENTITY => ColorFilter(COLOR_IDENTITY, _.colorIdentity)
-      case TYPE_LINE => TypeLineFilter()
-      case PRINTED_TYPES => TextFilter(PRINTED_TYPES, _.faces.map(_.printedTypes))
-      case CARD_TYPE =>
-        val filter = CardTypeFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
-        filter
-      case SUBTYPE =>
-        val filter = SubtypeFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
-        filter
-      case SUPERTYPE =>
-        val filter = SupertypeFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
-        filter
-      case POWER => VariableNumberFilter(POWER, _.power.value, _.powerVariable)
-      case TOUGHNESS => VariableNumberFilter(TOUGHNESS, _.toughness.value, _.toughnessVariable)
-      case LOYALTY => VariableNumberFilter(LOYALTY, _.loyalty.value, _.loyaltyVariable)
-      case LAYOUT =>
-        val filter = LayoutFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map((v) => CardLayout.valueOf(v.getAsString.replace(' ', '_').toUpperCase)).toSet
-        filter
-      case EXPANSION =>
-        val filter = ExpansionFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map((v) => Expansion.expansions.find(_.name == v.getAsString).getOrElse(throw JsonParseException(s"unknown expansion \"${v.getAsString}\""))).toSet
-        filter
-      case BLOCK =>
-        val filter = BlockFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
-        filter
-      case RARITY =>
-        val filter = RarityFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map((v) => Rarity.parse(v.getAsString).getOrElse(Rarity.Unknown)).toSet
-        filter
-      case ARTIST => TextFilter(ARTIST, _.faces.map(_.artist))
-      case CARD_NUMBER => NumberFilter(CARD_NUMBER, false, (f) => try f.number.replace("--", "0").replaceAll("[\\D]", "").toInt catch case _: NumberFormatException => 0.0)
-      case LEGAL_IN =>
-        val filter = LegalityFilter()
-        filter.restricted = obj.get("restricted").getAsBoolean
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
-        filter
-      case TAGS =>
-        val filter = TagsFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet
-        filter
-      case ANY => BinaryFilter(true)
-      case NONE => BinaryFilter(false)
-      case GROUP =>
-        val group = FilterGroup(obj.get("children").getAsJsonArray.asScala.map((element) => context.deserialize[Filter](element, classOf[Filter])))
-        group.mode = FilterGroup.Mode.values.find(_.toString == obj.get("mode").getAsString).getOrElse(FilterGroup.Mode.And)
-        group.comment = Option(obj.get("comment")).map(_.getAsString).getOrElse("")
-        group
+    val faces = Option(obj.get("faces")).map((f) => FaceSearchOptions.valueOf(f.getAsString)).getOrElse(FaceSearchOptions.ANY)
+    context.deserialize[CardAttribute[?, ?]](obj.get("type"), classOf[CardAttribute[?, ?]]) match {
+      case CardAttribute.Name => CardAttribute.Name.filter.copy(faces = faces)
+      case CardAttribute.RulesText => CardAttribute.RulesText.filter.copy(faces = faces)
+      case CardAttribute.FlavorText => CardAttribute.FlavorText.filter.copy(faces = faces)
+      case CardAttribute.ManaCost => CardAttribute.ManaCost.filter.copy(faces = faces)
+      case CardAttribute.RealManaValue => CardAttribute.RealManaValue.filter
+      case CardAttribute.EffManaValue => CardAttribute.EffManaValue.filter.copy(faces = faces)
+      case CardAttribute.Colors => CardAttribute.Colors.filter
+      case CardAttribute.ColorIdentity => CardAttribute.ColorIdentity.filter
+      case CardAttribute.TypeLine => CardAttribute.TypeLine.filter.copy(faces = faces)
+      case CardAttribute.PrintedTypes => CardAttribute.PrintedTypes.filter.copy(faces = faces)
+      case CardAttribute.CardType => CardAttribute.CardType.filter.copy(selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet)
+      case CardAttribute.Subtype => CardAttribute.Subtype.filter.copy(selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet)
+      case CardAttribute.Supertype => CardAttribute.Supertype.filter.copy(selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet)
+      case CardAttribute.Power => CardAttribute.Power.filter.copy(faces = faces)
+      case CardAttribute.Toughness => CardAttribute.Toughness.filter.copy(faces = faces)
+      case CardAttribute.Loyalty => CardAttribute.Loyalty.filter.copy(faces = faces)
+      case CardAttribute.Layout => CardAttribute.Layout.filter.copy(selected = obj.get("selected").getAsJsonArray.asScala.map((v) => CardLayout.valueOf(v.getAsString.replace(' ', '_').toUpperCase)).toSet)
+      case CardAttribute.Expansion => CardAttribute.Expansion.filter.copy(selected = obj.get("selected").getAsJsonArray.asScala.map((v) => Expansion.expansions.find(_.name == v.getAsString).getOrElse(throw JsonParseException(s"unknown expansion \"${v.getAsString}\""))).toSet)
+      case CardAttribute.Block => CardAttribute.Block.filter.copy(selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet)
+      case CardAttribute.Rarity => CardAttribute.Rarity.filter.copy(selected = obj.get("selected").getAsJsonArray.asScala.map((v) => Rarity.parse(v.getAsString).getOrElse(Rarity.Unknown)).toSet)
+      case CardAttribute.Artist => CardAttribute.Artist.filter.copy(faces = faces)
+      case CardAttribute.CardNumber => CardAttribute.CardNumber.filter.copy(faces = faces)
+      case CardAttribute.LegalIn => CardAttribute.LegalIn.filter.copy(selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet, restricted = obj.get("restricted").getAsBoolean)
+      case CardAttribute.Tags => CardAttribute.Tags.filter.copy(selected = obj.get("selected").getAsJsonArray.asScala.map(_.getAsString).toSet)
+      case CardAttribute.AnyCard => CardAttribute.AnyCard.filter
+      case CardAttribute.NoCard => CardAttribute.NoCard.filter
+      case CardAttribute.Group => FilterGroup(
+        obj.get("children").getAsJsonArray.asScala.map((element) => context.deserialize[Filter](element, classOf[Filter])),
+        FilterGroup.Mode.values.find(_.toString == obj.get("mode").getAsString).getOrElse(FilterGroup.Mode.And),
+        Option(obj.get("comment")).map(_.getAsString).getOrElse("")
+      )
       case x => throw JsonParseException(s"attribute $x can't be used to filter")
     } match {
-      case t: TextFilter =>
-        t.contain = Containment.parse(obj.get("contains").getAsString).get
-        t.regex = obj.get("regex").getAsBoolean
-        t.text = obj.get("pattern").getAsString
-        t
-      case t: TypeLineFilter =>
-        t.contain = Containment.parse(obj.get("contains").getAsString).get
-        t.line = obj.get("pattern").getAsString
-        t
-      case m: ManaCostFilter =>
-        m.contain = Containment.parse(obj.get("contains").getAsString).get
-        m.cost = ManaCost.parse(obj.get("cost").getAsString).get
-        m
-      case c: ColorFilter =>
-        c.contain = Containment.parse(obj.get("contains").getAsString).get
-        c.colors = obj.get("colors").getAsJsonArray.asScala.map((e) => ManaType.parse(e.getAsString).get).toSet
-        c.multicolored = obj.get("multicolored").getAsBoolean()
-        c
-      case v: VariableNumberFilter =>
-        v.operation = Comparison.valueOf(obj.get("operation").getAsString.apply(0))
-        v.operand = obj.get("operand").getAsDouble
-        v.varies = obj.get("varies").getAsBoolean
-        v
-      case n: NumberFilter =>
-        n.operation = Comparison.valueOf(obj.get("operation").getAsString.apply(0))
-        n.operand = obj.get("operand").getAsDouble
-        n
-      case o: OptionsFilter[?] =>
-        o.contain = Containment.parse(obj.get("contains").getAsString).get
-        o
+      case t: TextFilter => t.copy(contain = Containment.parse(obj.get("contains").getAsString).get, regex = obj.get("regex").getAsBoolean, text = obj.get("pattern").getAsString)
+      case t: TypeLineFilter => t.copy(contain = Containment.parse(obj.get("contains").getAsString).get, line = obj.get("pattern").getAsString)
+      case m: ManaCostFilter => m.copy(contain = Containment.parse(obj.get("contains").getAsString).get, cost = ManaCost.parse(obj.get("cost").getAsString).get)
+      case c: ColorFilter => c.copy(contain = Containment.parse(obj.get("contains").getAsString).get, colors = obj.get("colors").getAsJsonArray.asScala.map((e) => ManaType.parse(e.getAsString).get).toSet, multicolored = obj.get("multicolored").getAsBoolean)
+      case n: NumberFilter => n.copy(operation = Comparison.valueOf(obj.get("operation").getAsString.apply(0)), operand = obj.get("operand").getAsDouble, varies = n.variable.isDefined && obj.get("varies").getAsBoolean)
+      case s: SingletonOptionsFilter[?] => s.copy(contain = Containment.parse(obj.get("contains").getAsString).get)
+      case m: MultiOptionsFilter[?] => m.copy(contain = Containment.parse(obj.get("contains").getAsString).get)
       case f => f
-    } match {
-      case l: FilterLeaf =>
-        l.faces = Option(obj.get("faces")).map((f) => FaceSearchOptions.valueOf(f.getAsString)).getOrElse(FaceSearchOptions.ANY)
-        l
-      case g => g
     }
   }
 
@@ -150,14 +90,10 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         json.add("children", array)
     }
     src match {
-      case o: OptionsFilter[?] => json.addProperty("contains", o.contain.toString)
+      case o: OptionsFilter[?, ?] => json.addProperty("contains", o.contain.toString)
       case _ =>
     }
     src match {
-      case v: VariableNumberFilter =>
-        json.addProperty("operation", v.operation.toString)
-        json.addProperty("operand", v.operand)
-        json.addProperty("varies", v.varies)
       case t: TypeLineFilter =>
         json.addProperty("contains", t.contain.toString)
         json.addProperty("pattern", t.line)
@@ -168,6 +104,8 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
       case n: NumberFilter =>
         json.addProperty("operation", n.operation.toString)
         json.addProperty("operand", n.operand)
+        if (n.variable.isDefined)
+          json.addProperty("varies", n.varies)
       case m: ManaCostFilter =>
         json.addProperty("contains", m.contain.toString)
         json.addProperty("cost", m.cost.toString)
@@ -178,7 +116,7 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         json.add("colors", array)
         json.addProperty("multicolored", c.multicolored)
       case _: BinaryFilter => // Nothing additional actually needs to be serialized
-      case o: OptionsFilter[?] =>
+      case o: OptionsFilter[?, ?] =>
         val array = JsonArray()
         o.selected.foreach((i) => array.add(i match {
           case e @ (_: Rarity | _: CardLayout) => e.toString

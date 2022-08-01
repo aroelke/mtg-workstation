@@ -49,11 +49,11 @@ final case class TypeLine(types: ListSet[String], subtypes: ListSet[String] = Li
 
   override def compare(that: TypeLine) = {
     if (types != that.types)
-      types.mkString.compare(that.types.mkString)
+      types.mkString.compareToIgnoreCase(that.types.mkString)
     else if (supertypes != that.supertypes)
-      supertypes.mkString.compare(that.supertypes.mkString)
+      supertypes.mkString.compareToIgnoreCase(that.supertypes.mkString)
     else
-      subtypes.mkString.compare(that.subtypes.mkString)
+      subtypes.mkString.compareToIgnoreCase(that.subtypes.mkString)
   }
 
   override lazy val toString = s"""${if (supertypes.isEmpty) "" else supertypes.mkString("", " ", " ")}${types.mkString(" ")}${if (subtypes.isEmpty) "" else subtypes.mkString(s" ${UnicodeSymbols.EmDash} ", " ", "")}"""

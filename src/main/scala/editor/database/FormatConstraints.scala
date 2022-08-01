@@ -15,14 +15,12 @@ import javax.xml.crypto.Data
  * @author Alec Roelke
  */
 case class FormatConstraints(deckSize: Int = 60, isExact: Boolean = false, maxCopies: Int = 4, sideboardSize: Int = 15, hasCommander: Boolean = false) {
-  def this() = this(60, false, 4, 15, false)
-
   /**
    * @param name name of the format
    * @return An array containig the elements of this set of deckbuilding constraints
    * with the name of the format prepended, in the order specified by {@link #DATA_NAMES}.
    */
-  def toArray(name: String): Array[Any] = Array(name, deckSize, isExact, maxCopies, sideboardSize, hasCommander)
+  def toArray(name: String) = Array(name, deckSize, isExact, maxCopies, sideboardSize, hasCommander)
 }
 
 object FormatConstraints {
@@ -42,17 +40,13 @@ object FormatConstraints {
     "standard" -> FormatConstraints(),
     "vintage" -> FormatConstraints()
   )
-  @deprecated def CONSTRAINTS() = Constraints
 
   /** List of supported format names, in alphabetical order. */
-  val FormatNames = Constraints.map{ case (name, _) => name }.toSeq.sorted
-  @deprecated def FORMAT_NAMES() = FormatNames
+  val FormatNames = Constraints.map{ case (name, _) => name }.toIndexedSeq.sorted
 
   /** List of types of each of the deckbuilding constraints. */
-  val Classes = Seq(classOf[String], classOf[Integer], classOf[java.lang.Boolean], classOf[Integer], classOf[Integer], classOf[java.lang.Boolean])
-  @deprecated def CLASSES() = Classes
+  val Classes = IndexedSeq(classOf[String], classOf[Integer], classOf[java.lang.Boolean], classOf[Integer], classOf[Integer], classOf[java.lang.Boolean])
 
   /** The name of each type of deckbuilding constraint. */
-  val DataNames = Seq("Name", "Deck Size", "Exact?", "Max Card Count", "Sideboard size", "Has Commander?")
-  @deprecated def DATA_NAMES() = DataNames
+  val DataNames = IndexedSeq("Name", "Deck Size", "Exact?", "Max Card Count", "Sideboard size", "Has Commander?")
 }

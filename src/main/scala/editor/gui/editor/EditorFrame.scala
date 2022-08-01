@@ -110,8 +110,6 @@ import javax.swing.event.PopupMenuEvent
 import javax.swing.event.PopupMenuListener
 import javax.swing.table.AbstractTableModel
 import scala.collection.immutable.ListMap
-import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
 import scala.util.Using
 
 object EditorFrame {
@@ -300,7 +298,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       }
     }
 
-    override def apply(index: Int) = current(index)
+    override def apply(index: Int): Deck#Entry = current(index)
     override def length = current.length
     override def total = current.total
 
@@ -319,7 +317,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       changes.result
     }
 
-    private[EditorFrame] lazy val model = CardTableModel(this, SettingsDialog.settings.editor.columns, Some(EditorFrame.this))
+    private[EditorFrame] lazy val model = CardTableModel(this, SettingsDialog.settings.editor.columns, EditorFrame.this)
     private[EditorFrame] lazy val table = {
       val table = CardTable(model)
       table.stripe = SettingsDialog.settings.editor.stripe
@@ -329,8 +327,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       table.getSelectionModel.addListSelectionListener(listener)
       // Create cell editors for applicable table columns
       for (i <- 0 until table.getColumnCount)
-        if (model.isCellEditable(0, i))
-          table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(EditorFrame.this, model.columns(i)))
+        model.columns(i).cellEditor(EditorFrame.this).foreach(table.getColumn(model.getColumnName(i)).setCellEditor)
       // Set up drag-and-drop for the table
       table.setTransferHandler(EditorTableTransferHandler(EditorFrame.this, id))
       table.setDragEnabled(true)
@@ -1128,8 +1125,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
                                           (_.editor.manaAnalysis.line)(landRenderer.setSeriesPaint(0, _))
 
     for (i <- 0 until deck.table.getColumnCount)
-      if (deck.model.isCellEditable(0, i))
-        deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.columns(i)))
+      deck.model.columns(i).cellEditor(this).foreach(deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor)
     updateStats()
     update()
   }
@@ -1744,11 +1740,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
             case ByNothing => true
             case ByColor => s match {
               case "Colorless"    => e.card.colors.size == 0
-              case "White"        => e.card.colors.size == 1 && e.card.colors(0) == ManaType.White
-              case "Blue"         => e.card.colors.size == 1 && e.card.colors(0) == ManaType.Blue
-              case "Black"        => e.card.colors.size == 1 && e.card.colors(0) == ManaType.Black
-              case "Red"          => e.card.colors.size == 1 && e.card.colors(0) == ManaType.Red
-              case "Green"        => e.card.colors.size == 1 && e.card.colors(0) == ManaType.Green
+              case "White"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.White)
+              case "Blue"         => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Blue)
+              case "Black"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Black)
+              case "Red"          => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Red)
+              case "Green"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Green)
               case "Multicolored" => e.card.colors.size > 1
               case _ => true
             }

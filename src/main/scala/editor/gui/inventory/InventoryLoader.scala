@@ -10,9 +10,6 @@ import editor.database.FormatConstraints
 import editor.database.attributes._
 import editor.database.card._
 import editor.database.version.DatabaseVersion
-import editor.filter.leaf.options.multi.CardTypeFilter
-import editor.filter.leaf.options.multi.SubtypeFilter
-import editor.filter.leaf.options.multi.SupertypeFilter
 import editor.gui.MainFrame
 import editor.gui.generic.ScrollablePanel
 import editor.gui.settings.SettingsDialog
@@ -282,7 +279,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       // We don't use String.intern() here because the String pool that is maintained must include extra data that adds several MB
       // to the overall memory consumption of the inventory
       val costs = collection.mutable.Map[String, ManaCost]()
-      val colorLists = collection.mutable.Map[String, Seq[ManaType]]()
+      val colorSets = collection.mutable.Map[String, Set[ManaType]]()
       val allSupertypes = collection.mutable.Map[String, String]()
       val supertypeSets = collection.mutable.Map[String, ListSet[String]]()
       val allTypes = collection.mutable.Map[String, String]()
@@ -399,23 +396,23 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             val printed = Option(card.get("originalText")).map(_.getAsString).getOrElse("")
             val artist = Option(card.get("artist")).map(_.getAsString).getOrElse("")
             val number = Option(card.get("number")).map(_.getAsString).getOrElse("")
-            val power = Option(card.get("power")).map(_.getAsString).getOrElse("")
-            val toughness = Option(card.get("toughness")).map(_.getAsString).getOrElse("")
-            val loyalty = Option(card.get("loyalty")).map(l => if (l.isJsonNull) "X" else l.getAsString).getOrElse("")
+            val power = Option(card.get("power")).map(_.getAsString)
+            val toughness = Option(card.get("toughness")).map(_.getAsString)
+            val loyalty = Option(card.get("loyalty")).map(l => if (l.isJsonNull) "X" else l.getAsString)
 
             val c = SingleCard(
               layout,
               name,
               costs.getOrElseUpdate(cost, ManaCost.parse(cost).get),
-              colorLists.getOrElseUpdate(colors.toString, {
+              colorSets.getOrElseUpdate(colors.toString, {
                 val col = collection.mutable.ArrayBuffer[ManaType]()
                 colors.asScala.foreach((e) => col += ManaType.parse(e.getAsString).get)
-                col.toSeq
+                col.toSet
               }),
-              colorLists.getOrElseUpdate(identity.toString, {
+              colorSets.getOrElseUpdate(identity.toString, {
                 val col = collection.mutable.ArrayBuffer[ManaType]()
                 identity.asScala.foreach((e) => col += ManaType.parse(e.getAsString).get)
-                col.toSeq
+                col.toSet
               }),
               supertypeSets.getOrElseUpdate(supers.toString, {
                 val s = collection.mutable.Buffer[String]()
@@ -442,9 +439,9 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               multiverseid,
               scryfallid,
               numbers.getOrElseUpdate(number, number),
-              stats.getOrElseUpdate(power, CombatStat(power)),
-              stats.getOrElseUpdate(toughness, CombatStat(toughness)),
-              loyalties.getOrElseUpdate(loyalty, Loyalty(loyalty)),
+              power.map((p) => stats.getOrElseUpdate(p, CombatStat(p))),
+              toughness.map((t) => stats.getOrElseUpdate(t, CombatStat(t))),
+              loyalty.map((l) => loyalties.getOrElseUpdate(l, Loyalty(l))),
               TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
               legality,
               commandFormats
@@ -528,7 +525,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       }
 
       LoadedData(
-        Inventory(cards.toSet.toIndexedSeq.sortWith((a, b) => CardAttribute.NAME.comparingCard.compare(CardListEntry(a), CardListEntry(b)) < 0)),
+        Inventory(cards.toSet.toIndexedSeq.sortWith((a, b) => CardAttribute.Name.comparingEntry.compare(CardListEntry(a), CardListEntry(b)) < 0)),
         expansions.toSeq.sorted,
         allSupertypes.values.toSeq.sorted,
         allTypes.values.toSeq.sorted,
@@ -541,7 +538,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       publish("Processing tags...")
       val tk = new TypeToken[java.util.Map[String, java.util.Set[String]]] {}
       val raw = MainFrame.Serializer.fromJson(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n"), tk.getType).asInstanceOf[java.util.Map[String, java.util.Set[String]]].asScala.map{ case (n, t) => n -> t.asScala.toSet }.toMap
-      Card.tags = raw.map{ case (id, tags) => data.inventory(id).card -> collection.mutable.Set.from(tags) }
+      CardAttribute.Tags.tags = raw.map{ case (id, tags) => data.inventory(id).card -> collection.mutable.Set.from(tags) }
     }
 
     data

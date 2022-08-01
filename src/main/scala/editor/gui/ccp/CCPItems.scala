@@ -50,18 +50,4 @@ object CCPItems {
  * 
  * @author Alec Roelke
  */
-case class CCPItems(cut: JMenuItem = JMenuItem("Cut"), copy: JMenuItem = JMenuItem("Copy"), paste: JMenuItem = JMenuItem("Paste")) {
-  @deprecated def this(source: Component, accelerate: Boolean) = {
-    this()
-
-    cut.addActionListener(_ => TransferHandler.getCutAction.actionPerformed(ActionEvent(source, ActionEvent.ACTION_PERFORMED, null)));
-    copy.addActionListener(_ => TransferHandler.getCopyAction.actionPerformed(ActionEvent(source, ActionEvent.ACTION_PERFORMED, null)));
-    paste.addActionListener(_ => TransferHandler.getPasteAction.actionPerformed(ActionEvent(source, ActionEvent.ACTION_PERFORMED, null)));
-
-    if (accelerate) {
-      cut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK));
-      copy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
-      paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
-    }
-  }
-}
+case class CCPItems(cut: JMenuItem = JMenuItem("Cut"), copy: JMenuItem = JMenuItem("Copy"), paste: JMenuItem = JMenuItem("Paste"))

@@ -16,7 +16,6 @@ import javax.swing.BoxLayout
 import javax.swing.JCheckBox
 import javax.swing.JLabel
 import scala.collection.immutable.ListMap
-import scala.jdk.CollectionConverters._
 
 /**
  * Convenience constructors for creating [[ColorFilterPanel]]s.
@@ -56,10 +55,10 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
   private val colorless = JCheckBox()
 
   // Check boxes for selecting colors
-  val colors = ListMap(ManaType.colors.map(_ -> JCheckBox()):_*)
-  colors.foreach{ case (color, box) =>
+  val colorBoxes = ListMap(ManaType.colors.map(_ -> JCheckBox()):_*)
+  colorBoxes.foreach{ case (color, box) =>
     add(box)
-    add(JLabel(ColorSymbol(color).getIcon(IconHeight)))
+    add(JLabel(ColorSymbol(color).scaled(IconHeight)))
     box.addActionListener(_ => if (box.isSelected) colorless.setSelected(false))
   }
   add(Box.createHorizontalStrut(4))
@@ -68,35 +67,28 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
   // Check box for multicolored cards
   private val multi = JCheckBox()
   add(multi)
-  add(JLabel(StaticSymbol("M").getIcon(IconHeight)))
+  add(JLabel(StaticSymbol("M").scaled(IconHeight)))
   multi.addActionListener(_ => if (multi.isSelected) colorless.setSelected(false))
 
   // Actually add the colorless box here
   colorless.setSelected(true)
   add(colorless)
-  add(JLabel(ColorSymbol(ManaType.Colorless).getIcon(IconHeight)))
+  add(JLabel(ColorSymbol(ManaType.Colorless).scaled(IconHeight)))
   colorless.addActionListener(_ => if (colorless.isSelected) {
-    colors.foreach{ case (_, box) => box.setSelected(false) }
+    colorBoxes.foreach{ case (_, box) => box.setSelected(false) }
     multi.setSelected(false)
   })
 
   add(Box.createHorizontalStrut(2))
 
-  protected override var attribute = CardAttribute.COLORS
+  protected override var attribute = CardAttribute.Colors
 
-  override def filter = CardAttribute.createFilter(attribute) match {
-    case filter: ColorFilter =>
-      filter.faces = selector.faces
-      filter.contain = contain.getSelectedItem
-      filter.colors ++= colors.collect{ case (c, b) if b.isSelected => c }
-      filter.multicolored = multi.isSelected
-      filter
-  }
+  override def filter = attribute.filter.copy(faces = selector.faces, contain = contain.getSelectedItem, colors = colorBoxes.collect{ case (c, b) if b.isSelected => c }.toSet, multicolored = multi.isSelected)
 
   override def setFields(filter: ColorFilter) = {
     attribute = filter.attribute
     contain.setSelectedItem(filter.contain)
-    filter.colors.foreach(colors(_).setSelected(true))
+    filter.colors.foreach(colorBoxes(_).setSelected(true))
     multi.setSelected(filter.multicolored)
     colorless.setSelected(!filter.multicolored && filter.colors.isEmpty)
   }
