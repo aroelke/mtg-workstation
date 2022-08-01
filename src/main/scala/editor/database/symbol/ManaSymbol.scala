@@ -3,8 +3,6 @@ package editor.database.symbol
 import editor.database.attributes.ManaType
 import editor.util.UnicodeSymbols
 
-import scala.jdk.CollectionConverters._
-
 /**
  * Companion to [[ManaSymbol]] containing methods for parsing them from strings and other utility.
  * @author Alec Roelke

@@ -39,7 +39,6 @@ import javax.swing.SwingUtilities
 import javax.swing.Timer
 import javax.swing.event.MouseInputAdapter
 import scala.collection.immutable.ListMap
-import scala.jdk.CollectionConverters._
 import editor.gui.ElementAttribute
 
 /**

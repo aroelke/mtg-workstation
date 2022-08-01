@@ -10,7 +10,6 @@ import javax.swing.JOptionPane
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
 import javax.swing.UnsupportedLookAndFeelException
-import scala.jdk.CollectionConverters._
 
 /**
  * Main class for starting the program.

@@ -20,7 +20,6 @@ import javax.swing.text.StyleConstants
 import javax.swing.text.StyledDocument
 import scala.collection.immutable.ListSet
 import scala.collection.immutable.TreeMap
-import scala.jdk.CollectionConverters._
 
 /**
  * A single-faced [[Card]], or a single face of a [[MultiCard]].

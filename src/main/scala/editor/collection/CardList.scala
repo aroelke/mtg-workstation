@@ -6,7 +6,6 @@ import editor.database.attributes.ManaType
 import editor.database.card.Card
 
 import java.time.LocalDate
-import scala.jdk.CollectionConverters._
 import scala.collection.immutable.ListSet
 
 /**

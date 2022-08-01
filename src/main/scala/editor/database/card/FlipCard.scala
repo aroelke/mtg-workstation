@@ -1,7 +1,5 @@
 package editor.database.card
 
-import scala.jdk.CollectionConverters._
-
 import CardLayout.FLIP
 
 /**

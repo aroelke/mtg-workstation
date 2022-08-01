@@ -5,7 +5,6 @@ import editor.gui.editor.EditorFrame
 
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.UnsupportedFlavorException
-import scala.jdk.CollectionConverters._
 
 /**
  * Cards being transferred from a card list to another element.

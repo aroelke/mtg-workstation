@@ -25,7 +25,6 @@ import javax.swing.table.AbstractTableModel
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
-import scala.jdk.CollectionConverters._
 
 /**
  * Companion object containing global information about hand calculation.

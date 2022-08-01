@@ -4,7 +4,6 @@ import javax.swing.TransferHandler
 import editor.database.card.Card
 import javax.swing.JComponent
 import editor.gui.ccp.data.CardTransferData
-import scala.jdk.CollectionConverters._
 
 /**
  * Handler for copying cards from the inventory. Cards cannot be removed from it, so it doesn't

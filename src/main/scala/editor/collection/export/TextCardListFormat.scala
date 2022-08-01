@@ -14,7 +14,6 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
 import scala.collection.immutable.ListMap
-import scala.jdk.CollectionConverters._
 import scala.util.matching._
 
 /**

@@ -16,7 +16,6 @@ import javax.swing.BoxLayout
 import javax.swing.JCheckBox
 import javax.swing.JLabel
 import scala.collection.immutable.ListMap
-import scala.jdk.CollectionConverters._
 
 /**
  * Convenience constructors for creating [[ColorFilterPanel]]s.

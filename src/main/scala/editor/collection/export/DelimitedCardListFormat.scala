@@ -17,8 +17,6 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.StringJoiner
 import scala.collection.immutable.ListMap
-import scala.io.Source
-import scala.jdk.CollectionConverters._
 
 /**
  * Object containing useful information and functions for formatting and parsing delimited files.

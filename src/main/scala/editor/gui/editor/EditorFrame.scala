@@ -110,7 +110,6 @@ import javax.swing.event.PopupMenuEvent
 import javax.swing.event.PopupMenuListener
 import javax.swing.table.AbstractTableModel
 import scala.collection.immutable.ListMap
-import scala.jdk.CollectionConverters._
 import scala.util.Using
 
 object EditorFrame {

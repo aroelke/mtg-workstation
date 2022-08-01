@@ -13,7 +13,6 @@ import java.awt.Color
 import java.io.File
 import java.net.MalformedURLException
 import java.net.URL
-import scala.jdk.CollectionConverters._
 
 /**
  * Global settings structure, modifiable only using the [[editor.gui.settings.SettingsDialog]].

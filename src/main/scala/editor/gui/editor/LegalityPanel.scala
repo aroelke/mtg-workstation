@@ -28,7 +28,6 @@ import javax.swing.JList
 import javax.swing.JPanel
 import javax.swing.JScrollPane
 import javax.swing.ListSelectionModel
-import scala.jdk.CollectionConverters._
 import scala.util.matching._
 
 /**

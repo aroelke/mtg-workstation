@@ -1,8 +1,6 @@
 package editor.database.card
 
-import scala.jdk.CollectionConverters._
-
-import CardLayout._
+import CardLayout.{ADVENTURE, AFTERMATH, SPLIT}
 
 /**
  * A [[Card]] with all faces printed on the front, with any one castable at a time (with some exceptions).

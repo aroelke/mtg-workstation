@@ -23,7 +23,6 @@ import javax.swing.JScrollPane
 import javax.swing.JTextField
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
-import scala.jdk.CollectionConverters._
 
 /**
  * Companion object including convenience methods for [[CardTagPanel]].

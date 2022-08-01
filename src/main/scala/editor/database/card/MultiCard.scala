@@ -4,7 +4,6 @@ import editor.database.attributes.ManaType
 
 import javax.swing.text.StyledDocument
 import scala.collection.immutable.TreeMap
-import scala.jdk.CollectionConverters._
 
 /**
  * A card with multiple faces, or multiple mini-cards printed on the same side. Attributes are

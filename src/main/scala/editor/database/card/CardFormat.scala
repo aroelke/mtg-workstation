@@ -6,7 +6,6 @@ import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
 
 import java.time.LocalDate
-import scala.jdk.CollectionConverters._
 
 /**
  * A string formatter for [[Card]].  Format strings are arbitrary text with card attribute names in

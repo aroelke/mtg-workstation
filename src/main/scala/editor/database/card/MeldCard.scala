@@ -4,7 +4,6 @@ import editor.database.attributes.ManaCost
 
 import javax.swing.text.BadLocationException
 import javax.swing.text.StyledDocument
-import scala.jdk.CollectionConverters._
 
 import CardLayout.MELD
 

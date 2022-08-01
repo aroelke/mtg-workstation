@@ -2,8 +2,6 @@ package editor.database.card
 
 import editor.database.attributes.ManaCost
 
-import scala.jdk.CollectionConverters._
-
 import CardLayout.TRANSFORM
 
 /**

@@ -21,7 +21,6 @@ import javax.swing.JPanel
 import javax.swing.JScrollPane
 import javax.swing.JTextField
 import javax.swing.SwingUtilities
-import scala.jdk.CollectionConverters._
 import javax.swing.event.ChangeEvent
 
 /**

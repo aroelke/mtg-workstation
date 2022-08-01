@@ -19,7 +19,6 @@ import scala.collection.immutable.AbstractSet
 import scala.collection.immutable.TreeMap
 import scala.collection.mutable.Growable
 import scala.collection.mutable.Shrinkable
-import scala.jdk.CollectionConverters._
 
 /**
  * Object containing global card data and data to aid with displaying card information.
