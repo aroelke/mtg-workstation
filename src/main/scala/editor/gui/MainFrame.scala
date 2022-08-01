@@ -1132,7 +1132,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
       panel.setContents(CardAttribute.Name.filter)
     else
       panel.setContents(inventory.filter)
-    panel.addChangeListener((c) => SwingUtilities.getWindowAncestor(c.getSource.asInstanceOf[Component]).pack())
+    panel.listeners += ((c) => SwingUtilities.getWindowAncestor(c.getSource.asInstanceOf[Component]).pack())
 
     val panelPanel = new ScrollablePanel(ScrollablePanel.TrackWidth, BorderLayout()) {
       override def getPreferredScrollableViewportSize = {

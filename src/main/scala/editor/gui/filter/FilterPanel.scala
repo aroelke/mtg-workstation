@@ -17,8 +17,6 @@ trait FilterPanel[F <: Filter] extends JPanel {
 
   /** Listeners for changes to the filter, such as if a group has children added or removed. */
   val listeners = collection.mutable.Set[ChangeListener]()
-  @deprecated def addChangeListener(listener: ChangeListener) = listeners += listener
-  @deprecated def removeChangeListener(listener: ChangeListener) = listeners -= listener
 
   /**
    * Alert all listeners to this filter that its contents have changed, then forward the event to this
