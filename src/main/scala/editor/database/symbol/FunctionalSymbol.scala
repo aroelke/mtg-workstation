@@ -1,8 +1,5 @@
 package editor.database.symbol
 
-import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
-
 /**
  * Companion to [[FunctionalSymbol]] that contains all the existing non-mana symbols and functions for parsing strings
  * into [[FunctionalSymbol]]s. The possible [[FunctionalSymbol]]s are:

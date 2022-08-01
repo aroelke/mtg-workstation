@@ -4,7 +4,6 @@ import java.awt.Image
 import java.io.IOException
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
-import scala.jdk.OptionConverters._
 import scala.util.matching._
 
 /**

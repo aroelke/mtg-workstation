@@ -147,7 +147,6 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
 import scala.util.Failure
 import scala.util.Success
 
