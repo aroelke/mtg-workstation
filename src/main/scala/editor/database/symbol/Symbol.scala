@@ -63,9 +63,6 @@ object Symbol extends SymbolParser[Symbol] {
    * @return the [[Symbol]] represented by the string, or None if there isn't one
    */
   override def parse(s: String) = ManaSymbol.parse(s) orElse FunctionalSymbol.parse(s)
-
-  @deprecated val SYMBOL_PATTERN = Regex.pattern
-  @deprecated def tryParseSymbol(s: String) = parse(s).toJava
 }
 
 /**

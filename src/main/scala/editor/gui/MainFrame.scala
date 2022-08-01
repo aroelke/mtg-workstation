@@ -1545,14 +1545,14 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
                   rulingsDocument.insertString(rulingsDocument.getLength(), ruling.substring(start, i), rulingStyle)
                   start = i + 1
                 case '}'=>
-                  val symbol = mtg.Symbol.tryParseSymbol(ruling.substring(start, i))
-                  if (symbol.isEmpty) {
-                    System.err.println(s"Unexpected symbol {${ruling.substring(start, i)}} in ruling for ${card.name}.")
-                    rulingsDocument.insertString(rulingsDocument.getLength, ruling.substring(start, i), rulingStyle)
-                  } else {
-                    val symbolStyle = rulingsDocument.addStyle(symbol.get.toString, null)
-                    StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TextSize))
-                    rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle)
+                  mtg.Symbol.parse(ruling.substring(start, i)) match {
+                    case Some(symbol) =>
+                      val symbolStyle = rulingsDocument.addStyle(symbol.toString, null)
+                      StyleConstants.setIcon(symbolStyle, symbol.getIcon(ComponentUtils.TextSize))
+                      rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle)
+                    case None =>
+                      System.err.println(s"Unexpected symbol {${ruling.substring(start, i)}} in ruling for ${card.name}.")
+                      rulingsDocument.insertString(rulingsDocument.getLength, ruling.substring(start, i), rulingStyle)
                   }
                   start = i + 1
                 case _ =>
