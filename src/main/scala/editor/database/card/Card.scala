@@ -8,7 +8,6 @@ import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
 import editor.database.attributes.TypeLine
-import editor.util.Lazy
 import editor.util.UnicodeSymbols
 
 import java.text.Collator
