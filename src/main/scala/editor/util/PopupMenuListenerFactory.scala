@@ -22,5 +22,4 @@ object PopupMenuListenerFactory {
     override def popupMenuWillBecomeInvisible(e: PopupMenuEvent) = invisible(e)
     override def popupMenuWillBecomeVisible(e: PopupMenuEvent) = visible(e)
   }
-  @deprecated def createVisibleListener(visible: java.util.function.Consumer[PopupMenuEvent]) = createPopupListener(visible = visible.accept)
 }
