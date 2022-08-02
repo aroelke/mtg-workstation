@@ -126,7 +126,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
     override def getRowCount = deck.categories.size
 
     override def getColumnCount = drawsSpinner.getValue match {
-      case n: Int => n + modeBox.getItemAt(modeBox.getSelectedIndex).columns
+      case n: Integer => n + modeBox.getItemAt(modeBox.getSelectedIndex).columns
       case _ => throw IllegalStateException(s"unexpected value of type ${drawsSpinner.getClass}")
     }
 
@@ -178,7 +178,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
   handSpinner.addChangeListener(recalculateFunction)
 
   def handSize = handSpinner.getValue match {
-    case n: Int => n
+    case n: Integer => n.toInt
     case _ => throw IllegalStateException(s"unexpected value of type ${handSpinner.getValue.getClass}")
   }
 
@@ -188,7 +188,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
 
     probabilities.clear()
     drawsSpinner.getValue match {
-      case draws: Int =>
+      case draws: Integer =>
         categories.foreach{ category =>
           probabilities(category) = Array.fill(1 + draws)(0)
           expectedCounts(category) = Array.fill(1 + draws)(0)

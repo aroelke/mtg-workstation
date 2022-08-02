@@ -114,7 +114,7 @@ object InventoryLoader {
     })
     loader.addPropertyChangeListener((e) => if (e.getPropertyName == "progress") {
       val p = e.getNewValue match {
-        case n: Int => n
+        case n: Integer => n.toInt
         case _ => 0
       }
       progressBar.setIndeterminate(p < 0)
