@@ -1,4 +1,4 @@
-package editor.gui.editor
+package editor.gui.deck
 
 import java.io.File
 

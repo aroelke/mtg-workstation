@@ -1,6 +1,6 @@
 package editor.gui.ccp.handler
 
-import editor.gui.editor.EditorFrame
+import editor.gui.deck.EditorFrame
 
 /**
  * Transfer handler for importing cards into decks via the [[EditorFrame]] itself, rather than the tables it contains. Mainly a convenience

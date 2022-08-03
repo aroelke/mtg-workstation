@@ -1,4 +1,4 @@
-package editor.gui.editor
+package editor.gui.deck
 
 import editor.collection.CardList
 import editor.collection.CardListEntry

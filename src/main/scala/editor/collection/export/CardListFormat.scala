@@ -1,7 +1,7 @@
 package editor.collection.`export`
 
 import editor.collection.CardList
-import editor.gui.editor.DeckSerializer
+import editor.gui.deck.DeckSerializer
 
 import java.io.InputStream
 

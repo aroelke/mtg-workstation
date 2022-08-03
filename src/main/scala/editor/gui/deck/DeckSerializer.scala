@@ -1,4 +1,4 @@
-package editor.gui.editor
+package editor.gui.deck
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonDeserializationContext

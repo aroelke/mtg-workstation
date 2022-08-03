@@ -5,7 +5,7 @@ import editor.collection.CardList
 import editor.collection.mutable.Deck
 import editor.database.card.CardFormat
 import editor.gui.MainFrame
-import editor.gui.editor.DeckSerializer
+import editor.gui.deck.DeckSerializer
 import editor.util.IterableReader
 
 import java.io.InputStream

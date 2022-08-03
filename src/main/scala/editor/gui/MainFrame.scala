@@ -19,13 +19,13 @@ import _root_.editor.filter.leaf.TextFilter
 import _root_.editor.gui.ccp.CCPItems
 import _root_.editor.gui.ccp.data.DataFlavors
 import _root_.editor.gui.ccp.handler.InventoryExportHandler
+import _root_.editor.gui.deck.DeckLoadException
+import _root_.editor.gui.deck.DeckSerializer
+import _root_.editor.gui.deck.EditorFrame
 import _root_.editor.gui.display.CardImagePanel
 import _root_.editor.gui.display.CardTable
 import _root_.editor.gui.display.CardTableCellRenderer
 import _root_.editor.gui.display.CardTableModel
-import _root_.editor.gui.editor.DeckLoadException
-import _root_.editor.gui.editor.DeckSerializer
-import _root_.editor.gui.editor.EditorFrame
 import _root_.editor.gui.filter.FilterGroupPanel
 import _root_.editor.gui.generic.CardMenuItems
 import _root_.editor.gui.generic.ComponentUtils

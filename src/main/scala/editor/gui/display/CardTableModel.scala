@@ -4,8 +4,8 @@ import editor.collection.CardList
 import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
 import editor.gui.ElementAttribute
-import editor.gui.editor.EditorFrame
-import editor.gui.editor.IncludeExcludePanel
+import editor.gui.deck.EditorFrame
+import editor.gui.deck.IncludeExcludePanel
 
 import javax.swing.table.AbstractTableModel
 import scala.annotation.targetName

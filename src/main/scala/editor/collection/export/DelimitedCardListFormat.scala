@@ -7,7 +7,7 @@ import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 import editor.database.card.CardFormat
 import editor.gui.MainFrame
-import editor.gui.editor.DeckSerializer
+import editor.gui.deck.DeckSerializer
 import editor.util.IterableReader
 import editor.util.UnicodeSymbols
 

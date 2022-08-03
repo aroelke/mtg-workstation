@@ -2,7 +2,7 @@ package editor.gui.generic
 
 import editor.collection.CardListEntry
 import editor.database.card.Card
-import editor.gui.editor.EditorFrame
+import editor.gui.deck.EditorFrame
 import editor.gui.settings.SettingsDialog
 
 import java.awt.BorderLayout

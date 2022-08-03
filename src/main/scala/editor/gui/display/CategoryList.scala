@@ -4,7 +4,7 @@ import editor.collection.Categorization
 import editor.gui.ccp.CCPItems
 import editor.gui.ccp.data.DataFlavors
 import editor.gui.ccp.handler.CategoryTransferHandler
-import editor.gui.editor.CategoryEditorPanel
+import editor.gui.deck.CategoryEditorPanel
 import editor.util.MouseListenerFactory
 import editor.util.PopupMenuListenerFactory
 

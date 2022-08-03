@@ -7,10 +7,10 @@ import editor.database.card.Card
 import editor.database.version.DatabaseVersion
 import editor.database.version.UpdateFrequency
 import editor.gui.MainFrame
+import editor.gui.deck.CalculateHandPanel
+import editor.gui.deck.CategoryEditorPanel
 import editor.gui.display.CardTable
 import editor.gui.display.CategoryList
-import editor.gui.editor.CalculateHandPanel
-import editor.gui.editor.CategoryEditorPanel
 import editor.gui.generic.ComponentUtils
 import editor.gui.generic.ScrollablePanel
 import editor.gui.generic.VerticalButtonList

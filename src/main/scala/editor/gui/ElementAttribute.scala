@@ -19,8 +19,8 @@ import _root_.editor.database.card.Card
 import _root_.editor.database.card.CardLayout
 import _root_.editor.database.symbol.ManaSymbolInstances.ColorSymbol
 import _root_.editor.filter.leaf._
-import _root_.editor.gui.editor.EditorFrame
-import _root_.editor.gui.editor.InclusionCellEditor
+import _root_.editor.gui.deck.EditorFrame
+import _root_.editor.gui.deck.InclusionCellEditor
 import _root_.editor.gui.filter.FilterSelectorPanel
 import _root_.editor.gui.filter.editor._
 import _root_.editor.gui.generic.ComponentUtils

@@ -5,8 +5,9 @@ import editor.database.attributes.CombatStat
 import editor.database.attributes.Loyalty
 import editor.database.attributes.ManaCost
 import editor.database.card.Card
-import editor.gui.editor.EditorFrame
-import editor.gui.editor.InclusionCellEditor
+import editor.gui.ElementAttribute
+import editor.gui.deck.EditorFrame
+import editor.gui.deck.InclusionCellEditor
 import editor.gui.generic.ComponentUtils
 import editor.gui.generic.SpinnerCellEditor
 import editor.util.OptionOrdering
@@ -23,7 +24,6 @@ import javax.swing.table.TableModel
 import javax.swing.table.TableRowSorter
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
-import editor.gui.ElementAttribute
 
 /**
  * Table for displaying information about cards.  Which cards are displayed and what data

@@ -3,7 +3,7 @@ package editor.gui.ccp.handler
 import editor.collection.CardListEntry
 import editor.database.card.Card
 import editor.gui.ccp.data.DataFlavors
-import editor.gui.editor.EditorFrame
+import editor.gui.deck.EditorFrame
 
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.io.IOException

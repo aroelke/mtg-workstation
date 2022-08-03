@@ -2,7 +2,7 @@ package editor.gui.ccp.handler
 
 import editor.collection.CardListEntry
 import editor.gui.ccp.data.EntryTransferData
-import editor.gui.editor.EditorFrame
+import editor.gui.deck.EditorFrame
 
 import java.awt.datatransfer.Transferable
 import java.time.LocalDate

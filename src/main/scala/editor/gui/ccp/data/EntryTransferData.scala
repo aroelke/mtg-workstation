@@ -1,7 +1,7 @@
 package editor.gui.ccp.data
 
 import editor.database.card.Card
-import editor.gui.editor.EditorFrame
+import editor.gui.deck.EditorFrame
 
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.UnsupportedFlavorException
