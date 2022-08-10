@@ -11,6 +11,7 @@ import com.google.gson.JsonSerializer
 import editor.collection.`export`.CardListFormat
 import editor.collection.mutable.Deck
 import editor.gui.MainFrame
+import editor.serialization
 import editor.util.ProgressInputStream
 
 import java.awt.BorderLayout
@@ -59,7 +60,7 @@ object DeckSerializer {
    */
   @throws[DeckLoadException]("if the deck couldn't be loaded (not including user cancellation)")
   def load(file: File, parent: Component) = {
-    val worker = LoadWorker(file, parent, (stream) => Using.resource(BufferedReader(InputStreamReader(stream)))(MainFrame.Serializer.fromJson(_, classOf[DeckSerializer])))
+    val worker = LoadWorker(file, parent, (stream) => Using.resource(BufferedReader(InputStreamReader(stream)))(serialization.Serializer.fromJson(_, classOf[DeckSerializer])))
     worker.executeAndDisplay()
     try {
       worker.get.copy(file = Some(file))
@@ -112,7 +113,7 @@ case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = M
   @throws[IOException]("if the file could not be saved")
   @throws[NoSuchFileException]("if there is no file to save to")
   def save() = file.map((f) => Using.resource(FileWriter(f)){ writer =>
-    writer.write(MainFrame.Serializer.toJson(this))
+    writer.write(serialization.Serializer.toJson(this))
   }).getOrElse(throw NoSuchFileException("no file to save to"))
 
   override def serialize(src: DeckSerializer, typeOfSrc: Type, context: JsonSerializationContext) = {

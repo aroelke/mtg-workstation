@@ -14,6 +14,7 @@ import editor.gui.display.CategoryList
 import editor.gui.generic.ComponentUtils
 import editor.gui.generic.ScrollablePanel
 import editor.gui.generic.VerticalButtonList
+import editor.serialization
 import editor.util.UnicodeSymbols
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
@@ -931,7 +932,7 @@ object SettingsDialog {
   @throws[MalformedURLException]("if the URL for the inventory source or version is invalid")
   def load(): Unit = {
     if (Files.exists(PropertiesFile))
-      settings = MainFrame.Serializer.fromJson(Files.readAllLines(PropertiesFile).asScala.mkString("\n"), classOf[Settings])
+      settings = serialization.Serializer.fromJson(Files.readAllLines(PropertiesFile).asScala.mkString("\n"), classOf[Settings])
     else
       settings = Settings()
   }
@@ -941,10 +942,10 @@ object SettingsDialog {
   def save(): Unit = {
     if (!CardAttribute.Tags.tags.flatMap{ case (_, s) => s }.isEmpty) {
       Files.createDirectories(Path.of(settings.inventory.tags).getParent)
-      Files.writeString(Path.of(settings.inventory.tags), MainFrame.Serializer.toJson(CardAttribute.Tags.tags.collect{ case (card, tags) if !tags.isEmpty => card.faces(0).scryfallid -> tags.asJava }.toMap.asJava))
+      Files.writeString(Path.of(settings.inventory.tags), serialization.Serializer.toJson(CardAttribute.Tags.tags.collect{ case (card, tags) if !tags.isEmpty => card.faces(0).scryfallid -> tags.asJava }.toMap.asJava))
     } else
       Files.deleteIfExists(Path.of(settings.inventory.tags))
-    Files.writeString(PropertiesFile, MainFrame.Serializer.toJson(settings))
+    Files.writeString(PropertiesFile, serialization.Serializer.toJson(settings))
   }
 
   /**

@@ -44,15 +44,6 @@ import _root_.editor.gui.inventory.InventoryLoader
 import _root_.editor.gui.settings.Settings
 import _root_.editor.gui.settings.SettingsDialog
 import _root_.editor.gui.settings.SettingsObserver
-import _root_.editor.serialization.AttributeAdapter
-import _root_.editor.serialization.CardAdapter
-import _root_.editor.serialization.CategoryAdapter
-import _root_.editor.serialization.ColorAdapter
-import _root_.editor.serialization.DeckAdapter
-import _root_.editor.serialization.FilterAdapter
-import _root_.editor.serialization.SettingsAdapter
-import _root_.editor.serialization.UpdateAdapter
-import _root_.editor.serialization.VersionAdapter
 import _root_.editor.util.MenuListenerFactory
 import _root_.editor.util.MouseListenerFactory
 import _root_.editor.util.PopupMenuListenerFactory
@@ -176,21 +167,6 @@ object MainFrame {
   def inventory = _inventory.get
   /** @param i new inventory */
   def inventory_=(i: Inventory) = _inventory = Some(i)
-
-  /** Serializer for saving and loading external information. */
-  lazy val Serializer = (new GsonBuilder)
-    .registerTypeAdapter(classOf[Settings], SettingsAdapter())
-    .registerTypeAdapter(classOf[Categorization], CategoryAdapter())
-    .registerTypeHierarchyAdapter(classOf[Filter], FilterAdapter())
-    .registerTypeAdapter(classOf[Color], ColorAdapter())
-    .registerTypeHierarchyAdapter(classOf[Card], CardAdapter())
-    .registerTypeAdapter(classOf[CardAttribute[?, ?]], AttributeAdapter())
-    .registerTypeAdapter(classOf[Deck], DeckAdapter())
-    .registerTypeAdapter(classOf[DeckSerializer], DeckSerializer())
-    .registerTypeAdapter(classOf[DatabaseVersion], VersionAdapter())
-    .registerTypeAdapter(classOf[UpdateFrequency], UpdateAdapter())
-    .setPrettyPrinting
-    .create()
 }
 
 /**

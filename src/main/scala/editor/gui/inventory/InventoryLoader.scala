@@ -13,6 +13,7 @@ import editor.database.version.DatabaseVersion
 import editor.gui.MainFrame
 import editor.gui.generic.ScrollablePanel
 import editor.gui.settings.SettingsDialog
+import editor.serialization
 
 import java.awt.BorderLayout
 import java.awt.Component
@@ -537,7 +538,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
     if (!isCancelled && Files.exists(Path.of(SettingsDialog.settings.inventory.tags))) {
       publish("Processing tags...")
       val tk = new TypeToken[java.util.Map[String, java.util.Set[String]]] {}
-      val raw = MainFrame.Serializer.fromJson(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n"), tk.getType).asInstanceOf[java.util.Map[String, java.util.Set[String]]].asScala.map{ case (n, t) => n -> t.asScala.toSet }.toMap
+      val raw = serialization.Serializer.fromJson(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n"), tk.getType).asInstanceOf[java.util.Map[String, java.util.Set[String]]].asScala.map{ case (n, t) => n -> t.asScala.toSet }.toMap
       CardAttribute.Tags.tags = raw.map{ case (id, tags) => data.inventory(id).card -> collection.mutable.Set.from(tags) }
     }
 
