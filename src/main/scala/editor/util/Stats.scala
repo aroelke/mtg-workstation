@@ -35,11 +35,14 @@ object Stats {
     else if (n == 0)
       BigInt(0)
     else
-      factorial(n)/(factorial(n - k)*factorial(k))
+      n.! / ((n - k).! * k.!)
   }
 
-  /** Add "n choose k" syntax to Int. */
-  implicit class IntToNCK(n: Int) { def choose(k: Int) = Stats.nchoosek(n, k) }
+  /** Add "n choose k" and n! (as n.!) syntax to Int. */
+  implicit class IntToNCK(n: Int) {
+    def ! = Stats.factorial(n)
+    def choose(k: Int) = Stats.nchoosek(n, k)
+  }
 
   /**
    * Compute a hypergeometric distribution, which is the probability of k successes in n draws out of a pool of N items, K of which are successes.
