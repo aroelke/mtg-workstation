@@ -2,7 +2,7 @@ package editor.gui.deck
 
 import editor.collection.mutable.Deck
 import editor.gui.settings.SettingsDialog
-import editor.util.Stats
+import editor.stats
 
 import java.awt.BorderLayout
 import java.awt.Color
@@ -196,9 +196,9 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
           val r = box.getItemAt(box.getSelectedIndex)
           for (j <- 0 to draws) {
             probabilities(category)(j) = r match {
-              case AtLeast => 1 - (0 until desiredBoxes(category).getSelectedIndex).map(Stats.hypergeometric(_, handSize + j, deck.categories(category).list.total, deck.total)).sum
-              case Exactly => Stats.hypergeometric(desiredBoxes(category).getSelectedIndex, handSize + j, deck.categories(category).list.total, deck.total)
-              case AtMost => (0 to desiredBoxes(category).getSelectedIndex).map(Stats.hypergeometric(_, handSize + j, deck.categories(category).list.total, deck.total)).sum
+              case AtLeast => 1 - (0 until desiredBoxes(category).getSelectedIndex).map(stats.hypergeometric(_, handSize + j, deck.categories(category).list.total, deck.total)).sum
+              case Exactly => stats.hypergeometric(desiredBoxes(category).getSelectedIndex, handSize + j, deck.categories(category).list.total, deck.total)
+              case AtMost => (0 to desiredBoxes(category).getSelectedIndex).map(stats.hypergeometric(_, handSize + j, deck.categories(category).list.total, deck.total)).sum
             }
             expectedCounts(category)(j) = deck.categories(category).list.total.toDouble/deck.total.toDouble*(handSize + j).toDouble
           }

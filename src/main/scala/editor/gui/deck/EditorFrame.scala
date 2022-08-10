@@ -30,9 +30,9 @@ import editor.gui.generic.VerticalButtonList
 import editor.gui.settings.Settings
 import editor.gui.settings.SettingsDialog
 import editor.gui.settings.SettingsObserver
+import editor.stats
 import editor.util.MouseListenerFactory
 import editor.util.PopupMenuListenerFactory
-import editor.util.Stats
 import editor.util.StringUtils
 import editor.util.UndoableAction
 import editor.util.UnicodeSymbols
@@ -1771,7 +1771,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
               var e = 0.0
               var q = 0.0
               for (j <- 0 until math.min(i, lands)) {
-                val p = Stats.hypergeometric(j, math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
+                val p = stats.hypergeometric(j, math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
                 q += p
                 e += j*p
               }
@@ -1780,7 +1780,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
             case Probability =>
               var q = 0.0
               for (j <- 0 until i)
-                q += Stats.hypergeometric(j, math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
+                q += stats.hypergeometric(j, math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
               1 - q
           }
           landDrops.addValue(v, choice.toString, i.toString)

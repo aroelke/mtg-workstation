@@ -1,10 +1,10 @@
-package editor.util
+package editor
 
 /**
  * Collection of methods to compute some statistical functions.
  * @author Alec Roelke
  */
-object Stats {
+package object stats {
   /**
    * Compute the factorial of an integer, or the product of all integers from 1 to that number (or 1
    * if the number is 0).
@@ -39,9 +39,9 @@ object Stats {
   }
 
   /** Add "n choose k" and n! (as n.!) syntax to Int. */
-  implicit class IntToNCK(n: Int) {
-    def ! = Stats.factorial(n)
-    def choose(k: Int) = Stats.nchoosek(n, k)
+  implicit class IntToStats(n: Int) {
+    def ! = factorial(n)
+    def choose(k: Int) = nchoosek(n, k)
   }
 
   /**
