@@ -47,12 +47,12 @@ import _root_.editor.gui.settings.SettingsObserver
 import _root_.editor.serialization.AttributeAdapter
 import _root_.editor.serialization.CardAdapter
 import _root_.editor.serialization.CategoryAdapter
+import _root_.editor.serialization.ColorAdapter
 import _root_.editor.serialization.DeckAdapter
 import _root_.editor.serialization.FilterAdapter
 import _root_.editor.serialization.SettingsAdapter
 import _root_.editor.serialization.UpdateAdapter
 import _root_.editor.serialization.VersionAdapter
-import _root_.editor.util.ColorAdapter
 import _root_.editor.util.MenuListenerFactory
 import _root_.editor.util.MouseListenerFactory
 import _root_.editor.util.PopupMenuListenerFactory

@@ -1,4 +1,4 @@
-package editor.util
+package editor.serialization
 
 import com.google.gson.JsonSerializer
 import java.awt.Color
