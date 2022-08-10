@@ -23,16 +23,14 @@ class InventoryEntry(override val card: Card) extends CardListEntry {
 }
 
 /**
- * Inventory of cards that can be added to decks.  Can't be changed, but provides a view of the cards in it that is filtered
- * using a user-defined filter. Indexing into or iterating over the inventory uses this view.
- * 
- * @param cards cards to use to create the inventory
+ * Inventory of cards that can be added to decks.  Can't be mutated except to change the entire backing card list, but provides a view of the
+ * cards in it that is filtered using a user-defined filter. Indexing into or iterating over the inventory uses this view.
  * 
  * @author Alec Roelke
  */
-class Inventory(val cards: Iterable[Card] = IndexedSeq.empty) extends CardList {
-  private val list = cards.toIndexedSeq
-  private lazy val ids = list.flatMap((c) => c.faces.map(_.scryfallid -> c)).toMap
+object Inventory extends CardList {
+  private var list = IndexedSeq.empty[Card]
+  private var ids = Map.empty[String, Card]
   private var _filter: Filter = BinaryFilter(true)
   private var filtrate = list
 
@@ -44,6 +42,16 @@ class Inventory(val cards: Iterable[Card] = IndexedSeq.empty) extends CardList {
 
   /** @return true if there is a card with the given Scryfall ID, even if it's filtered out, and false otherwise. */
   def contains(id: String) = ids.contains(id)
+
+  /**
+   * Update the cards present in the inventory. Also updates the contents of the filtered view.
+   * @param l new list of cards to use
+   */
+  def cards_=(l: Iterable[Card]) = {
+    list = l.toIndexedSeq
+    filtrate = list.filter(_filter)
+    ids = list.flatMap((c) => c.faces.map(_.scryfallid -> c)).toMap
+  }
 
   /** @return the filter used for filtering the inventory. */
   def filter = _filter

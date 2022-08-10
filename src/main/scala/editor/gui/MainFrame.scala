@@ -161,12 +161,6 @@ object MainFrame {
   val DefaultCardHeight = 1.0/3.0
   /** Maximum height of a filter panel before a scroll bar is activated. */
   val MaxFilterHeight = 300
-
-  private var _inventory: Option[Inventory] = None
-  /** @return the inventory of all cards. */
-  def inventory = _inventory.get
-  /** @param i new inventory */
-  def inventory_=(i: Inventory) = _inventory = Some(i)
 }
 
 /**
@@ -190,7 +184,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   private class InventoryTableCellRenderer extends CardTableCellRenderer {
     override def getTableCellRendererComponent(table: JTable, value: AnyRef, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int) = {
       val c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
-      val card = inventory(table.convertRowIndexToModel(row)).card
+      val card = Inventory(table.convertRowIndexToModel(row)).card
       val main = selectedFrame.exists(_.deck.contains(card))
       val extra = selectedFrame.exists(_.extras.exists(_.contains(card)))
       try {
@@ -733,7 +727,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
   // Edit menu listener
   editMenu.addMenuListener(MenuListenerFactory.createMenuListener(selected = _ => {
-    editCCP.cut.setEnabled(selectedList.contains(inventory) && !getSelectedCards.isEmpty)
+    editCCP.cut.setEnabled(selectedList.contains(Inventory) && !getSelectedCards.isEmpty)
     editCCP.copy.setEnabled(!getSelectedCards.isEmpty)
     val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
     editCCP.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor))
@@ -1031,7 +1025,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   tablePanel.add(filterPanel, BorderLayout.NORTH)
 
   // Create the inventory and put it in the table
-  private val inventoryModel = CardTableModel(Inventory(), Settings().inventory.columns)
+  private val inventoryModel = CardTableModel(Inventory, Settings().inventory.columns)
   private val inventoryTable = CardTable(inventoryModel)
   CardAttribute.values.foreach((a) => inventoryTable.setDefaultRenderer(a.dataType, InventoryTableCellRenderer()))
   inventoryTable.stripe = SettingsDialog.settings.inventory.stripe
@@ -1089,24 +1083,24 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
   // Action to be taken when the user presses the Enter key after entering text into the quick-filter bar
   nameFilterField.addActionListener(_ => {
-    inventory.filter = TextFilter(CardAttribute.Name, nameFilterField.getText.toLowerCase)
+    Inventory.filter = TextFilter(CardAttribute.Name, nameFilterField.getText.toLowerCase)
     inventoryModel.fireTableDataChanged()
   })
 
   // Action to be taken when the clear button is pressed (reset the filter)
   clearButton.addActionListener(_ => {
     nameFilterField.setText("")
-    inventory.filter = CardAttribute.AnyCard.filter
+    Inventory.filter = CardAttribute.AnyCard.filter
     inventoryModel.fireTableDataChanged()
   })
 
   // Action to be taken when the advanced filter button is pressed (show the advanced filter dialog)
   advancedFilterButton.addActionListener(_ => {
     val panel = FilterGroupPanel()
-    if (inventory.filter.attribute == CardAttribute.AnyCard)
+    if (Inventory.filter.attribute == CardAttribute.AnyCard)
       panel.setContents(CardAttribute.Name.filter)
     else
-      panel.setContents(inventory.filter)
+      panel.setContents(Inventory.filter)
     panel.listeners += ((c) => SwingUtilities.getWindowAncestor(c.getSource.asInstanceOf[Component]).pack())
 
     val panelPanel = new ScrollablePanel(ScrollablePanel.TrackWidth, BorderLayout()) {
@@ -1122,7 +1116,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     panelPane.setBorder(BorderFactory.createEmptyBorder())
     if (JOptionPane.showConfirmDialog(this, panelPane, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
       nameFilterField.setText("")
-      inventory.filter = panel.filter
+      Inventory.filter = panel.filter
       inventoryModel.fireTableDataChanged()
     }
   })
@@ -1155,11 +1149,11 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
         SettingsDialog.settings = SettingsDialog.settings.copy(inventory = SettingsDialog.settings.inventory.copy(version = version))
       }
       loadInventory()
-      val listener = TableSelectionListener(MainFrame.this, inventoryTable, inventory)
+      val listener = TableSelectionListener(MainFrame.this, inventoryTable, Inventory)
       inventoryTable.addMouseListener(listener)
       inventoryTable.getSelectionModel.addListSelectionListener(listener)
 
-      if (!inventory.isEmpty) {
+      if (!Inventory.isEmpty) {
         for (spec <- SettingsDialog.settings.editor.categories.presets) {
           val categoryItem = JMenuItem(spec.name)
           categoryItem.addActionListener(_ => selectedFrame.foreach(_.categories += spec))
@@ -1296,12 +1290,6 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     dispose()
   }
 
-  /**
-   * @param id scryfall ID of the [[Card]] to look for
-   * @return the [[Card]] with the given multiverseid.
-   */
-  def getCard(id: String) = inventory(id)
-
   /** @return a list containing each currently-selected card in the inventory table */
   def getSelectedCards = selectedList.flatMap((l) => selectedTable.map(t => t.getSelectedRows.map((r) => l(t.convertRowIndexToModel(r))).toSeq)).getOrElse(Seq.empty)
 
@@ -1315,7 +1303,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    * Check whether or not the inventory has a selection.
    * @return true if the inventory has a selection, and false otherwise
    */
-  def hasSelectedCards = selectedList.fold(false)(_ == inventory)
+  def hasSelectedCards = selectedList.fold(false)(_ == Inventory)
 
   /**
    * Load the inventory and initialize the inventory table.
@@ -1324,14 +1312,14 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   def loadInventory() = {
     setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR))
     val data = InventoryLoader.loadInventory(this, SettingsDialog.settings.inventory.inventoryFile)
-    inventory = data.inventory
+    Inventory.cards = data.inventory
     Expansion.expansions = data.expansions.toArray
     CardAttribute.Supertype.options = data.supertypes.toArray
     CardAttribute.CardType.options = data.types
     CardAttribute.Subtype.options = data.subtypes.toArray
     SettingsDialog.inventoryWarnings = data.warnings
 
-    inventoryModel.list = inventory
+    inventoryModel.list = Inventory
     inventoryModel.columns = SettingsDialog.settings.inventory.columns
     setCursor(Cursor.getDefaultCursor)
     System.gc()

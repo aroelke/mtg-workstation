@@ -2,6 +2,7 @@ package editor.collection.`export`
 
 import com.mdimension.jchronic.Chronic
 import editor.collection.CardList
+import editor.collection.immutable.Inventory
 import editor.collection.mutable.Deck
 import editor.database.card.CardFormat
 import editor.gui.MainFrame
@@ -55,7 +56,7 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
     IterableReader(source).foreach((line) => {
       try {
         val trimmed = line.trim.toLowerCase
-        var possibilities = MainFrame.inventory.filter((e) => trimmed.contains(e.card.name.toLowerCase) || e.card.faces.exists((f) => trimmed.contains(f.name.toLowerCase)))
+        var possibilities = Inventory.filter((e) => trimmed.contains(e.card.name.toLowerCase) || e.card.faces.exists((f) => trimmed.contains(f.name.toLowerCase)))
         if (possibilities.isEmpty)
           throw ParseException(s"Can't parse card name from \"${line.trim}\"", 0)
 

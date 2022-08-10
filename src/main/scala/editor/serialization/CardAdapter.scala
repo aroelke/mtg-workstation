@@ -7,6 +7,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
+import editor.collection.immutable.Inventory
 import editor.database.card.Card
 import editor.gui.MainFrame
 
@@ -23,10 +24,10 @@ import java.lang.reflect.Type
 class CardAdapter extends JsonSerializer[Card] with JsonDeserializer[Card] {
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
     if (json.getAsJsonObject.has("scryfallid"))
-      MainFrame.inventory(json.getAsJsonObject.get("scryfallid").getAsString).card
+      Inventory(json.getAsJsonObject.get("scryfallid").getAsString).card
     else {
       val multiverseid = json.getAsJsonObject.get("multiverseid").getAsInt
-      MainFrame.inventory.find(_.card.faces.exists(_.multiverseid == multiverseid)).getOrElse(throw JsonParseException(s"no card with multiverseid $multiverseid exists")).card
+      Inventory.find(_.card.faces.exists(_.multiverseid == multiverseid)).getOrElse(throw JsonParseException(s"no card with multiverseid $multiverseid exists")).card
     }
   }
 

@@ -173,7 +173,7 @@ object InventoryLoader {
  * @param warnings list of warnings that occurred while loading
  */
 case class LoadedData(
-  inventory: Inventory = Inventory(),
+  inventory: IndexedSeq[Card] = IndexedSeq.empty,
   expansions: Seq[Expansion] = Seq.empty,
   supertypes: Seq[String] = Seq.empty,
   types: Seq[String] = Seq.empty,
@@ -526,7 +526,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       }
 
       LoadedData(
-        Inventory(cards.toSet.toIndexedSeq.sortWith((a, b) => CardAttribute.Name.comparingEntry.compare(CardListEntry(a), CardListEntry(b)) < 0)),
+        cards.toSet.toIndexedSeq.sortWith((a, b) => CardAttribute.Name.comparingEntry.compare(CardListEntry(a), CardListEntry(b)) < 0),
         expansions.toSeq.sorted,
         allSupertypes.values.toSeq.sorted,
         allTypes.values.toSeq.sorted,
@@ -539,7 +539,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       publish("Processing tags...")
       val tk = new TypeToken[java.util.Map[String, java.util.Set[String]]] {}
       val raw = serialization.Serializer.fromJson(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n"), tk.getType).asInstanceOf[java.util.Map[String, java.util.Set[String]]].asScala.map{ case (n, t) => n -> t.asScala.toSet }.toMap
-      CardAttribute.Tags.tags = raw.map{ case (id, tags) => data.inventory(id).card -> collection.mutable.Set.from(tags) }
+      CardAttribute.Tags.tags = raw.flatMap{ case (id, tags) => data.inventory.find(_.scryfallid == id).map(_ -> collection.mutable.Set.from(tags)) }
     }
 
     data

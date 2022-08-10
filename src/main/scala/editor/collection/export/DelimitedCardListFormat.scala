@@ -2,6 +2,7 @@ package editor.collection.`export`
 
 import com.mdimension.jchronic.Chronic
 import editor.collection.CardList
+import editor.collection.immutable.Inventory
 import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
@@ -108,7 +109,7 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute[?, ?]
       } else {
         try {
           val cells = split(delimiter, line.replace(Escape*2, Escape))
-          val possibilities = MainFrame.inventory
+          val possibilities = Inventory
               .filter(_.card.name.equalsIgnoreCase(cells(name)))
               .filter(expansion < 0 || _.card.expansion.name.equalsIgnoreCase(cells(expansion)))
               .filter(number < 0 || _.card.faces.map(_.number).mkString(Card.FaceSeparator) == cells(number))
