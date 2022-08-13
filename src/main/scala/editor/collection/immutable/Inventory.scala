@@ -43,6 +43,9 @@ object Inventory extends CardList {
   /** @return true if there is a card with the given Scryfall ID, even if it's filtered out, and false otherwise. */
   def contains(id: String) = ids.contains(id)
 
+  /** @return the unfiltered list of cards in the inventory. */
+  def cards = list
+
   /**
    * Update the cards present in the inventory. Also updates the contents of the filtered view.
    * @param l new list of cards to use

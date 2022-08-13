@@ -157,7 +157,7 @@ case object UpdateCancelled extends UpdateStatus
  * @author Alec Roelke
  */
 object MainFrame {
-  /** Ratio of card width to height. */
+  /** Initial ratio of space allocated for card image to inventory table in left pane. */
   val DefaultCardHeight = 1.0/3.0
   /** Maximum height of a filter panel before a scroll bar is activated. */
   val MaxFilterHeight = 300
