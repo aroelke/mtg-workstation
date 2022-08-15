@@ -1,5 +1,7 @@
 package editor.util
 
+import editor.unicode._
+
 object Comparison {
   def valueOf(op: Char) = values.find(_.operation == op).getOrElse(throw IllegalArgumentException(s"unknown comparison $op"))
 }
@@ -29,13 +31,13 @@ enum Comparison(private val operation: Char, comparison: (Int) => Boolean) {
   /** Evaluates to true if both values are equal. */
   case EQ extends Comparison('=', _ == 0)
   /** Evaluates to true if the values are equal or the first is greater. */
-  case GE extends Comparison(UnicodeSymbols.GreaterOrEqual, _ >= 0)
+  case GE extends Comparison(GreaterOrEqual, _ >= 0)
   /** Evaluates to true if the first value is greater. */
   case GT extends Comparison('>', _ > 0)
   /** Evaluates to true if the first value is less or both are equal. */
-  case LE extends Comparison(UnicodeSymbols.LessOrEqual, _ <= 0)
+  case LE extends Comparison(LessOrEqual, _ <= 0)
   /** Evaluates to true if the first value is less. */
   case LT extends Comparison('<', _ < 0)
   /** Evaluates to true if the two values are not equal. */
-  case NE extends Comparison(UnicodeSymbols.NotEqual, _ != 0)
+  case NE extends Comparison(NotEqual, _ != 0)
 }

@@ -10,7 +10,7 @@ import editor.database.card.Card
 import editor.database.symbol.ManaSymbolInstances.ColorSymbol
 import editor.gui.generic.ComponentUtils
 import editor.gui.settings.SettingsDialog
-import editor.util.UnicodeSymbols
+import editor.unicode._
 
 import java.awt.BorderLayout
 import java.awt.Dimension
@@ -155,7 +155,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
   // Click on a list element to show why it is illegal
   illegalList.addListSelectionListener(_ => {
     if (illegalList.getSelectedIndex >= 0)
-      warningsList.setListData(warnings(illegalList.getSelectedValue).map((s) => s"${UnicodeSymbols.Bullet} $s").toArray)
+      warningsList.setListData(warnings(illegalList.getSelectedValue).map((s) => s"$Bullet $s").toArray)
     else
       warningsList.setListData(Array.empty[String])
   })

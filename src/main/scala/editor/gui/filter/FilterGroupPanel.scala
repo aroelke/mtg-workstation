@@ -4,7 +4,7 @@ import _root_.editor.filter.Filter
 import _root_.editor.filter.FilterGroup
 import _root_.editor.filter.leaf.FilterLeaf
 import _root_.editor.gui.generic.ChangeTitleListener
-import _root_.editor.util.UnicodeSymbols
+import _root_.editor.unicode._
 
 import java.awt.BorderLayout
 import java.awt.FlowLayout
@@ -83,7 +83,7 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     firePanelsChanged()
   })
   editPanel.add(addButton)
-  private val removeButton = JButton(UnicodeSymbols.Minus.toString)
+  private val removeButton = JButton(Minus.toString)
   removeButton.addActionListener(_ => {
     group.map((g) => {
       g -= this
@@ -95,7 +95,7 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     })
   })
   editPanel.add(removeButton)
-  private val groupButton = JButton(UnicodeSymbols.Ellipsis.toString)
+  private val groupButton = JButton(Ellipsis.toString)
   groupButton.addActionListener(_ => {
     group.map(_.engroup(this)).getOrElse({
       val newGroup = FilterGroupPanel()

@@ -25,7 +25,7 @@ import _root_.editor.gui.filter.FilterSelectorPanel
 import _root_.editor.gui.filter.editor._
 import _root_.editor.gui.generic.ComponentUtils
 import _root_.editor.gui.generic.SpinnerCellEditor
-import _root_.editor.util.UnicodeSymbols
+import _root_.editor.unicode._
 
 import java.awt.Color
 import java.awt.Graphics
@@ -458,7 +458,7 @@ object ElementAttribute {
       }
       panel
     }
-    override def tooltip(value: Set[Categorization]) = s"""Categories:${value.map((c) => s"<br>${UnicodeSymbols.Bullet} ${c.name}").toSeq.sorted.mkString}"""
+    override def tooltip(value: Set[Categorization]) = s"""Categories:${value.map((c) => s"<br>$Bullet ${c.name}").toSeq.sorted.mkString}"""
     override def cellEditor(editor: Option[EditorFrame]) = editor.map(InclusionCellEditor(_))
   }
 

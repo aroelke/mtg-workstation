@@ -1,6 +1,6 @@
 package editor.database.attributes
 
-import editor.util.UnicodeSymbols
+import editor.unicode._
 
 import scala.collection.AbstractIterable
 import scala.collection.immutable.ListSet
@@ -56,5 +56,5 @@ final case class TypeLine(types: ListSet[String], subtypes: ListSet[String] = Li
       subtypes.mkString.compareToIgnoreCase(that.subtypes.mkString)
   }
 
-  override lazy val toString = s"""${if (supertypes.isEmpty) "" else supertypes.mkString("", " ", " ")}${types.mkString(" ")}${if (subtypes.isEmpty) "" else subtypes.mkString(s" ${UnicodeSymbols.EmDash} ", " ", "")}"""
+  override lazy val toString = s"""${if (supertypes.isEmpty) "" else supertypes.mkString("", " ", " ")}${types.mkString(" ")}${if (subtypes.isEmpty) "" else subtypes.mkString(s" $EmDash ", " ", "")}"""
 }

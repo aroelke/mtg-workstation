@@ -31,11 +31,11 @@ import editor.gui.settings.Settings
 import editor.gui.settings.SettingsDialog
 import editor.gui.settings.SettingsObserver
 import editor.stats
+import editor.unicode._
 import editor.util.MouseListenerFactory
 import editor.util.PopupMenuListenerFactory
 import editor.util.StringUtils
 import editor.util.UndoableAction
-import editor.util.UnicodeSymbols
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.axis.CategoryAxis
@@ -611,9 +611,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   mainDeckPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED))
   mainPanel.add(mainDeckPane, BorderLayout.CENTER)
 
-  private val deckButtons = VerticalButtonList(Seq("+", UnicodeSymbols.Minus.toString, "X"))
+  private val deckButtons = VerticalButtonList(Seq("+", Minus.toString, "X"))
   deckButtons("+").addActionListener(_ => deck ++= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
-  deckButtons(UnicodeSymbols.Minus.toString).addActionListener(_ => deck --= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
+  deckButtons(Minus.toString).addActionListener(_ => deck --= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
   deckButtons("X").addActionListener(_ => deck --= parent.getSelectedCards.map((e) => CardListEntry(e.card, Int.MaxValue)))
   mainPanel.add(deckButtons, BorderLayout.WEST)
 
@@ -625,9 +625,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   extrasPanel.setLayout(BorderLayout())
   southPanel.add(extrasPanel, "extras")
 
-  private val extrasButtons = VerticalButtonList(Seq("+", UnicodeSymbols.Minus.toString, "X"))
+  private val extrasButtons = VerticalButtonList(Seq("+", Minus.toString, "X"))
   extrasButtons("+").addActionListener(_ => sideboard ++= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
-  extrasButtons(UnicodeSymbols.Minus.toString).addActionListener(_ => sideboard --= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
+  extrasButtons(Minus.toString).addActionListener(_ => sideboard --= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
   extrasButtons("X").addActionListener(_ => sideboard --= parent.getSelectedCards.map((e) => CardListEntry(e.card, Int.MaxValue)))
   extrasPanel.add(extrasButtons, BorderLayout.WEST)
 
@@ -792,9 +792,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }))
   categoriesPane.setComponentPopupMenu(categoriesMenu)
 
-  private val categoryButtons = VerticalButtonList(Seq("+", UnicodeSymbols.Minus.toString, "X"))
+  private val categoryButtons = VerticalButtonList(Seq("+", Minus.toString, "X"))
   categoryButtons("+").addActionListener(_ => deck ++= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
-  categoryButtons(UnicodeSymbols.Minus.toString).addActionListener(_ => deck --= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
+  categoryButtons(Minus.toString).addActionListener(_ => deck --= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
   categoryButtons("X").addActionListener(_ => deck --= parent.getSelectedCards.map((e) => CardListEntry(e.card, Int.MaxValue)))
   categoriesPanel.add(categoryButtons, BorderLayout.WEST)
 

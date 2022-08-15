@@ -1,12 +1,12 @@
-package editor.util
+package editor
 
 import java.text.Normalizer
 
 /**
- * Collection of constants naming various Unicode symbols used in the application.
+ * Collection of constants naming various Unicode symbols used in the application and functions for converting to ASCII text.
  * @author Alec Roelke
  */
-object UnicodeSymbols {
+package object unicode {
   val Substitute = '\u001A'
   val SuperscriptTwo = '\u00B2'
   val OneHalf = '\u00BD'

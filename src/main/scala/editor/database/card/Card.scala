@@ -8,7 +8,7 @@ import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
 import editor.database.attributes.TypeLine
-import editor.util.UnicodeSymbols
+import editor.unicode
 
 import java.text.Collator
 import java.util.Date
@@ -61,7 +61,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def apply(i: Int) = faces(i)
 
   /** Card name with special characters changed to ASCII equivalents for searchability. @see [[Card.name]] */
-  lazy val normalizedName = faces.map(f => UnicodeSymbols.normalize(f.name))
+  lazy val normalizedName = faces.map(f => unicode.normalize(f.name))
 
   /** Name of the entity represented by a legendary card, or just the card name if it's not legendary. */
   lazy val legendName = {
@@ -96,7 +96,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   lazy val normalizedOracle = {
     val texts = new collection.mutable.ArrayBuffer[String](oracleText.size)
     for (i <- 0 until faces.size) {
-      var normal = UnicodeSymbols.normalize(faces(i).oracleText.toLowerCase)
+      var normal = unicode.normalize(faces(i).oracleText.toLowerCase)
       normal = normal.replace(legendName(i), This).replace(normalizedName(i), This)
       texts += normal
     }
@@ -104,10 +104,10 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   }
 
   /** Printed text with special characters converted to ASCII equivalents for searchability. @see [[Card.printedText]] */
-  lazy val normalizedPrinted = faces.map((f) => UnicodeSymbols.normalize(f.printedText))
+  lazy val normalizedPrinted = faces.map((f) => unicode.normalize(f.printedText))
 
   /** Flavor text with special characters converted to ASCII equivalents for searchability. @see [[Card.flavorText]] */
-  lazy val normalizedFlavor = faces.map((f) => UnicodeSymbols.normalize(f.flavorText))
+  lazy val normalizedFlavor = faces.map((f) => unicode.normalize(f.flavorText))
 
   /** Whether or not the card ignores the restriction on the number allowed in a deck. */
   lazy val ignoreCountRestriction = supertypes.exists(_.equalsIgnoreCase("basic")) || faces.exists(_.oracleText.toLowerCase.contains("a deck can have any number"))

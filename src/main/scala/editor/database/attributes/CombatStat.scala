@@ -1,6 +1,6 @@
 package editor.database.attributes
 
-import editor.util.UnicodeSymbols
+import editor.unicode._
 
 /**
  * A creature's power or toughness value on a card. Sometimes power and/or toughness is determined using an expression,
@@ -49,10 +49,10 @@ object CombatStat {
   def apply(expression: String): CombatStat = {
     val e = expression.replaceAll("\\s+", "")
     val value = {
-      val x = e.replaceAll(s"[*?${UnicodeSymbols.SuperscriptTwo}]+", "").replaceAll("[+-]$", "").replace(UnicodeSymbols.OneHalf.toString, ".5")
+      val x = e.replaceAll(s"[*?$SuperscriptTwo]+", "").replaceAll("[+-]$", "").replace(OneHalf.toString, ".5")
       if (x.isEmpty)
         0
-      else if (x == UnicodeSymbols.Infinity.toString)
+      else if (x == Infinity.toString)
         Double.PositiveInfinity
       else
         x.toDouble

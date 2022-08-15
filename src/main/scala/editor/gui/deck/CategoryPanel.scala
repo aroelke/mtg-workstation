@@ -3,6 +3,7 @@ package editor.gui.deck
 import editor.collection.CardListEntry
 import editor.collection.mutable.Deck
 import editor.database.card.Card
+import editor.gui.ElementAttribute
 import editor.gui.display.CardTable
 import editor.gui.display.CardTableModel
 import editor.gui.generic.ColorButton
@@ -10,8 +11,8 @@ import editor.gui.generic.ComponentUtils
 import editor.gui.settings.Settings
 import editor.gui.settings.SettingsDialog
 import editor.gui.settings.SettingsObserver
+import editor.unicode._
 import editor.util.StringUtils
-import editor.util.UnicodeSymbols
 
 import java.awt.BorderLayout
 import java.awt.Color
@@ -39,7 +40,6 @@ import javax.swing.SwingUtilities
 import javax.swing.Timer
 import javax.swing.event.MouseInputAdapter
 import scala.collection.immutable.ListMap
-import editor.gui.ElementAttribute
 
 /**
  * A panel displaying information about a deck category.  In addition to the cards contained by the category,
@@ -127,9 +127,9 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   buttonPanel.add(rankBox)
   val colorButton = ColorButton(deck.categories(name).categorization.color)
   buttonPanel.add(colorButton)
-  val editButton = JButton(UnicodeSymbols.Ellipsis.toString)
+  val editButton = JButton(Ellipsis.toString)
   buttonPanel.add(editButton)
-  val removeButton = JButton(UnicodeSymbols.Minus.toString)
+  val removeButton = JButton(Minus.toString)
   buttonPanel.add(removeButton)
   topPanel.add(buttonPanel, BorderLayout.EAST)
 

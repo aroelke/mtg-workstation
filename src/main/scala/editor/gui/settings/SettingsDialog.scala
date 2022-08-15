@@ -15,7 +15,7 @@ import editor.gui.generic.ComponentUtils
 import editor.gui.generic.ScrollablePanel
 import editor.gui.generic.VerticalButtonList
 import editor.serialization
-import editor.util.UnicodeSymbols
+import editor.unicode._
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.axis.CategoryAxis
@@ -166,7 +166,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   inventoryChooser.setAcceptAllFileFilterUsed(false)
   inventoryDirPanel.add(inventoryDirField)
   inventoryDirPanel.add(Box.createHorizontalStrut(5))
-  private val inventoryDirButton = JButton(UnicodeSymbols.Ellipsis.toString)
+  private val inventoryDirButton = JButton(Ellipsis.toString)
   inventoryDirButton.addActionListener((e) => {
     if (inventoryChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION) {
       val f = relativize(inventoryChooser.getSelectedFile)
@@ -189,7 +189,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   scansChooser.setAcceptAllFileFilterUsed(false)
   scansDirPanel.add(scansDirField)
   scansDirPanel.add(Box.createHorizontalStrut(5))
-  private val scansDirButton = JButton(UnicodeSymbols.Ellipsis.toString)
+  private val scansDirButton = JButton(Ellipsis.toString)
   scansDirButton.addActionListener((e) => {
     if (scansChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION) {
       val f = relativize(scansChooser.getSelectedFile)
@@ -353,16 +353,16 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   categoriesPanel.add(JScrollPane(categoriesList), BorderLayout.CENTER)
 
   // Categorization modification buttons
-  private val categoryModPanel = VerticalButtonList(Seq("+", UnicodeSymbols.Ellipsis.toString, UnicodeSymbols.Minus.toString))
+  private val categoryModPanel = VerticalButtonList(Seq("+", Ellipsis.toString, Minus.toString))
   categoryModPanel("+").addActionListener((e) => CategoryEditorPanel.showCategoryEditor(this).foreach(categoriesList.addCategory(_)))
-  categoryModPanel(UnicodeSymbols.Ellipsis.toString).addActionListener((e) => {
+  categoryModPanel(Ellipsis.toString).addActionListener((e) => {
     if (categoriesList.getSelectedIndex >= 0) {
       CategoryEditorPanel.showCategoryEditor(this, Option(categoriesList.categories(categoriesList.getSelectedIndex))).foreach((s) => {
         categoriesList.setCategoryAt(categoriesList.getSelectedIndex, s)
       })
     }
   })
-  categoryModPanel(UnicodeSymbols.Minus.toString).addActionListener((e) => {
+  categoryModPanel(Minus.toString).addActionListener((e) => {
     if (categoriesList.getSelectedIndex >= 0)
       categoriesList.removeCategoryAt(categoriesList.getSelectedIndex)
   })

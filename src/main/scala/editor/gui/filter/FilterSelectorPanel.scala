@@ -10,8 +10,8 @@ import _root_.editor.gui.ElementAttribute
 import _root_.editor.gui.filter.editor.FilterEditorPanel
 import _root_.editor.gui.filter.editor._
 import _root_.editor.gui.generic.ComboBoxPanel
+import _root_.editor.unicode._
 import _root_.editor.util.MouseListenerFactory
-import _root_.editor.util.UnicodeSymbols
 
 import javax.swing.Box
 import javax.swing.BoxLayout
@@ -83,7 +83,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   add(Box.createHorizontalStrut(1))
 
   // Button to remove this from the form
-  private val removeButton = JButton(UnicodeSymbols.Minus.toString)
+  private val removeButton = JButton(Minus.toString)
   removeButton.addActionListener(_ => group.foreach((g) => {
     g -= this
     firePanelsChanged()
@@ -91,7 +91,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   add(removeButton)
 
   // Button to create a new group with this in it
-  private val groupButton = JButton(UnicodeSymbols.Ellipsis.toString)
+  private val groupButton = JButton(Ellipsis.toString)
   groupButton.addActionListener(_ => group.foreach((g) => {
     g.engroup(this)
     firePanelsChanged()

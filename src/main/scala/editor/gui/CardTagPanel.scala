@@ -5,8 +5,8 @@ import _root_.editor.database.card.Card
 import _root_.editor.gui.generic.ScrollablePanel
 import _root_.editor.gui.generic.TristateCheckBox
 import _root_.editor.gui.generic.TristateCheckBoxState
+import _root_.editor.unicode._
 import _root_.editor.util.MouseListenerFactory
-import _root_.editor.util.UnicodeSymbols
 
 import java.awt.BorderLayout
 import java.awt.Color
@@ -118,7 +118,7 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
         tagPanel.add(tagBox, BorderLayout.WEST)
         tagBoxes += tagBox
 
-        val deleteButton = JLabel(s"${UnicodeSymbols.Minus} ")
+        val deleteButton = JLabel(s"$Minus ")
         deleteButton.setForeground(Color.RED)
         deleteButton.addMouseListener(MouseListenerFactory.createMouseListener(pressed = _ => removeTag(tag)))
         tagPanel.add(deleteButton, BorderLayout.EAST)
