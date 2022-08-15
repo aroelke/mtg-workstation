@@ -11,7 +11,7 @@ import editor.database.attributes.TypeLine
 import editor.database.symbol.FunctionalSymbol
 import editor.database.symbol.Symbol
 import editor.gui.generic.ComponentUtils
-import editor.unicode._
+import editor.unicode.{_, given}
 
 import java.util.Date
 import javax.swing.text.BadLocationException
@@ -110,7 +110,7 @@ case class SingleCard(
         for (color <- colors) {
           val indicatorStyle = document.addStyle("indicator", document.getStyle("text"))
           color.color.foreach(StyleConstants.setForeground(indicatorStyle, _))
-          document.insertString(document.getLength, Bullet.toString, indicatorStyle)
+          document.insertString(document.getLength, Bullet, indicatorStyle)
         }
         if (!colors.isEmpty)
           document.insertString(document.getLength, " ", textStyle)
@@ -173,7 +173,7 @@ case class SingleCard(
               }
               if (abilities(i) == '}')
                 start += 1
-            case EmDash =>
+            case EmDash.toChar =>
               document.insertString(document.getLength, abilities.substring(start, i), style)
               style = textStyle
               start = i

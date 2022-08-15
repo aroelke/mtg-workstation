@@ -9,7 +9,7 @@ import editor.database.card.Card
 import editor.database.card.CardFormat
 import editor.gui.MainFrame
 import editor.gui.deck.DeckSerializer
-import editor.unicode._
+import editor.unicode.{_, given}
 import editor.util.IterableReader
 
 import java.io.InputStream
@@ -74,8 +74,8 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute[?, ?]
     val columnFormats = attributes.map((a) => CardFormat(s"{$a}".toLowerCase))
     list.map((e) => {
       columnFormats.map((format) => {
-        val value = format.format(e).replace(Escape, Substitute.toString)
-        (if (value.contains(delimiter)) s"$Escape${value.replace(Escape, Escape*2)}$Escape" else value).replace(Substitute.toString, Escape*2)
+        val value = format.format(e).replace(Escape.toString, Substitute)
+        (if (value.contains(delimiter)) s"$Escape${value.replace(Escape, Escape*2)}$Escape" else value).replace(Substitute, Escape*2)
       }).mkString(delimiter)
     }).mkString(System.lineSeparator)
   }

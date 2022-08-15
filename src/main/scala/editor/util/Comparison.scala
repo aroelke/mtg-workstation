@@ -1,6 +1,6 @@
 package editor.util
 
-import editor.unicode._
+import editor.unicode.{_, given}
 
 object Comparison {
   def valueOf(op: Char) = values.find(_.operation == op).getOrElse(throw IllegalArgumentException(s"unknown comparison $op"))

@@ -11,7 +11,7 @@ import editor.gui.generic.ComponentUtils
 import editor.gui.settings.Settings
 import editor.gui.settings.SettingsDialog
 import editor.gui.settings.SettingsObserver
-import editor.unicode._
+import editor.unicode.{_, given}
 import editor.util.StringUtils
 
 import java.awt.BorderLayout
@@ -127,9 +127,9 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   buttonPanel.add(rankBox)
   val colorButton = ColorButton(deck.categories(name).categorization.color)
   buttonPanel.add(colorButton)
-  val editButton = JButton(Ellipsis.toString)
+  val editButton = JButton(Ellipsis)
   buttonPanel.add(editButton)
-  val removeButton = JButton(Minus.toString)
+  val removeButton = JButton(Minus)
   buttonPanel.add(removeButton)
   topPanel.add(buttonPanel, BorderLayout.EAST)
 

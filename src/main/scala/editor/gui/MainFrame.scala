@@ -44,7 +44,7 @@ import _root_.editor.gui.inventory.InventoryLoader
 import _root_.editor.gui.settings.Settings
 import _root_.editor.gui.settings.SettingsDialog
 import _root_.editor.gui.settings.SettingsObserver
-import _root_.editor.unicode._
+import _root_.editor.unicode.{_, given}
 import _root_.editor.util.MenuListenerFactory
 import _root_.editor.util.MouseListenerFactory
 import _root_.editor.util.PopupMenuListenerFactory
@@ -319,7 +319,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           val headersPane = JScrollPane(headersList)
           val headersPanel = Box(BoxLayout.X_AXIS)
           headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"))
-          val rearrangeButtons = VerticalButtonList(Seq(UpArrow.toString, DownArrow.toString))
+          val rearrangeButtons = VerticalButtonList(Seq(UpArrow, DownArrow))
           rearrangeButtons.foreach(_.setEnabled(!includeCheckBox.isSelected))
           headersPanel.add(rearrangeButtons)
           headersPanel.add(Box.createHorizontalStrut(5))
@@ -335,13 +335,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               override def getPreferredSize = headersPane.getPreferredSize
           })
           headersPanel.add(Box.createHorizontalStrut(5))
-          val moveButtons = VerticalButtonList(Seq(LeftArrow.toString, RightArrow.toString))
+          val moveButtons = VerticalButtonList(Seq(LeftArrow, RightArrow))
           moveButtons.foreach(_.setEnabled(!includeCheckBox.isSelected))
           headersPanel.add(moveButtons)
           headersPanel.add(Box.createHorizontalStrut(5))
           headersPanel.add(headersPane)
           dataPanel.add(headersPanel, BorderLayout.CENTER)
-          rearrangeButtons(UpArrow.toString).addActionListener(_ => {
+          rearrangeButtons(UpArrow).addActionListener(_ => {
             val selected = selectedHeadersList.getSelectedValuesList.asScala
             var ignore = 0
             for (index <- selectedHeadersList.getSelectedIndices) {
@@ -356,7 +356,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             selectedHeadersList.clearSelection()
             selected.map(selectedHeadersModel.indexOf).foreach((i) => selectedHeadersList.addSelectionInterval(i, i))
           })
-          rearrangeButtons(DownArrow.toString).addActionListener(_ => {
+          rearrangeButtons(DownArrow).addActionListener(_ => {
             val selected = selectedHeadersList.getSelectedValuesList.asScala
             val indices = selectedHeadersList.getSelectedIndices.reverse
             var ignore = selectedHeadersModel.size() - 1
@@ -372,13 +372,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             selectedHeadersList.clearSelection()
             selected.map(selectedHeadersModel.indexOf).foreach((i) => selectedHeadersList.addSelectionInterval(i, i))
           })
-          moveButtons(LeftArrow.toString).addActionListener(_ => {
+          moveButtons(LeftArrow).addActionListener(_ => {
             for (selected <- headersList.getSelectedValuesList.asScala)
               if (!selectedHeadersModel.contains(selected))
                 selectedHeadersModel.addElement(selected)
             headersList.clearSelection()
           })
-          moveButtons(RightArrow.toString).addActionListener(_ => selectedHeadersList.getSelectedValuesList.asScala.foreach(selectedHeadersModel.removeElement(_)))
+          moveButtons(RightArrow).addActionListener(_ => selectedHeadersList.getSelectedValuesList.asScala.foreach(selectedHeadersModel.removeElement(_)))
           includeCheckBox.addActionListener(_ => {
             headersList.setEnabled(!includeCheckBox.isSelected)
             selectedHeadersList.setEnabled(!includeCheckBox.isSelected)
@@ -558,7 +558,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             val headersPane = JScrollPane(headersList)
             val headersPanel = Box(BoxLayout.X_AXIS)
             headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"))
-            val rearrangeButtons = VerticalButtonList(Seq(UpArrow.toString, DownArrow.toString))
+            val rearrangeButtons = VerticalButtonList(Seq(UpArrow, DownArrow))
             headersPanel.add(rearrangeButtons)
             headersPanel.add(Box.createHorizontalStrut(5))
             val selectedHeadersModel = DefaultListModel[CardAttribute[?, ?]]()
@@ -572,13 +572,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               override def getPreferredSize = headersPane.getPreferredSize
             })
             headersPanel.add(Box.createHorizontalStrut(5))
-            val moveButtons = VerticalButtonList(Seq(LeftArrow.toString, RightArrow.toString))
+            val moveButtons = VerticalButtonList(Seq(LeftArrow, RightArrow))
             headersPanel.add(moveButtons)
             headersPanel.add(Box.createHorizontalStrut(5))
             headersPanel.add(headersPane)
             dataPanel.add(headersPanel)
 
-            rearrangeButtons(UpArrow.toString).addActionListener(_ => {
+            rearrangeButtons(UpArrow).addActionListener(_ => {
               val selected = selectedHeadersList.getSelectedValuesList.asScala
               var ignore = 0
               for (index <- selectedHeadersList.getSelectedIndices) {
@@ -593,7 +593,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               selectedHeadersList.clearSelection()
               selected.map(selectedHeadersModel.indexOf).foreach((i) => selectedHeadersList.addSelectionInterval(i, i))
             })
-            rearrangeButtons(DownArrow.toString).addActionListener(_ => {
+            rearrangeButtons(DownArrow).addActionListener(_ => {
               val selected = selectedHeadersList.getSelectedValuesList.asScala
               val indices = selectedHeadersList.getSelectedIndices.reverse
               var ignore = selectedHeadersModel.size - 1
@@ -609,13 +609,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               selectedHeadersList.clearSelection()
               selected.map(selectedHeadersModel.indexOf).foreach((i) => selectedHeadersList.addSelectionInterval(i, i))
             })
-            moveButtons(LeftArrow.toString).addActionListener(_ => {
+            moveButtons(LeftArrow).addActionListener(_ => {
               for (selected <- headersList.getSelectedValuesList.asScala)
                 if (!selectedHeadersModel.contains(selected))
                   selectedHeadersModel.addElement(selected)
               headersList.clearSelection()
             })
-            moveButtons(RightArrow.toString).addActionListener(_ => {
+            moveButtons(RightArrow).addActionListener(_ => {
               selectedHeadersList.getSelectedValuesList.asScala.foreach(selectedHeadersModel.removeElement(_))
             })
 

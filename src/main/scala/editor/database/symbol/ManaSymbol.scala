@@ -1,7 +1,7 @@
 package editor.database.symbol
 
 import editor.database.attributes.ManaType
-import editor.unicode._
+import editor.unicode.{_, given}
 
 /**
  * Companion to [[ManaSymbol]] containing methods for parsing them from strings and other utility.
@@ -66,8 +66,8 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
   case StaticSymbol extends ManaSymbolInstances(
     map = Map(
       "1/2" -> new StaticSymbol("half_mana.png", "1/2", 0.5),
-      OneHalf.toString -> new StaticSymbol("half_mana.png", "1/2", 0.5),
-      Infinity.toString -> new StaticSymbol("infinity_mana.png", Infinity.toString, Double.PositiveInfinity),
+      OneHalf -> new StaticSymbol("half_mana.png", "1/2", 0.5),
+      Infinity -> new StaticSymbol("infinity_mana.png", Infinity.toString, Double.PositiveInfinity),
       "S" -> new StaticSymbol("snow_mana.png", "S", 1, 1),
       "M" -> new StaticSymbol("multicolored.png", "M", 0)
     ),

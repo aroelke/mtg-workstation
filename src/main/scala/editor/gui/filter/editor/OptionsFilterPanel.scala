@@ -9,7 +9,7 @@ import editor.gui.filter.FilterSelectorPanel
 import editor.gui.generic.ButtonScrollPane
 import editor.gui.generic.ComboBoxPanel
 import editor.gui.generic.ScrollablePanel
-import editor.unicode._
+import editor.unicode.{_, given}
 import editor.util.Containment
 import editor.util.MouseListenerFactory
 import editor.util.PopupMenuListenerFactory
@@ -120,7 +120,7 @@ class OptionsFilterPanel[T <: AnyRef : ClassTag, F <: OptionsFilter[T, F] : Clas
       this += options(0)
       optionsPanel.revalidate()
     }))
-    val removeButton = JLabel(Multiply.toString, SwingConstants.CENTER)
+    val removeButton = JLabel(Multiply, SwingConstants.CENTER)
     removeButton.setForeground(Color.RED)
     removeButton.setAlignmentX(Component.CENTER_ALIGNMENT)
     removeButton.setFont(buttonFont)
