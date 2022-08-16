@@ -50,7 +50,7 @@ sealed trait CardAttribute[T : ClassTag, F <: FilterLeaf](name: String, val desc
   def comparingCard: Ordering[Card] = (a: Card, b: Card) => compare(apply(a), apply(b))
 
   /** @return the type of data represented by the attribute. */
-  def dataType = implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
+  def dataType = summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
 
   /** @return the index of this attribute in the list of attributes. */
   def ordinal = CardAttribute.values.indexOf(this)
@@ -76,7 +76,7 @@ sealed trait IsVirtualAttribute { this: CardAttribute[Unit, ?] =>
  * @author Alec Roelke
  */
 sealed trait ComparesOrdered[T : Ordering] { this: CardAttribute[T, ?] =>
-  override def compare(x: T, y: T) = implicitly[Ordering[T]].compare(x, y)
+  override def compare(x: T, y: T) = summon[Ordering[T]].compare(x, y)
 }
 
 /**
