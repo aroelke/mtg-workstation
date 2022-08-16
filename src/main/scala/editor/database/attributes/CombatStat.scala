@@ -52,7 +52,7 @@ object CombatStat {
       val x = e.replaceAll(s"[*?$SuperscriptTwo]+", "").replaceAll("[+-]$", "").replace(OneHalf, ".5")
       if (x.isEmpty)
         0
-      else if (x == Infinity)
+      else if (Infinity == x)
         Double.PositiveInfinity
       else
         x.toDouble

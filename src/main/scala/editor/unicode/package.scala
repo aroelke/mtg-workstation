@@ -27,11 +27,9 @@ package object unicode {
 
   given Conversion[UnicodeGlyph, Char] = _.toChar
   given CanEqual[UnicodeGlyph, Char] = CanEqual.derived
-  given CanEqual[Char, UnicodeGlyph] = CanEqual.derived
 
   given Conversion[UnicodeGlyph, String] = _.toString
   given CanEqual[UnicodeGlyph, String] = CanEqual.derived
-  given CanEqual[String, UnicodeGlyph] = CanEqual.derived
 
   /**
    * "Normalize" a string to replace special characters with approximately-equvalent ASCII strings, and also convert it to
