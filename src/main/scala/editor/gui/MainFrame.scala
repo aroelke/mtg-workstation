@@ -29,8 +29,6 @@ import _root_.editor.gui.display.CardTableModel
 import _root_.editor.gui.filter.FilterGroupPanel
 import _root_.editor.gui.generic.CardMenuItems
 import _root_.editor.gui.generic.ComponentUtils
-import _root_.editor.gui.generic.DocumentChangeListener
-import _root_.editor.gui.generic.DocumentChangeListener._
 import _root_.editor.gui.generic.OverwriteFileChooser
 import _root_.editor.gui.generic.ScrollablePanel
 import _root_.editor.gui.generic.TableMouseAdapter
@@ -39,6 +37,7 @@ import _root_.editor.gui.generic.TristateCheckBoxState
 import _root_.editor.gui.generic.VerticalButtonList
 import _root_.editor.gui.generic.WizardDialog
 import _root_.editor.gui.generic.WizardResult
+import _root_.editor.gui.generic.given
 import _root_.editor.gui.inventory.InventoryDownloader
 import _root_.editor.gui.inventory.InventoryLoader
 import _root_.editor.gui.settings.Settings

@@ -1,6 +1,6 @@
 package editor.gui.generic
 
-import editor.util.{_, given}
+import editor.util.given
 
 import java.awt.Color
 import java.awt.Graphics
