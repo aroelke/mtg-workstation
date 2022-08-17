@@ -867,7 +867,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   categoryAnalysisPanel.add(analyzeCategoryBox)
   private val analyzeCategoryCombo = JComboBox[String]()
   analyzeCategoryCombo.setEnabled(false)
-  analyzeCategoryCombo.addActionListener(_ => updateStats())
+  analyzeCategoryCombo.addActionListener(_ => if (analyzeCategoryCombo.getItemCount > 0) updateStats())
   categoryAnalysisPanel.add(analyzeCategoryCombo)
   categoryAnalysisPanel.add(Box.createHorizontalGlue)
   analysisConfigPanel.add(categoryAnalysisPanel, BorderLayout.NORTH)
