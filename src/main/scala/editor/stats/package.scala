@@ -39,10 +39,7 @@ package object stats {
   }
 
   /** Add "n choose k" and n! (as n.!) syntax to Int. */
-  implicit class IntToStats(n: Int) {
-    def ! = factorial(n)
-    def choose(k: Int) = nchoosek(n, k)
-  }
+  given Conversion[Int, StatsInt] = StatsInt(_)
 
   /**
    * Compute a hypergeometric distribution, which is the probability of k successes in n draws out of a pool of N items, K of which are successes.
