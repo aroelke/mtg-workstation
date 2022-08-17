@@ -16,8 +16,7 @@ import editor.filter.leaf.OptionsFilter
 import editor.filter.leaf.SingletonOptionsFilter
 import editor.filter.leaf.TextFilter
 import editor.filter.leaf.TypeLineFilter
-import editor.util.OptionOrdering
-import editor.util.SeqOrdering
+import editor.math.{_, given}
 
 import java.text.Collator
 import java.time.LocalDate

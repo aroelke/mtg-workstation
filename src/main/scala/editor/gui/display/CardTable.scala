@@ -10,8 +10,7 @@ import editor.gui.deck.EditorFrame
 import editor.gui.deck.InclusionCellEditor
 import editor.gui.generic.ComponentUtils
 import editor.gui.generic.SpinnerCellEditor
-import editor.util.OptionOrdering
-import editor.util.SeqOrdering
+import editor.math.{_, given}
 
 import java.awt.Color
 import java.awt.Component
@@ -94,10 +93,10 @@ class CardTable(model: TableModel) extends JTable(model) {
 private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[TableModel](model) {
   override def getComparator(column: Int) = model match {
     case m: CardTableModel =>
-      val ascending = getSortKeys.asScala.exists(_.getSortOrder == SortOrder.ASCENDING)
+      given ascending: Boolean = getSortKeys.asScala.exists(_.getSortOrder == SortOrder.ASCENDING)
       m.columns(column) match {
-        case ElementAttribute.PowerElement | ElementAttribute.ToughnessElement => SeqOrdering[Option[CombatStat]](OptionOrdering[CombatStat](ascending))
-        case ElementAttribute.LoyaltyElement => SeqOrdering[Option[Loyalty]](OptionOrdering[Loyalty](ascending))
+        case ElementAttribute.PowerElement | ElementAttribute.ToughnessElement => SeqOrdering[Option[CombatStat]]
+        case ElementAttribute.LoyaltyElement => SeqOrdering[Option[Loyalty]]
         case attribute => attribute.attribute
       }
     case _ => super.getComparator(column)
