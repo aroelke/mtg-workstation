@@ -1,11 +1,11 @@
 package editor.gui.generic
 
+import editor.util.{_, given}
+
 import java.awt.Color
 import java.awt.Graphics
 import javax.swing.JButton
 import scala.util.Random
-
-import RandomWithColors._
 
 /**
  * Button showing a color instead of text or an icon.
@@ -34,22 +34,4 @@ class ColorButton(private var col: Color = Random.nextColor, border: Int = 5) ex
     g.setColor(color)
     g.fillRect(border, border, getWidth - 2*border, getHeight - 2*border)
   }
-}
-
-/**
- * Companion that allows implicit conversion of [[Random]] to [[RandomWithColors]].
- * @author Alec Roelke
- */
-object RandomWithColors {
-  /** Convert a [[Random]] to [[RandomWithColors]] so a random color can be generated with Random.nextColor. */
-  implicit def randomToColors(r: Random): RandomWithColors = new RandomWithColors(r)
-}
-
-/**
- * Conversion class for [[Random]] that allows it to generate a random color.
- * @author Alec Roelke
- */
-class RandomWithColors(r: Random) {
-  /** @return a random color. */
-  def nextColor = Color(r.nextFloat, r.nextFloat, math.sqrt(r.nextFloat).toFloat)
 }
