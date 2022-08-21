@@ -10,6 +10,11 @@ import com.google.gson.JsonSerializer
 import editor.collection.immutable.Inventory
 import editor.database.card.Card
 import editor.gui.MainFrame
+import org.json4s.CustomSerializer
+import org.json4s.JField
+import org.json4s.JInt
+import org.json4s.JObject
+import org.json4s.JString
 
 import java.lang.reflect.Type
 
@@ -21,7 +26,17 @@ import java.lang.reflect.Type
  * 
  * @author Alec Roelke
  */
-class CardAdapter extends JsonSerializer[Card] with JsonDeserializer[Card] {
+class CardAdapter extends CustomSerializer[Card](format => (
+  {
+    case JObject(JField("scryfallid", JString(id)) :: Nil) => Inventory(id).card
+    case JObject(JField("multiverseid", JInt(id)) :: Nil) => Inventory.find(_.card.faces.exists(_.multiverseid == id)).getOrElse(throw IllegalArgumentException(s"no card with multiverseid $id exists")).card
+  },
+  { case card: Card => JObject(
+    JField("scryfallid", JString(card(0).scryfallid)),
+    JField("name", JString(card.name)),
+    JField("expansion", JString(card.expansion.name))
+  ) }
+)) with JsonSerializer[Card] with JsonDeserializer[Card] {
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
     if (json.getAsJsonObject.has("scryfallid"))
       Inventory(json.getAsJsonObject.get("scryfallid").getAsString).card

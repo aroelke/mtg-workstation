@@ -10,6 +10,23 @@ import java.util.NoSuchElementException
 import scala.collection.mutable.Clearable
 import scala.collection.mutable.Growable
 import scala.collection.mutable.Shrinkable
+import scala.annotation.targetName
+
+object Deck {
+  @targetName("apply_entries")
+  def apply(cards: Iterable[CardListEntry] = Seq.empty, categories: Set[Categorization] = Set.empty): Deck = {
+    val deck = new Deck()
+    cards.foreach((c) => deck.add(c.card, c.count, c.dateAdded))
+    deck.categories ++= categories
+    deck
+  }
+
+  @targetName("apply_cards_categories")
+  def apply(cards: Iterable[Card], categories: Set[Categorization]): Deck = apply(cards.map(CardListEntry(_)), categories)
+
+  @targetName("apply_cards")
+  def apply(cards: Iterable[Card]): Deck = apply(cards, Set.empty)
+}
 
 /**
  * A mutable list of [[CardListEntry]]s and collection of categories that can be used to filter them.  Adding duplicates of

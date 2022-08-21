@@ -8,6 +8,8 @@ import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import editor.database.version.DatabaseVersion
+import org.json4s.CustomSerializer
+import org.json4s.JString
 
 import java.lang.reflect.Type
 import java.text.ParseException
@@ -16,7 +18,10 @@ import java.text.ParseException
  * JSON serializer/deserializer for [[DatabaseVersion]]s using the format specified by [[DatabaseVersion.toString]].
  * @author Alec Roelke
  */
-class VersionAdapter extends JsonSerializer[DatabaseVersion] with JsonDeserializer[DatabaseVersion] {
+class VersionAdapter extends CustomSerializer[DatabaseVersion](formats => (
+  { case JString(version) => DatabaseVersion.parseVersion(version) },
+  { case version: DatabaseVersion => JString(version.toString) }
+)) with JsonSerializer[DatabaseVersion] with JsonDeserializer[DatabaseVersion] {
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = try {
     DatabaseVersion.parseVersion(json.getAsString)
   } catch case e: ParseException => throw JsonParseException(e)

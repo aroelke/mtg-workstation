@@ -15,6 +15,18 @@ import java.lang.reflect.Type
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import scala.jdk.CollectionConverters._
+import org.json4s.CustomSerializer
+import org.json4s.JObject
+import org.json4s.JField
+import org.json4s.Extraction
+import org.json4s.JArray
+import org.json4s.JInt
+import org.json4s.JString
+import editor.collection.CardListEntry
+
+object DeckAdapter {
+  private val Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+}
 
 /**
  * JSON serializer/deserializer for [[Deck]]s.  Cards and categories are mapped to "cards" and "categories" keys,
@@ -23,9 +35,24 @@ import scala.jdk.CollectionConverters._
  * 
  * @author Alec Roelke
  */
-class DeckAdapter extends JsonSerializer[Deck] with JsonDeserializer[Deck] {
-  private val Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
+class DeckAdapter extends CustomSerializer[Deck](implicit format => (
+  {
+    case JObject(List(JField("cards", JArray(cards)), JField("categories", JArray(categories)))) =>
+      Deck(cards.map{
+        case JObject(JField("card", card) :: JField("count", JInt(count)) :: JField("date", JString(date)) :: Nil) =>
+          CardListEntry(Extraction.extract[Card](card), count.toInt, LocalDate.parse(date, DeckAdapter.Formatter))
+        case x => throw MatchError(x.toString)
+      }, categories.map(Extraction.extract[Categorization]).toSet)
+  },
+  { case deck: Deck => JObject(
+    JField("cards", JArray(deck.map((e) => JObject(
+      JField("card", Extraction.decompose(e.card)),
+      JField("count", JInt(e.count)),
+      JField("date", JString(e.dateAdded.format(DeckAdapter.Formatter)))
+    )).toList)),
+    JField("categories", JArray(deck.categories.map(Extraction.decompose).toList))
+  ) }
+)) with JsonSerializer[Deck] with JsonDeserializer[Deck] {
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
     val d = Deck()
     val obj = json.getAsJsonObject
@@ -34,7 +61,7 @@ class DeckAdapter extends JsonSerializer[Deck] with JsonDeserializer[Deck] {
       d.add(
         context.deserialize(entry.get("card"), classOf[Card]),
         entry.get("count").getAsInt,
-        LocalDate.parse(entry.get("date").getAsString, Formatter)
+        LocalDate.parse(entry.get("date").getAsString, DeckAdapter.Formatter)
       )
     })
     obj.get("categories").getAsJsonArray.asScala.map((e) => context.deserialize[Categorization](e, classOf[Categorization]) -> e.getAsJsonObject.get("rank").getAsInt).toSeq.sortBy{ case(_, r) => r }.foreach{ case (c, _) => d.categories += c }
@@ -49,7 +76,7 @@ class DeckAdapter extends JsonSerializer[Deck] with JsonDeserializer[Deck] {
       val entry = JsonObject()
       entry.add("card", context.serialize(e.card))
       entry.addProperty("count", e.count)
-      entry.addProperty("date", e.dateAdded.format(Formatter))
+      entry.addProperty("date", e.dateAdded.format(DeckAdapter.Formatter))
       cards.add(entry)
     })
     deck.add("cards", cards)

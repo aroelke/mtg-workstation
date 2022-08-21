@@ -23,12 +23,82 @@ import editor.util.Containment
 
 import java.lang.reflect.Type
 import scala.jdk.CollectionConverters._
+import org.json4s.CustomSerializer
+import org.json4s.JObject
+import org.json4s.JString
+import org.json4s.Extraction
+import org.json4s.JArray
+import org.json4s.JBool
+import org.json4s.JDecimal
+import org.json4s.JField
 
 /**
  * JSON serializer/deserializer for [[Filter]]s using their methods for converting to/from JSON objects.
  * @author Alec Roelke
  */
-class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter] {
+class FilterAdapter extends CustomSerializer[Filter](implicit format => (
+  { case JObject(obj) =>
+    val faces = obj.collect{ case ("faces", JString(faces)) => FaceSearchOptions.valueOf(faces) }.headOption.getOrElse(FaceSearchOptions.ANY)
+    val selected = obj.collect{ case ("selected", JArray(selected)) => selected.collect{ case JString(item) => item }.toSet}.headOption
+    val contain = obj.collect{ case ("contain", JString(contain)) => Containment.parse(contain) }.flatten.headOption
+    obj.collect{ case ("type", json: JObject) => Extraction.extract[CardAttribute[?, ?]](json) }.head match {
+      case CardAttribute.Name => CardAttribute.Name.filter.copy(faces = faces)
+      case CardAttribute.RulesText => CardAttribute.RulesText.filter.copy(faces = faces)
+      case CardAttribute.FlavorText => CardAttribute.FlavorText.filter.copy(faces = faces)
+      case CardAttribute.ManaCost => CardAttribute.ManaCost.filter.copy(faces = faces)
+      case CardAttribute.RealManaValue => CardAttribute.RealManaValue.filter
+      case CardAttribute.EffManaValue => CardAttribute.EffManaValue.filter.copy(faces = faces)
+      case CardAttribute.Colors => CardAttribute.Colors.filter
+      case CardAttribute.ColorIdentity => CardAttribute.ColorIdentity.filter
+      case CardAttribute.TypeLine => CardAttribute.TypeLine.filter.copy(faces = faces)
+      case CardAttribute.PrintedTypes => CardAttribute.PrintedTypes.filter.copy(faces = faces)
+      case CardAttribute.CardType => CardAttribute.CardType.filter.copy(selected = selected.get)
+      case CardAttribute.Subtype => CardAttribute.Subtype.filter.copy(selected = selected.get)
+      case CardAttribute.Supertype => CardAttribute.Supertype.filter.copy(selected = selected.get)
+      case CardAttribute.Power => CardAttribute.Power.filter.copy(faces = faces)
+      case CardAttribute.Toughness => CardAttribute.Toughness.filter.copy(faces = faces)
+      case CardAttribute.Loyalty => CardAttribute.Loyalty.filter.copy(faces = faces)
+      case CardAttribute.Layout => CardAttribute.Layout.filter.copy(selected = selected.get.map((v) => CardLayout.valueOf(v.replace(' ', '_').toUpperCase)))
+      case CardAttribute.Expansion => CardAttribute.Expansion.filter.copy(selected = selected.get.map((v) => Expansion.expansions.find(_.name == v).getOrElse(throw IllegalArgumentException(s"unknown expansion \"$v\""))).toSet)
+      case CardAttribute.Block => CardAttribute.Block.filter.copy(selected = selected.get)
+      case CardAttribute.Rarity => CardAttribute.Rarity.filter.copy(selected = selected.get.map((v) => Rarity.parse(v).getOrElse(Rarity.Unknown)))
+      case CardAttribute.Artist => CardAttribute.Artist.filter.copy(faces = faces)
+      case CardAttribute.CardNumber => CardAttribute.CardNumber.filter.copy(faces = faces)
+      case CardAttribute.LegalIn => CardAttribute.LegalIn.filter.copy(selected = selected.get, restricted = obj.collect{ case ("restricted", JBool(restricted)) => restricted }.head)
+      case CardAttribute.Tags => CardAttribute.Tags.filter.copy(selected = selected.get)
+      case CardAttribute.AnyCard => CardAttribute.AnyCard.filter
+      case CardAttribute.NoCard => CardAttribute.NoCard.filter
+      case CardAttribute.Group => FilterGroup(
+        obj.collect{ case ("children", JArray(children)) => children.map(Extraction.extract[Filter]) }.head,
+        obj.collect{ case ("mode", JString(mode)) => FilterGroup.Mode.values.find(_.toString == mode) }.flatten.headOption.getOrElse(FilterGroup.Mode.And),
+        obj.collect{ case ("comment", JString(comment)) => comment }.headOption.getOrElse("")
+      )
+      case x => throw IllegalArgumentException(s"$x is not a filterable attribute")
+    } match {
+      case t: TextFilter => t.copy(contain = contain.get, regex = obj.collect{ case ("regex", JBool(regex)) => regex }.head, text = obj.collect{ case ("pattern", JString(pattern)) => pattern }.head)
+      case t: TypeLineFilter => t.copy(contain = contain.get, line = obj.collect{ case ("pattern", JString(pattern)) => pattern }.head)
+      case m: ManaCostFilter => m.copy(contain = contain.get, cost = obj.collect{ case ("cost", JString(cost)) => ManaCost.parse(cost).get }.head)
+      case c: ColorFilter =>
+        val colors = obj.collect{ case ("colors", JArray(colors)) => colors.collect{ case JString(color) => ManaType.parse(color).get }}.flatten.toSet
+        c.copy(contain = contain.get, colors = colors, multicolored = obj.collect{ case ("multicolored", JBool(multi)) => multi }.head)
+      case n: NumberFilter => n.copy(operation = obj.collect{ case ("operation", JString(op)) => Comparison.valueOf(op(0)) }.head, operand = obj.collect{ case ("operand", JDecimal(op)) => op.toDouble }.head, varies = n.variable.isDefined && obj.collect{ case ("varies", JBool(varies)) => varies }.head)
+      case s: SingletonOptionsFilter[?] => s.copy(contain = contain.get)
+      case m: MultiOptionsFilter[?] => m.copy(contain = contain.get)
+      case f => f
+    }},
+  { case filter: Filter =>
+    var fields = List(JField("type", JString(filter.attribute.toString)))
+    filter match {
+      case l: FilterLeaf => fields = fields :+ JField("faces", JString(l.faces.toString))
+      case g: FilterGroup =>
+        fields = fields ++ List(
+          JField("mode", JString(g.mode.toString)),
+          JField("comment", JString(g.comment)),
+          JField("children", JArray(g.map(Extraction.decompose).toList))
+        )
+    }
+    JObject(fields) }
+)) with JsonSerializer[Filter] with JsonDeserializer[Filter] {
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
     val obj = json.getAsJsonObject
     val faces = Option(obj.get("faces")).map((f) => FaceSearchOptions.valueOf(f.getAsString)).getOrElse(FaceSearchOptions.ANY)
