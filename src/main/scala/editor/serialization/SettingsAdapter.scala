@@ -106,7 +106,7 @@ class SettingsAdapter extends CustomSerializer[Settings](implicit formats => (
       val mv = editor.collect{ case ("manaValue", JString(mv)) => mv }.headOption.getOrElse(defaults.editor.manaValue)
       val backFaceLands = editor.collect{ case ("backFaceLands", JArray(bfl)) => bfl.map(Extraction.extract[String]).map((l) => CardLayout.values.find(_.toString == l).get).toSet }.headOption.getOrElse(defaults.editor.backFaceLands)
       val manaAnalysisSettings = editor.collect{ case ("manaAnalysis", JObject(manaAnalysis)) =>
-        def extract(key: String, default: => Color) = manaAnalysis.collect{ case (key, color) => Extraction.extract[Color](color) }.headOption.getOrElse(default)
+        def extract(key: String, default: => Color) = manaAnalysis.collect{ case (k, color) if k == key => Extraction.extract[Color](color) }.headOption.getOrElse(default)
         val none = extract("none", defaults.editor.manaAnalysis.none)
         val colorless = extract("colorless", defaults.editor.manaAnalysis.colorless)
         val white = extract("white", defaults.editor.manaAnalysis.white)
@@ -141,7 +141,7 @@ class SettingsAdapter extends CustomSerializer[Settings](implicit formats => (
         manaAnalysisSettings
       )
     }.headOption.getOrElse(defaults.editor)
-    val cwd = obj.collect{ case ("cws", JString(cwd)) => cwd }.headOption.getOrElse(defaults.cwd)
+    val cwd = obj.collect{ case ("cwd", JString(cwd)) => cwd }.headOption.getOrElse(defaults.cwd)
     Settings(inventorySettings, editorSettings, cwd) },
   { case settings: Settings => JObject(List(
     JField("inventory", JObject(List(
