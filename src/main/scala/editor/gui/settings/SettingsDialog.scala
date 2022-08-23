@@ -15,6 +15,7 @@ import editor.gui.generic.ComponentUtils
 import editor.gui.generic.ScrollablePanel
 import editor.gui.generic.VerticalButtonList
 import editor.serialization
+import editor.serialization.given
 import editor.unicode.{_, given}
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
@@ -81,6 +82,8 @@ import javax.swing.tree.TreePath
 import javax.swing.tree.TreeSelectionModel
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
+import org.json4s.Extraction
+import org.json4s.native.JsonMethods
 
 /**
  * Application-modal dialog that allows the user to make global changes to UI elements, including various colors,
@@ -931,9 +934,9 @@ object SettingsDialog {
   @throws[IOException]("if an error occurred while loading the file")
   @throws[MalformedURLException]("if the URL for the inventory source or version is invalid")
   def load(): Unit = {
-    if (Files.exists(PropertiesFile))
-      settings = serialization.Serializer.fromJson(Files.readAllLines(PropertiesFile).asScala.mkString("\n"), classOf[Settings])
-    else
+    if (Files.exists(PropertiesFile)) {
+      settings = Extraction.extract[Settings](JsonMethods.parse(Files.readAllLines(PropertiesFile).asScala.mkString("\n")))
+    } else
       settings = Settings()
   }
 
