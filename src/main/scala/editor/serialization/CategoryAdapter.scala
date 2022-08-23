@@ -25,18 +25,12 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 class CategoryAdapter extends CustomSerializer[Categorization](implicit format => (
-  { case JObject(List(
-    JField("name", JString(name)),
-    JField("filter", filter: JObject),
-    JField("whitelist", JArray(whitelist)),
-    JField("blacklist", JArray(blacklist)),
-    JField("color", color: JObject)
-  )) => Categorization(
-    name,
-    Extraction.extract[Filter](filter),
-    whitelist.map(Extraction.extract[Card]).toSet,
-    blacklist.map(Extraction.extract[Card]).toSet,
-    Extraction.extract[Color](color)
+  { case JObject(category) => Categorization(
+    category.collect{ case ("name", JString(name)) => name }.head,
+    category.collect{ case ("filter", filter) => Extraction.extract[Filter](filter) }.head,
+    category.collect{ case ("whitelist", JArray(whitelist)) => whitelist.map(Extraction.extract[Card]).toSet }.head,
+    category.collect{ case ("blacklist", JArray(blacklist)) => blacklist.map(Extraction.extract[Card]).toSet }.head,
+    category.collect{ case ("color", color) => Extraction.extract[Color](color) }.head
   ) },
   { case Categorization(name, filter, whitelist, blacklist, color) => JObject(List(
     JField("name", JString(name)),

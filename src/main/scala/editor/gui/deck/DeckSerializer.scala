@@ -12,6 +12,7 @@ import editor.collection.`export`.CardListFormat
 import editor.collection.mutable.Deck
 import editor.gui.MainFrame
 import editor.serialization
+import editor.serialization.given
 import editor.util.ProgressInputStream
 
 import java.awt.BorderLayout
@@ -48,6 +49,7 @@ import org.json4s.JObject
 import org.json4s.JField
 import org.json4s.JArray
 import org.json4s.JString
+import org.json4s.native.JsonMethods
 
 /**
  * Companion object containing global information about serializing decks and for creating new [[DeckSerializer]]s.
@@ -66,7 +68,9 @@ object DeckSerializer {
    */
   @throws[DeckLoadException]("if the deck couldn't be loaded (not including user cancellation)")
   def load(file: File, parent: Component) = {
-    val worker = LoadWorker(file, parent, (stream) => Using.resource(BufferedReader(InputStreamReader(stream)))(serialization.Serializer.fromJson(_, classOf[DeckSerializer])))
+    val worker = LoadWorker(file, parent, (stream) => Using.resource(BufferedReader(InputStreamReader(stream)))((s) => {
+      Extraction.extract[DeckSerializer](JsonMethods.parse(s))
+  }))
     worker.executeAndDisplay()
     try {
       worker.get.copy(file = Some(file))

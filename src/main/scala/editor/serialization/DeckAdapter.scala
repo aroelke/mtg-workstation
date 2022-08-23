@@ -36,14 +36,14 @@ object DeckAdapter {
  * @author Alec Roelke
  */
 class DeckAdapter extends CustomSerializer[Deck](implicit format => (
-  {
-    case JObject(List(JField("cards", JArray(cards)), JField("categories", JArray(categories)))) =>
-      Deck(cards.map{
-        case JObject(JField("card", card) :: JField("count", JInt(count)) :: JField("date", JString(date)) :: Nil) =>
-          CardListEntry(Extraction.extract[Card](card), count.toInt, LocalDate.parse(date, DeckAdapter.Formatter))
-        case x => throw MatchError(x.toString)
-      }, categories.map(Extraction.extract[Categorization]).toSet)
-  },
+  { case JObject(deck) => Deck(
+    deck.collect{ case ("cards", JArray(cards)) => cards.map{
+      case JObject(JField("card", card) :: JField("count", JInt(count)) :: JField("date", JString(date)) :: Nil) =>
+        CardListEntry(Extraction.extract[Card](card), count.toInt, LocalDate.parse(date, DeckAdapter.Formatter))
+      case x => throw MatchError(x.toString)
+    }}.head,
+    deck.collect{ case ("categories", JArray(categories)) => categories.map(Extraction.extract[Categorization]).toSet }.head
+  ) },
   { case deck: Deck => JObject(
     JField("cards", JArray(deck.map((e) => JObject(
       JField("card", Extraction.decompose(e.card)),

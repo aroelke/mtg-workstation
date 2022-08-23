@@ -27,10 +27,10 @@ import java.lang.reflect.Type
  * @author Alec Roelke
  */
 class CardAdapter extends CustomSerializer[Card](format => (
-  {
-    case JObject(JField("scryfallid", JString(id)) :: Nil) => Inventory(id).card
-    case JObject(JField("multiverseid", JInt(id)) :: Nil) => Inventory.find(_.card.faces.exists(_.multiverseid == id)).getOrElse(throw IllegalArgumentException(s"no card with multiverseid $id exists")).card
-  },
+  { case JObject(obj) => obj.collect{
+    case ("scryfallid", JString(id)) => Inventory(id).card
+    case ("multiverseid", JInt(id)) => Inventory.find(_.card.faces.exists(_.multiverseid == id.toInt)).getOrElse(throw IllegalArgumentException(s"no card with multiverseid $id exists")).card
+  }.head },
   { case card: Card => JObject(
     JField("scryfallid", JString(card(0).scryfallid)),
     JField("name", JString(card.name)),

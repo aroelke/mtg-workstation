@@ -29,8 +29,8 @@ import org.json4s.JString
 import org.json4s.Extraction
 import org.json4s.JArray
 import org.json4s.JBool
-import org.json4s.JDecimal
 import org.json4s.JField
+import org.json4s.JDouble
 
 /**
  * JSON serializer/deserializer for [[Filter]]s using their methods for converting to/from JSON objects.
@@ -40,8 +40,8 @@ class FilterAdapter extends CustomSerializer[Filter](implicit format => (
   { case JObject(obj) =>
     val faces = obj.collect{ case ("faces", JString(faces)) => FaceSearchOptions.valueOf(faces) }.headOption.getOrElse(FaceSearchOptions.ANY)
     val selected = obj.collect{ case ("selected", JArray(selected)) => selected.collect{ case JString(item) => item }.toSet}.headOption
-    val contain = obj.collect{ case ("contain", JString(contain)) => Containment.parse(contain) }.flatten.headOption
-    obj.collect{ case ("type", json: JObject) => Extraction.extract[CardAttribute[?, ?]](json) }.head match {
+    val contain = obj.collect{ case ("contains", JString(contain)) => Containment.parse(contain) }.flatten.headOption
+    obj.collect{ case ("type", json) => Extraction.extract[CardAttribute[?, ?]](json) }.head match {
       case CardAttribute.Name => CardAttribute.Name.filter.copy(faces = faces)
       case CardAttribute.RulesText => CardAttribute.RulesText.filter.copy(faces = faces)
       case CardAttribute.FlavorText => CardAttribute.FlavorText.filter.copy(faces = faces)
@@ -81,7 +81,7 @@ class FilterAdapter extends CustomSerializer[Filter](implicit format => (
       case c: ColorFilter =>
         val colors = obj.collect{ case ("colors", JArray(colors)) => colors.collect{ case JString(color) => ManaType.parse(color).get }}.flatten.toSet
         c.copy(contain = contain.get, colors = colors, multicolored = obj.collect{ case ("multicolored", JBool(multi)) => multi }.head)
-      case n: NumberFilter => n.copy(operation = obj.collect{ case ("operation", JString(op)) => Comparison.valueOf(op(0)) }.head, operand = obj.collect{ case ("operand", JDecimal(op)) => op.toDouble }.head, varies = n.variable.isDefined && obj.collect{ case ("varies", JBool(varies)) => varies }.head)
+      case n: NumberFilter => n.copy(operation = obj.collect{ case ("operation", JString(op)) => Comparison.valueOf(op(0)) }.head, operand = obj.collect{ case ("operand", JDouble(op)) => op }.headOption.getOrElse(throw IllegalArgumentException(obj.mkString("\n", "\n", "\n"))), varies = n.variable.isDefined && obj.collect{ case ("varies", JBool(varies)) => varies }.head)
       case s: SingletonOptionsFilter[?] => s.copy(contain = contain.get)
       case m: MultiOptionsFilter[?] => m.copy(contain = contain.get)
       case f => f

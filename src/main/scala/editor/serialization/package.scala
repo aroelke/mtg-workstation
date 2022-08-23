@@ -12,6 +12,9 @@ import editor.gui.deck.DeckSerializer
 import editor.gui.settings.Settings
 
 import java.awt.Color
+import org.json4s.native.Serialization
+import org.json4s.NoTypeHints
+import org.json4s.Formats
 
 /**
  * Global serialization constants and utilities.
@@ -32,4 +35,16 @@ package object serialization {
     .registerTypeAdapter(classOf[UpdateFrequency], UpdateAdapter())
     .setPrettyPrinting
     .create()
+
+  given formats: Formats = Serialization.formats(NoTypeHints) +
+    new SettingsAdapter +
+    new CategoryAdapter +
+    new FilterAdapter +
+    new ColorAdapter +
+    new CardAdapter +
+    new AttributeAdapter +
+    new DeckAdapter +
+    new VersionAdapter +
+    new UpdateAdapter +
+    new DeckSerializer
 }
