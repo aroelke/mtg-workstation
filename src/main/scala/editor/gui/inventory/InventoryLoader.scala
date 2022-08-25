@@ -14,6 +14,10 @@ import editor.gui.MainFrame
 import editor.gui.generic.ScrollablePanel
 import editor.gui.settings.SettingsDialog
 import editor.serialization
+import org.json4s.JArray
+import org.json4s.JObject
+import org.json4s.JString
+import org.json4s.native.JsonMethods
 
 import java.awt.BorderLayout
 import java.awt.Component
@@ -537,9 +541,17 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
 
     if (!isCancelled && Files.exists(Path.of(SettingsDialog.settings.inventory.tags))) {
       publish("Processing tags...")
-      val tk = new TypeToken[java.util.Map[String, java.util.Set[String]]] {}
-      val raw = serialization.Serializer.fromJson(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n"), tk.getType).asInstanceOf[java.util.Map[String, java.util.Set[String]]].asScala.map{ case (n, t) => n -> t.asScala.toSet }.toMap
-      CardAttribute.Tags.tags = raw.flatMap{ case (id, tags) => data.inventory.find(_.scryfallid == id).map(_ -> collection.mutable.Set.from(tags)) }
+
+      CardAttribute.Tags.tags = JsonMethods.parse(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n")) match {
+        case JObject(entries) => entries.flatMap{
+          case (id, JArray(tags)) => data.inventory.find(_.faces.exists(_.scryfallid == id)).map((c) => c -> collection.mutable.Set.from(tags.map{
+            case JString(tag) => tag
+            case x => throw MatchError(x)
+          }))
+          case x => throw MatchError(x)
+        }
+        case x => throw MatchError(x)
+      }
     }
 
     data
