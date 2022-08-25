@@ -20,7 +20,7 @@ import org.json4s.native._
 import editor.collection.CardListEntry
 
 object DeckAdapter {
-  private val Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  val Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 }
 
 /**
@@ -32,14 +32,7 @@ object DeckAdapter {
  */
 class DeckAdapter extends CustomSerializer[Deck](implicit format => (
   { case v => Deck(
-    (v \ "cards") match {
-      case JArray(cards) => cards.map{
-        case JObject(JField("card", card) :: JField("count", JInt(count)) :: JField("date", JString(date)) :: Nil) =>
-          CardListEntry(card.extract[Card], count.toInt, LocalDate.parse(date, DeckAdapter.Formatter))
-        case x => throw MatchError(x.toString)
-      }
-      case _ => throw MatchError(v)
-    },
+    (v \ "cards").extract[Seq[CardListEntry]],
     (v \ "categories").extract[Set[Categorization]]
   ) },
   { case deck: Deck => JObject(

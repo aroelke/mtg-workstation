@@ -42,6 +42,7 @@ package object serialization {
     new FilterAdapter +
     new ColorAdapter +
     new CardAdapter +
+    new CardListEntrySerializer +
     new AttributeAdapter +
     new DeckAdapter +
     new VersionAdapter +
