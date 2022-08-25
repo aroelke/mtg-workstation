@@ -90,7 +90,7 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
   private val _removed = collection.mutable.HashSet[String]()
   private var preferredViewportHeight = 0
 
-  setTags(CardAttribute.Tags.tags.flatMap{ case (_, s) => s }.toSeq.sorted)
+  setTags(CardAttribute.Tags.tags.flatMap{ case (_, s) => s }.toSet)
 
   tagBoxes.foreach((box) => {
     val matches = cards.count((c) => Option(CardAttribute.Tags.tags(c)).exists(_.contains(box.getText)))
@@ -102,14 +102,14 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
       box.state = TristateCheckBoxState.Selected
   })
 
-  private def setTags(tags: Seq[String]): Unit = {
+  private def setTags(tags: Set[String]): Unit = {
     tagBoxes --= tagBoxes.filter((box) => !tags.contains(box.getText))
     removeAll()
     preferredViewportHeight = 0
     if (tags.isEmpty)
       add(JLabel("<html><i>No tags have been created.</i></html>"))
     else {
-      tags.foreach((tag) => {
+      tags.toSeq.sorted.foreach((tag) => {
         val tagPanel = JPanel(BorderLayout())
         tagPanel.setBackground(UIManager.getColor("List.background"))
 
@@ -138,7 +138,7 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
    * @note If the tag is added unselected and then the choice is confirmed, it won't be added to the tag pool.
    */
   def addTag(tag: String, selected: Boolean) = if (tagBoxes.exists(_.getText == tag)) false else {
-    setTags((tagBoxes.map(_.getText) :+ tag).toSeq.sorted)
+    setTags((tagBoxes.map(_.getText) :+ tag).toSet)
     if (selected)
       tagBoxes.filter(_.getText == tag).foreach(_.setSelected(true))
     true
@@ -153,7 +153,7 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
    */
   def removeTag(tag: String) = if (!tagBoxes.exists(_.getText == tag)) false else {
     _removed += tag
-    setTags((tagBoxes.collect{ case box if box.getText != tag => box.getText }).toSeq.sorted)
+    setTags((tagBoxes.collect{ case box if box.getText != tag => box.getText }).toSet)
     Option(getParent).foreach((p) => { p.validate(); p.repaint() })
     Option(SwingUtilities.getWindowAncestor(this)).foreach(_.pack())
     true
