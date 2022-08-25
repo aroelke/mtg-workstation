@@ -10,11 +10,8 @@ import com.google.gson.JsonSerializer
 import editor.collection.immutable.Inventory
 import editor.database.card.Card
 import editor.gui.MainFrame
-import org.json4s.CustomSerializer
-import org.json4s.JField
-import org.json4s.JInt
-import org.json4s.JObject
-import org.json4s.JString
+import org.json4s._
+import org.json4s.native._
 
 import java.lang.reflect.Type
 
@@ -27,10 +24,10 @@ import java.lang.reflect.Type
  * @author Alec Roelke
  */
 class CardAdapter extends CustomSerializer[Card](format => (
-  { case JObject(obj) => obj.collect{
-    case ("scryfallid", JString(id)) => Inventory(id).card
-    case ("multiverseid", JInt(id)) => Inventory.find(_.card.faces.exists(_.multiverseid == id.toInt)).getOrElse(throw IllegalArgumentException(s"no card with multiverseid $id exists")).card
-  }.head },
+  {
+    case v if v \ "scryfallid" != JNothing => Inventory((v \ "scryfallid").extract[String]).card
+    case v if v \ "multiverseid" != JNothing => val id = (v \ "multiverseid").extract[Int]; Inventory.find(_.card.faces.exists(_.multiverseid == id)).getOrElse(throw IndexOutOfBoundsException(id)).card
+  },
   { case card: Card => JObject(
     JField("scryfallid", JString(card(0).scryfallid)),
     JField("name", JString(card.name)),
