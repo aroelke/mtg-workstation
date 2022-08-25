@@ -9,12 +9,8 @@ import com.google.gson.JsonSerializer
 import editor.collection.Categorization
 import editor.database.card.Card
 import editor.filter.Filter
-import org.json4s.CustomSerializer
-import org.json4s.Extraction
-import org.json4s.JArray
-import org.json4s.JField
-import org.json4s.JObject
-import org.json4s.JString
+import org.json4s._
+import org.json4s.native._
 
 import java.awt.Color
 import java.lang.reflect.Type
@@ -25,12 +21,12 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 class CategoryAdapter extends CustomSerializer[Categorization](implicit format => (
-  { case JObject(category) => Categorization(
-    category.collect{ case ("name", JString(name)) => name }.head,
-    category.collect{ case ("filter", filter) => Extraction.extract[Filter](filter) }.head,
-    category.collect{ case ("whitelist", JArray(whitelist)) => whitelist.map(Extraction.extract[Card]).toSet }.head,
-    category.collect{ case ("blacklist", JArray(blacklist)) => blacklist.map(Extraction.extract[Card]).toSet }.head,
-    category.collect{ case ("color", color) => Extraction.extract[Color](color) }.head
+  { case v => Categorization(
+    (v \ "name").extract[String],
+    (v \ "filter").extract[Filter],
+    (v \ "whitelist").extract[Set[Card]],
+    (v \ "blacklist").extract[Set[Card]],
+    (v \ "color").extract[Color]
   ) },
   { case Categorization(name, filter, whitelist, blacklist, color) => JObject(List(
     JField("name", JString(name)),
