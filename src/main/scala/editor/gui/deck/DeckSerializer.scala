@@ -43,13 +43,8 @@ import javax.swing.JProgressBar
 import javax.swing.SwingWorker
 import scala.jdk.CollectionConverters._
 import scala.util.Using
-import org.json4s.CustomSerializer
-import org.json4s.Extraction
-import org.json4s.JObject
-import org.json4s.JField
-import org.json4s.JArray
-import org.json4s.JString
-import org.json4s.native.JsonMethods
+import org.json4s._
+import org.json4s.native._
 
 /**
  * Companion object containing global information about serializing decks and for creating new [[DeckSerializer]]s.
@@ -119,7 +114,7 @@ object DeckSerializer {
 case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = Map.empty, notes: String = "", changelog: String = "", file: Option[File] = None)
   extends CustomSerializer[DeckSerializer](implicit formats => (
     { case JObject(JField("main", main) :: JField("sideboards", JArray(sideboards)) :: JField("notes", JString(notes)) :: JField("changelog", JString(changelog)) :: Nil) =>
-      DeckSerializer(Extraction.extract[Deck](main), sideboards.collect{ case entry: JObject => entry.obj.collect{ case ("name", JString(name)) => name }.head -> Extraction.extract[Deck](entry) }.toMap, notes, changelog) },
+      DeckSerializer(main.extract[Deck], sideboards.map((e) => (e \ "name").extract[String] -> e.extract[Deck]).toMap, notes, changelog) },
     { case DeckSerializer(deck, sideboards, notes, changelog, _) => JObject(List(
       JField("main", Extraction.decompose(deck)),
       JField("sideboards", JArray(sideboards.map{ case (name, sb) => JObject(Extraction.decompose(sb) match {
