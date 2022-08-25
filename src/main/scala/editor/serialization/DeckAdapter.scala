@@ -15,13 +15,8 @@ import java.lang.reflect.Type
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import scala.jdk.CollectionConverters._
-import org.json4s.CustomSerializer
-import org.json4s.JObject
-import org.json4s.JField
-import org.json4s.Extraction
-import org.json4s.JArray
-import org.json4s.JInt
-import org.json4s.JString
+import org.json4s._
+import org.json4s.native._
 import editor.collection.CardListEntry
 
 object DeckAdapter {
@@ -36,13 +31,16 @@ object DeckAdapter {
  * @author Alec Roelke
  */
 class DeckAdapter extends CustomSerializer[Deck](implicit format => (
-  { case JObject(deck) => Deck(
-    deck.collect{ case ("cards", JArray(cards)) => cards.map{
-      case JObject(JField("card", card) :: JField("count", JInt(count)) :: JField("date", JString(date)) :: Nil) =>
-        CardListEntry(Extraction.extract[Card](card), count.toInt, LocalDate.parse(date, DeckAdapter.Formatter))
-      case x => throw MatchError(x.toString)
-    }}.head,
-    deck.collect{ case ("categories", JArray(categories)) => categories.map(Extraction.extract[Categorization]).toSet }.head
+  { case v => Deck(
+    (v \ "cards") match {
+      case JArray(cards) => cards.map{
+        case JObject(JField("card", card) :: JField("count", JInt(count)) :: JField("date", JString(date)) :: Nil) =>
+          CardListEntry(card.extract[Card], count.toInt, LocalDate.parse(date, DeckAdapter.Formatter))
+        case x => throw MatchError(x.toString)
+      }
+      case _ => throw MatchError(v)
+    },
+    (v \ "categories").extract[Set[Categorization]]
   ) },
   { case deck: Deck => JObject(
     JField("cards", JArray(deck.map((e) => JObject(
