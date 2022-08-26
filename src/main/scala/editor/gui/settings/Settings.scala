@@ -183,7 +183,7 @@ case class CategoriesSettings(
  * 
  * @author Alec Roelke
  */
-case class HandSettings(size: Int = 7, rounding: String = "No Rounding", background: Color = Color.WHITE)
+case class HandSettings(size: Int = 7, rounding: String = "No rounding", background: Color = Color.WHITE)
 
 /**
  * Settings structure containing information about how to determine deck legality.
