@@ -21,14 +21,8 @@ import editor.gui.settings.LegalitySettings
 import editor.gui.settings.ManaAnalysisSettings
 import editor.gui.settings.RecentsSettings
 import editor.gui.settings.Settings
-import org.json4s.CustomSerializer
-import org.json4s.Extraction
-import org.json4s.JArray
-import org.json4s.JBool
-import org.json4s.JField
-import org.json4s.JInt
-import org.json4s.JObject
-import org.json4s.JString
+import org.json4s._
+import org.json4s.native._
 
 import java.awt.Color
 import java.lang.reflect.Type
@@ -39,109 +33,107 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 class SettingsAdapter extends CustomSerializer[Settings](implicit formats => (
-  { case JObject(obj) =>
+  { case v =>
     val defaults = Settings()
-    val inventorySettings = obj.collect{ case ("inventory", JObject(inventory)) =>
-      val source = inventory.collect{ case ("source", JString(source)) => source }.headOption.getOrElse(defaults.inventory.source)
-      val file = inventory.collect{ case ("file", JString(file)) => file }.headOption.getOrElse(defaults.inventory.file)
-      val versionFile = inventory.collect{ case ("versionFile", JString(versionFile)) => versionFile }.headOption.getOrElse(defaults.inventory.versionFile)
-      val version = inventory.collect{ case ("version", version) => Extraction.extract[DatabaseVersion](version) }.headOption.getOrElse(defaults.inventory.version)
-      val location = inventory.collect{ case ("location", JString(location)) => location }.headOption.getOrElse(defaults.inventory.location)
-      val scans = inventory.collect{ case ("scans", JString(scans)) => scans }.headOption.getOrElse(defaults.inventory.scans)
-      val imageSource = inventory.collect{ case ("imageSource", JString(imageSource)) => imageSource }.headOption.getOrElse(defaults.inventory.imageSource)
-      val imageLimitEnable = inventory.collect{ case ("imageLimitEnable", JBool(imageLimitEnable)) => imageLimitEnable }.headOption.getOrElse(defaults.inventory.imageLimitEnable)
-      val imageLimit = inventory.collect{ case ("imageLimit", JInt(imageLimit)) => imageLimit.toInt }.headOption.getOrElse(defaults.inventory.imageLimit)
-      val tags = inventory.collect{ case ("tags", JString(tags)) => tags }.headOption.getOrElse(defaults.inventory.tags)
-      val update = inventory.collect{ case ("update", update) => Extraction.extract[UpdateFrequency](update) }.headOption.getOrElse(defaults.inventory.update)
-      val columns = inventory.collect{ case ("columns", JArray(columns)) => columns.map(Extraction.extract[CardAttribute[?, ?]]).toIndexedSeq }.headOption.getOrElse(defaults.inventory.columns)
-      val background = inventory.collect{ case ("background", background) => Extraction.extract[Color](background) }.headOption.getOrElse(defaults.inventory.background)
-      val stripe = inventory.collect{ case ("stripe", stripe) => Extraction.extract[Color](stripe) }.headOption.getOrElse(defaults.inventory.stripe)
-      val warn = inventory.collect{ case ("warn", JBool(warn)) => warn }.headOption.getOrElse(defaults.inventory.warn)
-      InventorySettings(
-        source,
-        file,
-        versionFile,
-        version,
-        location,
-        scans,
-        imageSource,
-        imageLimitEnable,
-        imageLimit,
-        tags,
-        update,
-        warn,
-        columns,
-        background,
-        stripe
+    val inventorySettings = (v \ "inventory") match {
+      case inventory if inventory != JNothing => InventorySettings(
+        (inventory \ "source").extract[Option[String]].getOrElse(defaults.inventory.source),
+        (inventory \ "file").extract[Option[String]].getOrElse(defaults.inventory.file),
+        (inventory \ "versionFile").extract[Option[String]].getOrElse(defaults.inventory.versionFile),
+        (inventory \ "version").extract[Option[DatabaseVersion]].getOrElse(defaults.inventory.version),
+        (inventory \ "location").extract[Option[String]].getOrElse(defaults.inventory.location),
+        (inventory \ "scans").extract[Option[String]].getOrElse(defaults.inventory.scans),
+        (inventory \ "imageSource").extract[Option[String]].getOrElse(defaults.inventory.imageSource),
+        (inventory \ "imageLimitEnable").extract[Option[Boolean]].getOrElse(defaults.inventory.imageLimitEnable),
+        (inventory \ "imageLimit").extract[Option[Int]].getOrElse(defaults.inventory.imageLimit),
+        (inventory \ "tags").extract[Option[String]].getOrElse(defaults.inventory.tags),
+        (inventory \ "update").extract[Option[UpdateFrequency]].getOrElse(defaults.inventory.update),
+        (inventory \ "warn").extract[Option[Boolean]].getOrElse(defaults.inventory.warn),
+        (inventory \ "columns").extract[Option[IndexedSeq[CardAttribute[?, ?]]]].getOrElse(defaults.inventory.columns),
+        (inventory \ "background").extract[Option[Color]].getOrElse(defaults.inventory.background),
+        (inventory \ "stripe").extract[Option[Color]].getOrElse(defaults.inventory.stripe)
       )
-    }.headOption.getOrElse(defaults.inventory)
-    val editorSettings = obj.collect{ case ("editor", JObject(editor)) =>
-      val recentsSettings = editor.collect{ case ("recents", JObject(recents)) =>
-        val count = recents.collect{ case ("count", JInt(count)) => count.toInt }.headOption.getOrElse(defaults.editor.recents.count)
-        val recentsFiles = recents.collect{ case ("files", JArray(files)) => files.map(Extraction.extract[String]) }.headOption.getOrElse(defaults.editor.recents.files)
-        RecentsSettings(count, recentsFiles)
-      }.headOption.getOrElse(defaults.editor.recents)
-      val categoriesSettings = editor.collect{ case ("categories", JObject(categories)) =>
-        val presets = categories.collect{ case ("presets", JArray(presets)) => presets.map(Extraction.extract[Categorization]) }.headOption.getOrElse(defaults.editor.categories.presets)
-        val rows = categories.collect{ case ("rows", JInt(rows)) => rows.toInt }.headOption.getOrElse(defaults.editor.categories.rows)
-        val explicits = categories.collect{ case ("explicits", JInt(explicits)) => explicits.toInt }.headOption.getOrElse(defaults.editor.categories.explicits)
-        CategoriesSettings(presets, rows, explicits)
-      }.headOption.getOrElse(defaults.editor.categories)
-      val handSettings = editor.collect{ case ("hand", JObject(hand)) =>
-        val size = hand.collect{ case ("size", JInt(size)) => size.toInt }.headOption.getOrElse(defaults.editor.hand.size)
-        val rounding = hand.collect{ case ("rounding", JString(rounding)) => rounding }.headOption.getOrElse(defaults.editor.hand.rounding)
-        val bg = hand.collect{ case ("background", background) => Extraction.extract[Color](background) }.headOption.getOrElse(defaults.editor.hand.background)
-        HandSettings(size, rounding, bg)
-      }.headOption.getOrElse(defaults.editor.hand)
-      val legalitySettings = editor.collect{ case ("legality", JObject(legality)) =>
-        val search = legality.collect{ case ("searchForCommander", JBool(search)) => search }.headOption.getOrElse(defaults.editor.legality.searchForCommander)
-        val main = legality.collect{ case ("main", JBool(main)) => main }.headOption.getOrElse(defaults.editor.legality.main)
-        val all = legality.collect{ case ("all", JBool(all)) => all }.headOption.getOrElse(defaults.editor.legality.all)
-        val list = legality.collect{ case ("list", JString(list)) => list }.headOption.getOrElse(defaults.editor.legality.list)
-        val sideboard = legality.collect{ case ("sideboard", JString(sideboard)) => sideboard }.headOption.getOrElse(defaults.editor.legality.sideboard)
-        LegalitySettings(search, main, all, list, sideboard)
-      }.headOption.getOrElse(defaults.editor.legality)
-      val columns = editor.collect{ case ("columns", JArray(columns)) => columns.map(Extraction.extract[CardAttribute[?, ?]]).toIndexedSeq }.headOption.getOrElse(defaults.editor.columns)
-      val stripe = editor.collect{ case ("stripe", stripe) => Extraction.extract[Color](stripe) }.headOption.getOrElse(defaults.editor.stripe)
-      val mv = editor.collect{ case ("manaValue", JString(mv)) => mv }.headOption.getOrElse(defaults.editor.manaValue)
-      val backFaceLands = editor.collect{ case ("backFaceLands", JArray(bfl)) => bfl.map(Extraction.extract[String]).map((l) => CardLayout.values.find(_.toString == l).get).toSet }.headOption.getOrElse(defaults.editor.backFaceLands)
-      val manaAnalysisSettings = editor.collect{ case ("manaAnalysis", JObject(manaAnalysis)) =>
-        def extract(key: String, default: => Color) = manaAnalysis.collect{ case (k, color) if k == key => Extraction.extract[Color](color) }.headOption.getOrElse(default)
-        val none = extract("none", defaults.editor.manaAnalysis.none)
-        val colorless = extract("colorless", defaults.editor.manaAnalysis.colorless)
-        val white = extract("white", defaults.editor.manaAnalysis.white)
-        val blue = extract("blue", defaults.editor.manaAnalysis.blue)
-        val black = extract("black", defaults.editor.manaAnalysis.black)
-        val red = extract("red", defaults.editor.manaAnalysis.red)
-        val green = extract("green", defaults.editor.manaAnalysis.green)
-        val multi = extract("multi", defaults.editor.manaAnalysis.multi)
-        val creature = extract("creature", defaults.editor.manaAnalysis.creature)
-        val artifact = extract("artifact", defaults.editor.manaAnalysis.artifact)
-        val enchantment = extract("enchantment", defaults.editor.manaAnalysis.enchantment)
-        val planeswalker = extract("planeswalker", defaults.editor.manaAnalysis.planeswalker)
-        val instant = extract("instant", defaults.editor.manaAnalysis.instant)
-        val sorcery = extract("sorcery", defaults.editor.manaAnalysis.sorcery)
-        val line = extract("line", defaults.editor.manaAnalysis.line)
-        ManaAnalysisSettings(
-          none,
-          colorless, white, blue, black, red, green, multi,
-          creature, artifact, enchantment, planeswalker, instant, sorcery,
-          line
+      case _ => defaults.inventory
+    }
+    val editorSettings = (v \ "editor") match {
+      case editor if editor != JNothing =>
+        val recentsSettings = (editor \ "recents") match {
+          case recents if recents != JNothing => RecentsSettings(
+            (recents \ "count").extract[Option[Int]].getOrElse(defaults.editor.recents.count),
+            (recents \ "files").extract[Option[Seq[String]]].getOrElse(defaults.editor.recents.files)
+          )
+          case _ => defaults.editor.recents
+        }
+        val categoriesSettings = (editor \ "categories") match {
+          case categories if categories != JNothing => CategoriesSettings(
+            (categories \ "presets").extract[Option[Seq[Categorization]]].getOrElse(defaults.editor.categories.presets),
+            (categories \ "rows").extract[Option[Int]].getOrElse(defaults.editor.categories.rows),
+            (categories \ "explicits").extract[Option[Int]].getOrElse(defaults.editor.categories.explicits)
+          )
+          case _ => defaults.editor.categories
+        }
+        val handSettings = (editor \ "hand") match {
+          case hand if hand != JNothing => HandSettings(
+            (hand \ "size").extract[Option[Int]].getOrElse(defaults.editor.hand.size),
+            (hand \ "rounding").extract[Option[String]].getOrElse(defaults.editor.hand.rounding),
+            (hand \ "background").extract[Option[Color]].getOrElse(defaults.editor.hand.background)
+          )
+          case _ => defaults.editor.hand
+        }
+        val legalitySettings = (editor \ "legality") match { 
+          case legality if legality != JNothing => LegalitySettings(
+            (legality \ "searchForCommander").extract[Option[Boolean]].getOrElse(defaults.editor.legality.searchForCommander),
+            (legality \ "main").extract[Option[Boolean]].getOrElse(defaults.editor.legality.main),
+            (legality \ "all").extract[Option[Boolean]].getOrElse(defaults.editor.legality.all),
+            (legality \ "list").extract[Option[String]].getOrElse(defaults.editor.legality.list),
+            (legality \ "sideboard").extract[Option[String]].getOrElse(defaults.editor.legality.sideboard)
+          )
+          case _ => defaults.editor.legality
+        }
+        val columns = (editor \ "columns").extract[Option[IndexedSeq[CardAttribute[?, ?]]]].getOrElse(defaults.editor.columns)
+        val stripe = (editor \ "stripe").extract[Option[Color]].getOrElse(defaults.editor.stripe)
+        val mv = (editor \ "manaValue").extract[Option[String]].getOrElse(defaults.editor.manaValue)
+        val backFaceLands = (editor \ "backFaceLands").extract[Option[Set[String]]].map(_.map((l) => CardLayout.values.find(_.toString.equalsIgnoreCase(l)).get)).getOrElse(defaults.editor.backFaceLands)
+        val manaAnalysisSettings = (editor \ "manaAnalysis") match {
+          case manaAnalysis if manaAnalysis != JNothing =>
+            def extract(key: String, default: => Color) = (manaAnalysis \ key).extract[Option[Color]].getOrElse(default)
+            val none = extract("none", defaults.editor.manaAnalysis.none)
+            val colorless = extract("colorless", defaults.editor.manaAnalysis.colorless)
+            val white = extract("white", defaults.editor.manaAnalysis.white)
+            val blue = extract("blue", defaults.editor.manaAnalysis.blue)
+            val black = extract("black", defaults.editor.manaAnalysis.black)
+            val red = extract("red", defaults.editor.manaAnalysis.red)
+            val green = extract("green", defaults.editor.manaAnalysis.green)
+            val multi = extract("multi", defaults.editor.manaAnalysis.multi)
+            val creature = extract("creature", defaults.editor.manaAnalysis.creature)
+            val artifact = extract("artifact", defaults.editor.manaAnalysis.artifact)
+            val enchantment = extract("enchantment", defaults.editor.manaAnalysis.enchantment)
+            val planeswalker = extract("planeswalker", defaults.editor.manaAnalysis.planeswalker)
+            val instant = extract("instant", defaults.editor.manaAnalysis.instant)
+            val sorcery = extract("sorcery", defaults.editor.manaAnalysis.sorcery)
+            val line = extract("line", defaults.editor.manaAnalysis.line)
+            ManaAnalysisSettings(
+              none,
+              colorless, white, blue, black, red, green, multi,
+              creature, artifact, enchantment, planeswalker, instant, sorcery,
+              line
+            )
+          case _ => defaults.editor.manaAnalysis
+        }
+        EditorSettings(
+          recentsSettings,
+          categoriesSettings,
+          columns,
+          stripe,
+          handSettings,
+          legalitySettings,
+          mv,
+          backFaceLands.toSet,
+          manaAnalysisSettings
         )
-      }.headOption.getOrElse(defaults.editor.manaAnalysis)
-      EditorSettings(
-        recentsSettings,
-        categoriesSettings,
-        columns,
-        stripe,
-        handSettings,
-        legalitySettings,
-        mv,
-        backFaceLands.toSet,
-        manaAnalysisSettings
-      )
-    }.headOption.getOrElse(defaults.editor)
-    val cwd = obj.collect{ case ("cwd", JString(cwd)) => cwd }.headOption.getOrElse(defaults.cwd)
+      case _ => defaults.editor
+    }
+    val cwd = (v \ "cwd").extract[Option[String]].getOrElse(defaults.cwd)
     Settings(inventorySettings, editorSettings, cwd) },
   { case settings: Settings => JObject(List(
     JField("inventory", JObject(List(
