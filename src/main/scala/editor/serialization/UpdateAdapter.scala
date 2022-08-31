@@ -19,10 +19,8 @@ import java.lang.reflect.Type
 class UpdateAdapter extends CustomSerializer[UpdateFrequency](formats => (
   { case JString(freq) => UpdateFrequency.values.find(_.name.equalsIgnoreCase(freq)).getOrElse(UpdateFrequency.Never) },
   { case freq: UpdateFrequency => JString(freq.name.toLowerCase) }
-)) with JsonSerializer[UpdateFrequency] with JsonDeserializer[UpdateFrequency] {
+)) with JsonSerializer[UpdateFrequency] {
   import editor.database.version.UpdateFrequency._
-
-  override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = UpdateFrequency.values.find(_.name.equalsIgnoreCase(json.getAsString)).getOrElse(Never)
 
   override def serialize(src: UpdateFrequency, typeOfSrc: Type, context: JsonSerializationContext) = JsonPrimitive(src.name.toLowerCase)
 }

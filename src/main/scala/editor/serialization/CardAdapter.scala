@@ -33,16 +33,7 @@ class CardAdapter extends CustomSerializer[Card](format => (
     JField("name", JString(card.name)),
     JField("expansion", JString(card.expansion.name))
   ) }
-)) with JsonSerializer[Card] with JsonDeserializer[Card] {
-  override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
-    if (json.getAsJsonObject.has("scryfallid"))
-      Inventory(json.getAsJsonObject.get("scryfallid").getAsString).card
-    else {
-      val multiverseid = json.getAsJsonObject.get("multiverseid").getAsInt
-      Inventory.find(_.card.faces.exists(_.multiverseid == multiverseid)).getOrElse(throw JsonParseException(s"no card with multiverseid $multiverseid exists")).card
-    }
-  }
-
+)) with JsonSerializer[Card] {
   override def serialize(src: Card, typeOfSrc: Type, context: JsonSerializationContext) = {
     val card = JsonObject()
     card.addProperty("scryfallid", src(0).scryfallid)

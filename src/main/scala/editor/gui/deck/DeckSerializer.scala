@@ -124,7 +124,7 @@ case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = M
       JField("notes", JString(notes)),
       JField("changelog", JString(changelog))
     )) }
-  )) with JsonSerializer[DeckSerializer] with JsonDeserializer[DeckSerializer]
+  )) with JsonSerializer[DeckSerializer]
 {
   /** Save the serialized deck to a JSON file, if the file is defined. */
   @throws[IOException]("if the file could not be saved")
@@ -146,19 +146,6 @@ case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = M
     json.addProperty("notes", src.notes)
     json.addProperty("changelog", src.changelog)
     json
-  }
-
-  @throws[JsonParseException]("if the JSON could not be parsed")
-  override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
-    val obj = json.getAsJsonObject
-    val deck = context.deserialize[Deck](obj.get("main"), classOf[Deck])
-    val notes = if (obj.has("notes")) obj.get("notes").getAsString else ""
-    val sideboard = collection.mutable.Map[String, Deck]()
-    obj.get("sideboards").getAsJsonArray.asScala.foreach((entry) => {
-      sideboard(entry.getAsJsonObject.get("name").getAsString) = context.deserialize[Deck](entry, classOf[Deck])
-    })
-    val changelog = obj.get("changelog").getAsString
-    DeckSerializer(deck, sideboard.toMap, notes, changelog)
   }
 }
 /**

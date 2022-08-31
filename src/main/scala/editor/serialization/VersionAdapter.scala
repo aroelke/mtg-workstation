@@ -21,10 +21,6 @@ import java.text.ParseException
 class VersionAdapter extends CustomSerializer[DatabaseVersion](formats => (
   { case JString(version) => DatabaseVersion.parseVersion(version) },
   { case version: DatabaseVersion => JString(version.toString) }
-)) with JsonSerializer[DatabaseVersion] with JsonDeserializer[DatabaseVersion] {
-  override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = try {
-    DatabaseVersion.parseVersion(json.getAsString)
-  } catch case e: ParseException => throw JsonParseException(e)
-
+)) with JsonSerializer[DatabaseVersion] {
   override def serialize(src: DatabaseVersion, typeOfSrc: Type, context: JsonSerializationContext) = JsonPrimitive(src.toString)
 }

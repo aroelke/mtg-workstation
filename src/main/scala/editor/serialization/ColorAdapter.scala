@@ -20,8 +20,7 @@ import java.lang.reflect.Type
 class ColorAdapter extends CustomSerializer[Color](formats => (
   { case JString(hex) => Color(BigInt(hex, 16).toInt, true) },
   { case color: Color => JString(color.getRGB.toHexString) }
-)) with JsonSerializer[Color] with JsonDeserializer[Color] {
+)) with JsonSerializer[Color] {
   override def serialize(src: Color, typeOfSrc: Type, context: JsonSerializationContext) = JsonPrimitive(src.getRGB.toHexString)
 
-  override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = Color(BigInt(json.getAsString, 16).toInt, true)
 }

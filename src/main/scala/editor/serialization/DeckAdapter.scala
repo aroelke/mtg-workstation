@@ -43,22 +43,7 @@ class DeckAdapter extends CustomSerializer[Deck](implicit format => (
     )).toList)),
     JField("categories", JArray(deck.categories.map(Extraction.decompose).toList))
   ) }
-)) with JsonSerializer[Deck] with JsonDeserializer[Deck] {
-  override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
-    val d = Deck()
-    val obj = json.getAsJsonObject
-    obj.get("cards").getAsJsonArray.asScala.foreach((e) => {
-      val entry = e.getAsJsonObject
-      d.add(
-        context.deserialize(entry.get("card"), classOf[Card]),
-        entry.get("count").getAsInt,
-        LocalDate.parse(entry.get("date").getAsString, DeckAdapter.Formatter)
-      )
-    })
-    obj.get("categories").getAsJsonArray.asScala.map((e) => context.deserialize[Categorization](e, classOf[Categorization]) -> e.getAsJsonObject.get("rank").getAsInt).toSeq.sortBy{ case(_, r) => r }.foreach{ case (c, _) => d.categories += c }
-    d
-  }
-
+)) with JsonSerializer[Deck] {
   override def serialize(src: Deck, typeOfSrc: Type, context: JsonSerializationContext) = {
     val deck = JsonObject()
 

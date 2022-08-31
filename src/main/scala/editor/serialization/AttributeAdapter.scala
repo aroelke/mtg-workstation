@@ -20,8 +20,7 @@ import java.lang.reflect.Type
 class AttributeAdapter extends CustomSerializer[CardAttribute[?, ?]](format => (
   { case JString(attribute) => CardAttribute.parse(attribute).getOrElse(throw IllegalArgumentException(attribute)) },
   { case attribute: CardAttribute[?, ?] => JString(attribute.toString) }
-)) with JsonSerializer[CardAttribute[?, ?]] with JsonDeserializer[CardAttribute[?, ?]] {
-  override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = CardAttribute.parse(json.getAsString).getOrElse(throw JsonParseException(json.getAsString))
+)) with JsonSerializer[CardAttribute[?, ?]]{
 
   override def serialize(src: CardAttribute[?, ?], typeOfSrc: Type, context: JsonSerializationContext) = JsonPrimitive(src.toString)
 }

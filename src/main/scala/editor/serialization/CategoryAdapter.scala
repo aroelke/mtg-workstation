@@ -35,18 +35,7 @@ class CategoryAdapter extends CustomSerializer[Categorization](implicit format =
     JField("blacklist", JArray(blacklist.toList.map(Extraction.decompose))),
     JField("color", Extraction.decompose(color))
   )) }
-)) with JsonSerializer[Categorization] with JsonDeserializer[Categorization] {
-  override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
-    val obj = json.getAsJsonObject
-    Categorization(
-      obj.get("name").getAsString,
-      context.deserialize(obj.get("filter"), classOf[Filter]),
-      obj.get("whitelist").getAsJsonArray.asScala.map((e) => context.deserialize[Card](e, classOf[Card])).toSet,
-      obj.get("blacklist").getAsJsonArray.asScala.map((e) => context.deserialize[Card](e, classOf[Card])).toSet,
-      context.deserialize(obj.get("color"), classOf[Color])
-    )
-  }
-
+)) with JsonSerializer[Categorization] {
   override def serialize(src: Categorization, typeOfSrc: Type, context: JsonSerializationContext) = {
     val category = JsonObject()
     category.addProperty("name", src.name)
