@@ -47,5 +47,6 @@ package object serialization {
     new DeckAdapter +
     new VersionAdapter +
     new UpdateAdapter +
+    new CardLayoutSerializer +
     new DeckSerializer
 }

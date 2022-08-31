@@ -35,33 +35,11 @@ import scala.jdk.CollectionConverters._
 class SettingsAdapter extends CustomSerializer[Settings](implicit formats => (
   { case v =>
     val defaults = Settings()
-    val inventorySettings = (v \ "inventory").extract[Option[InventorySettings]].getOrElse(defaults.inventory)
-    val editorSettings = (v \ "editor") match {
-      case editor if editor != JNothing =>
-        val recentsSettings = (editor \ "recents").extract[Option[RecentsSettings]].getOrElse(defaults.editor.recents)
-        val categoriesSettings = (editor \ "categories").extract[Option[CategoriesSettings]].getOrElse(defaults.editor.categories)
-        val handSettings = (editor \ "hand").extract[Option[HandSettings]].getOrElse(defaults.editor.hand)
-        val legalitySettings = (editor \ "legality").extract[Option[LegalitySettings]].getOrElse(defaults.editor.legality)
-        val columns = (editor \ "columns").extract[Option[IndexedSeq[CardAttribute[?, ?]]]].getOrElse(defaults.editor.columns)
-        val stripe = (editor \ "stripe").extract[Option[Color]].getOrElse(defaults.editor.stripe)
-        val mv = (editor \ "manaValue").extract[Option[String]].getOrElse(defaults.editor.manaValue)
-        val backFaceLands = (editor \ "backFaceLands").extract[Option[Set[String]]].map(_.map((l) => CardLayout.values.find(_.toString.equalsIgnoreCase(l)).get)).getOrElse(defaults.editor.backFaceLands)
-        val manaAnalysisSettings = (editor \ "manaAnalysis").extract[Option[ManaAnalysisSettings]].getOrElse(defaults.editor.manaAnalysis)
-        EditorSettings(
-          recentsSettings,
-          categoriesSettings,
-          columns,
-          stripe,
-          handSettings,
-          legalitySettings,
-          mv,
-          backFaceLands.toSet,
-          manaAnalysisSettings
-        )
-      case _ => defaults.editor
-    }
-    val cwd = (v \ "cwd").extract[Option[String]].getOrElse(defaults.cwd)
-    Settings(inventorySettings, editorSettings, cwd) },
+    Settings(
+      (v \ "inventory").extract[Option[InventorySettings]].getOrElse(defaults.inventory),
+      (v \ "editor").extract[Option[EditorSettings]].getOrElse(defaults.editor),
+      (v \ "cwd").extract[Option[String]].getOrElse(defaults.cwd)
+    ) },
   { case settings: Settings => JObject(List(
     JField("inventory", JObject(List(
       JField("source", JString(settings.inventory.source)),

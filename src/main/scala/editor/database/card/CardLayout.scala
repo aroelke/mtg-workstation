@@ -3,13 +3,14 @@ package editor.database.card
 /**
  * All of the possible types of card layouts, with a flag indicating if it's multi-faced or not.
  * 
- * @param toString string representation of the card layout
+ * @param name string representation of the card layout
  * @param isMultiFaced whether or not the layout has multiple faces or inset cards
  * 
  * @author Alec Roelke
  */
-enum CardLayout(override val toString: String, val isMultiFaced: Boolean) extends Ordered[CardLayout] {
-  def compare(that: CardLayout) = ordinal - that.ordinal
+enum CardLayout(name: String, val isMultiFaced: Boolean) extends Ordered[CardLayout] {
+  override def compare(that: CardLayout) = ordinal - that.ordinal
+  override def toString = name
 
   /** Normal, single-faced card. */
   case NORMAL extends CardLayout("Normal", false)
