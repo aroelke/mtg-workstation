@@ -82,7 +82,7 @@ import javax.swing.tree.TreePath
 import javax.swing.tree.TreeSelectionModel
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
-import org.json4s.Extraction
+import org.json4s._
 import org.json4s.native.JsonMethods
 
 /**
@@ -935,7 +935,7 @@ object SettingsDialog {
   @throws[MalformedURLException]("if the URL for the inventory source or version is invalid")
   def load(): Unit = {
     if (Files.exists(PropertiesFile)) {
-      settings = Extraction.extract[Settings](JsonMethods.parse(Files.readAllLines(PropertiesFile).asScala.mkString("\n")))
+      settings = JsonMethods.parse(Files.readAllLines(PropertiesFile).asScala.mkString("\n")).extract[Settings]
     } else
       settings = Settings()
   }
@@ -948,7 +948,7 @@ object SettingsDialog {
       Files.writeString(Path.of(settings.inventory.tags), serialization.Serializer.toJson(CardAttribute.Tags.tags.collect{ case (card, tags) if !tags.isEmpty => card.faces(0).scryfallid -> tags.asJava }.toMap.asJava))
     } else
       Files.deleteIfExists(Path.of(settings.inventory.tags))
-    Files.writeString(PropertiesFile, serialization.Serializer.toJson(settings))
+    Files.writeString(PropertiesFile, JsonMethods.pretty(JsonMethods.render(Extraction.decompose(settings))))
   }
 
   /**
