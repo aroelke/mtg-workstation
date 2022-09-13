@@ -22,20 +22,6 @@ import org.json4s.Formats
  */
 package object serialization {
   /** Serializer for saving and loading external information. */
-  lazy val Serializer = (new GsonBuilder)
-    .registerTypeAdapter(classOf[Settings], SettingsAdapter())
-    .registerTypeAdapter(classOf[Categorization], CategoryAdapter())
-    .registerTypeHierarchyAdapter(classOf[Filter], FilterAdapter())
-    .registerTypeAdapter(classOf[Color], ColorAdapter())
-    .registerTypeHierarchyAdapter(classOf[Card], CardAdapter())
-    .registerTypeAdapter(classOf[CardAttribute[?, ?]], AttributeAdapter())
-    .registerTypeAdapter(classOf[Deck], DeckAdapter())
-    .registerTypeAdapter(classOf[DeckSerializer], DeckSerializer())
-    .registerTypeAdapter(classOf[DatabaseVersion], VersionAdapter())
-    .registerTypeAdapter(classOf[UpdateFrequency], UpdateAdapter())
-    .setPrettyPrinting
-    .create()
-
   given formats: Formats = Serialization.formats(NoTypeHints) +
     new SettingsAdapter +
     new CategoryAdapter +
