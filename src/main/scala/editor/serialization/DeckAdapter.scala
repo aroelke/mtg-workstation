@@ -41,7 +41,7 @@ class DeckAdapter extends CustomSerializer[Deck](implicit format => (
       JField("count", JInt(e.count)),
       JField("date", JString(e.dateAdded.format(DeckAdapter.Formatter)))
     )).toList)),
-    JField("categories", JArray(deck.categories.map(Extraction.decompose).toList))
+    JField("categories", JArray(deck.categories.map((c) => Extraction.decompose(c.categorization)).toList))
   ) }
 )) with JsonSerializer[Deck] {
   override def serialize(src: Deck, typeOfSrc: Type, context: JsonSerializationContext) = {

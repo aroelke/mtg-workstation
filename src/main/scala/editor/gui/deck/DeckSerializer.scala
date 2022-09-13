@@ -130,7 +130,8 @@ case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = M
   @throws[IOException]("if the file could not be saved")
   @throws[NoSuchFileException]("if there is no file to save to")
   def save() = file.map((f) => Using.resource(FileWriter(f)){ writer =>
-    writer.write(serialization.Serializer.toJson(this))
+//    writer.write(serialization.Serializer.toJson(this))
+    writer.write(JsonMethods.pretty(JsonMethods.render(Extraction.decompose(this))))
   }).getOrElse(throw NoSuchFileException("no file to save to"))
 
   override def serialize(src: DeckSerializer, typeOfSrc: Type, context: JsonSerializationContext) = {
