@@ -28,6 +28,8 @@ import org.jfree.chart.renderer.category.LineAndShapeRenderer
 import org.jfree.chart.renderer.category.StackedBarRenderer
 import org.jfree.chart.renderer.category.StandardBarPainter
 import org.jfree.data.category.DefaultCategoryDataset
+import org.json4s._
+import org.json4s.native.JsonMethods
 
 import java.awt.BorderLayout
 import java.awt.CardLayout
@@ -82,8 +84,6 @@ import javax.swing.tree.TreePath
 import javax.swing.tree.TreeSelectionModel
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
-import org.json4s._
-import org.json4s.native.JsonMethods
 
 /**
  * Application-modal dialog that allows the user to make global changes to UI elements, including various colors,
@@ -945,7 +945,7 @@ object SettingsDialog {
   def save(): Unit = {
     if (!CardAttribute.Tags.tags.flatMap{ case (_, s) => s }.isEmpty) {
       Files.createDirectories(Path.of(settings.inventory.tags).getParent)
-      Files.writeString(Path.of(settings.inventory.tags), serialization.Serializer.toJson(CardAttribute.Tags.tags.collect{ case (card, tags) if !tags.isEmpty => card.faces(0).scryfallid -> tags.asJava }.toMap.asJava))
+      Files.writeString(Path.of(settings.inventory.tags), JsonMethods.pretty(JsonMethods.render(Extraction.decompose(CardAttribute.Tags.tags.collect{ case (card, tags) if !tags.isEmpty => card.faces(0).scryfallid -> tags.toSet }.toMap))))
     } else
       Files.deleteIfExists(Path.of(settings.inventory.tags))
     Files.writeString(PropertiesFile, JsonMethods.pretty(JsonMethods.render(Extraction.decompose(settings))))
