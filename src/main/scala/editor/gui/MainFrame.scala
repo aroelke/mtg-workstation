@@ -139,6 +139,9 @@ import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.util.Failure
 import scala.util.Success
+import org.json4s.native.JsonMethods
+import org.json4s._
+import _root_.editor.serialization.given
 
 /** Possible result of checking for an inventory update. */
 sealed trait UpdateStatus
@@ -1213,14 +1216,14 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     if (!SettingsDialog.settings.inventory.inventoryFile.exists()) {
       JOptionPane.showMessageDialog(this, s"${SettingsDialog.settings.inventory.inventoryFile.getName} not found.  It will be downloaded.", "Update", JOptionPane.WARNING_MESSAGE)
       val in = BufferedReader(InputStreamReader(SettingsDialog.settings.inventory.versionSite.openStream()))
-      val data = (new JsonParser).parse(in.lines.collect(Collectors.joining)).getAsJsonObject
+      val json = JsonMethods.parse(in.lines.collect(Collectors.joining))
       in.close()
-      (DatabaseVersion.parseVersion((if (data.has("data")) data.get("data").getAsJsonObject else data).get("version").getAsString), UpdateNeeded)
+      ((json \ "data" \ "version").extract[DatabaseVersion], UpdateNeeded)
     } else if (SettingsDialog.settings.inventory.update != UpdateFrequency.Never) {
       val in = BufferedReader(InputStreamReader(SettingsDialog.settings.inventory.versionSite.openStream()))
-      val data = (new JsonParser).parse(in.lines.collect(Collectors.joining)).getAsJsonObject
+      val json = JsonMethods.parse(in.lines.collect(Collectors.joining))
       in.close()
-      val latest = DatabaseVersion.parseVersion((if (data.has("data")) data.get("data").getAsJsonObject else data).get("version").getAsString)
+      val latest = (json \ "data" \ "version").extract[DatabaseVersion]
       if (latest.needsUpdate(SettingsDialog.settings.inventory.version, freq)) {
         if (JOptionPane.showConfirmDialog(
           this,
