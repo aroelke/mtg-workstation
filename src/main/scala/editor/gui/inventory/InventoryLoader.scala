@@ -188,7 +188,7 @@ case class LoadedData(
   warnings: Seq[String] = Seq.empty
 )
 
-private case class Ruling(text: String, date: String)
+private case class Ruling(date: String, text: String)
 
 private class InventoryLoader(file: File, consumer: (String) => Unit, finished: () => Unit) extends SwingWorker[LoadedData, String] {
   private val v500 = DatabaseVersion(5, 0, 0)
@@ -371,11 +371,11 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                 case _ => throw CardLoadException(name, set, error)
               }
               val cost = (card \ "manaCost").extract[Option[String]].getOrElse("")
-              val colors = getOrError[JArray]("colors", "invalid colors")
-              val identity = getOrError[JArray]("colorIdentity", "invalid color identity")
-              val supers = getOrError[JArray]("supertypes", "invalid supertypes")
-              val types = getOrError[JArray]("types", "invalid types")
-              val subs = getOrError[JArray]("subtypes", "invalid subtypes")
+              val colors = (card \ "colors").extract[Seq[String]]
+              val identity = (card \ "colorIdentity").extract[Seq[String]]
+              val supers = (card \ "supertypes").extract[Seq[String]]
+              val types = (card \ "types").extract[Seq[String]]
+              val subs = (card \ "subtypes").extract[Seq[String]]
               val oTypes = (card \ "originalType").extract[Option[String]].getOrElse("")
               val text = (card \ "text").extract[Option[String]].getOrElse("")
               val flavor = (card \ "flavorText").extract[Option[String]].getOrElse("")
@@ -393,31 +393,11 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                 layout,
                 name,
                 costs.getOrElseUpdate(cost, ManaCost.parse(cost).get),
-                colorSets.getOrElseUpdate(colors.toString, {
-                  val col = collection.mutable.ArrayBuffer[ManaType]()
-                  colors.arr.foreach((e) => col += ManaType.parse(e.extract[String]).get)
-                  col.toSet
-                }),
-                colorSets.getOrElseUpdate(identity.toString, {
-                  val col = collection.mutable.ArrayBuffer[ManaType]()
-                  identity.arr.foreach((e) => col += ManaType.parse(e.extract[String]).get)
-                  col.toSet
-                }),
-                supertypeSets.getOrElseUpdate(supers.toString, {
-                  val s = collection.mutable.Buffer[String]()
-                  supers.arr.foreach((e) => s += allSupertypes.getOrElseUpdate(e.extract[String], e.extract[String]))
-                  ListSet.from(s)
-                }),
-                typeSets.getOrElseUpdate(types.toString, {
-                  val s = collection.mutable.Buffer[String]()
-                  types.arr.foreach((e) => s += allTypes.getOrElseUpdate(e.extract[String], e.extract[String]))
-                  ListSet.from(s)
-                }),
-                subtypeSets.getOrElseUpdate(subs.toString, {
-                  val s = collection.mutable.Buffer[String]()
-                  subs.arr.foreach((e) => s += allSubtypes.getOrElseUpdate(e.extract[String], e.extract[String]))
-                  ListSet.from(s)
-                }),
+                colorSets.getOrElseUpdate(colors.toString, colors.map(ManaType.parse(_).get).toSet),
+                colorSets.getOrElseUpdate(identity.toString, identity.map(ManaType.parse(_).get).toSet),
+                supertypeSets.getOrElseUpdate(supers.toString, ListSet.from(supers.map((s) => allSupertypes.getOrElseUpdate(s, s)))),
+                typeSets.getOrElseUpdate(types.toString, ListSet.from(types.map((t) => allTypes.getOrElseUpdate(t, t)))),
+                subtypeSets.getOrElseUpdate(subs.toString, ListSet.from(subs.map((s) => allSubtypes.getOrElseUpdate(s, s)))),
                 printedTypes.getOrElseUpdate(oTypes, oTypes),
                 Rarity.parse((card \ "rarity").extract[String]).getOrElse(Rarity.Unknown),
                 set,
