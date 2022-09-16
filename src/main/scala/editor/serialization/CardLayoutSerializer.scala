@@ -9,6 +9,9 @@ import org.json4s.JString
  * @author Alec Roelke
  */
 class CardLayoutSerializer extends CustomSerializer[CardLayout](formats => (
-{ case JString(layout) => CardLayout.values.find(_.toString.equalsIgnoreCase(layout)).get },
+{ case JString(layout) =>
+    try {
+      CardLayout.valueOf(layout.toUpperCase.replaceAll("[^A-Z]", "_"))
+    } catch case _ => CardLayout.values.find(_.toString.equalsIgnoreCase(layout)).getOrElse(throw IllegalArgumentException(layout)) },
 { case layout: CardLayout => JString(layout.toString) }
 ))
