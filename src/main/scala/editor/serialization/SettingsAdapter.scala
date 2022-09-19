@@ -38,31 +38,10 @@ class SettingsAdapter extends CustomSerializer[Settings](implicit formats => (
       JField("columns", JArray(settings.editor.columns.map(Extraction.decompose).toList)),
       JField("stripe", Extraction.decompose(settings.editor.stripe)),
       JField("hand", Extraction.decompose(settings.editor.hand)),
-      JField("legality", JObject(List(
-        JField("searchForCommander", JBool(settings.editor.legality.searchForCommander)),
-        JField("main", JBool(settings.editor.legality.main)),
-        JField("all", JBool(settings.editor.legality.all)),
-        JField("list", JString(settings.editor.legality.list)),
-        JField("sideboard", JString(settings.editor.legality.sideboard))
-      ))),
+      JField("legality", Extraction.decompose(settings.editor.legality)),
       JField("manaValue", JString(settings.editor.manaValue)),
       JField("backFaceLands", JArray(settings.editor.backFaceLands.map((l) => JString(l.toString)).toList)),
-      JField("manaAnalysis", JObject(List(
-        JField("none", Extraction.decompose(settings.editor.manaAnalysis.none)),
-        JField("white", Extraction.decompose(settings.editor.manaAnalysis.white)),
-        JField("blue", Extraction.decompose(settings.editor.manaAnalysis.blue)),
-        JField("black", Extraction.decompose(settings.editor.manaAnalysis.black)),
-        JField("red", Extraction.decompose(settings.editor.manaAnalysis.red)),
-        JField("green", Extraction.decompose(settings.editor.manaAnalysis.green)),
-        JField("multi", Extraction.decompose(settings.editor.manaAnalysis.multi)),
-        JField("creature", Extraction.decompose(settings.editor.manaAnalysis.creature)),
-        JField("artifact", Extraction.decompose(settings.editor.manaAnalysis.artifact)),
-        JField("enchantment", Extraction.decompose(settings.editor.manaAnalysis.enchantment)),
-        JField("planeswalker", Extraction.decompose(settings.editor.manaAnalysis.planeswalker)),
-        JField("instant", Extraction.decompose(settings.editor.manaAnalysis.instant)),
-        JField("sorcery", Extraction.decompose(settings.editor.manaAnalysis.sorcery)),
-        JField("line", Extraction.decompose(settings.editor.manaAnalysis.line))
-      )))
+      JField("manaAnalysis", Extraction.decompose(settings.editor.manaAnalysis))
     ))),
     JField("cwd", JString(settings.cwd))
   )) }
