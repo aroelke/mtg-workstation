@@ -43,13 +43,13 @@ import _root_.editor.gui.inventory.InventoryLoader
 import _root_.editor.gui.settings.Settings
 import _root_.editor.gui.settings.SettingsDialog
 import _root_.editor.gui.settings.SettingsObserver
+import _root_.editor.serialization.given
 import _root_.editor.unicode.{_, given}
 import _root_.editor.util.MenuListenerFactory
 import _root_.editor.util.MouseListenerFactory
 import _root_.editor.util.PopupMenuListenerFactory
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonParseException
-import com.google.gson.JsonParser
+import org.json4s._
+import org.json4s.native.JsonMethods
 
 import java.awt.BorderLayout
 import java.awt.Color
@@ -139,9 +139,6 @@ import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.util.Failure
 import scala.util.Success
-import org.json4s.native.JsonMethods
-import org.json4s._
-import _root_.editor.serialization.given
 
 /** Possible result of checking for an inventory update. */
 sealed trait UpdateStatus
@@ -214,7 +211,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     case e: MalformedURLException =>
       JOptionPane.showMessageDialog(this, s"Bad file URL: ${SettingsDialog.settings.inventory.url}", "Warning", JOptionPane.WARNING_MESSAGE)
       SettingsDialog.settings = Settings()
-    case e @ (_: IOException | _: JsonParseException) =>
+    case e: IOException =>
       var ex: Throwable = e
       while (ex.getCause != null)
         ex = ex.getCause

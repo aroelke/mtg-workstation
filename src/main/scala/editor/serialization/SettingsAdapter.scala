@@ -1,13 +1,5 @@
 package editor.serialization
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonSerializer
-import com.google.gson.reflect.TypeToken
 import editor.collection.Categorization
 import editor.database.attributes.CardAttribute
 import editor.database.card.CardLayout
@@ -25,8 +17,6 @@ import org.json4s._
 import org.json4s.native._
 
 import java.awt.Color
-import java.lang.reflect.Type
-import scala.jdk.CollectionConverters._
 
 /**
  * JSON serializer/deserializer for [[Settings]].
@@ -103,87 +93,4 @@ class SettingsAdapter extends CustomSerializer[Settings](implicit formats => (
     ))),
     JField("cwd", JString(settings.cwd))
   )) }
-)) with JsonSerializer[Settings] {
-  override def serialize(src: Settings, typeOfSrc: Type, context: JsonSerializationContext) = {
-    val attributeType = (new TypeToken[CardAttribute[?, ?]] {}).getType
-
-    val settings = JsonObject()
-
-    val inventory = JsonObject()
-    inventory.addProperty("source", src.inventory.source)
-    inventory.addProperty("file", src.inventory.file)
-    inventory.addProperty("versionFile", src.inventory.versionFile)
-    inventory.add("version", context.serialize(src.inventory.version))
-    inventory.addProperty("location", src.inventory.location)
-    inventory.addProperty("scans", src.inventory.scans)
-    inventory.addProperty("imageSource", src.inventory.imageSource)
-    inventory.addProperty("imageLimitEnable", src.inventory.imageLimitEnable)
-    inventory.addProperty("imageLimit", src.inventory.imageLimit)
-    inventory.addProperty("tags", src.inventory.tags)
-    inventory.add("update", context.serialize(src.inventory.update))
-    val inventoryColumns = JsonArray()
-    src.inventory.columns.foreach((c) => inventoryColumns.add(context.serialize(c, attributeType)))
-    inventory.add("columns", inventoryColumns)
-    inventory.add("background", context.serialize(src.inventory.background))
-    inventory.add("stripe", context.serialize(src.inventory.stripe))
-    inventory.addProperty("warn", src.inventory.warn)
-
-    val editor = JsonObject()
-    val recents = JsonObject()
-    recents.addProperty("count", src.editor.recents.count)
-    val recentFiles = JsonArray()
-    src.editor.recents.files.foreach(recentFiles.add)
-    recents.add("files", recentFiles)
-    editor.add("recents", recents)
-    val categories = JsonObject()
-    val presetCategories = JsonArray()
-    src.editor.categories.presets.foreach((c) => presetCategories.add(context.serialize(c)))
-    categories.add("presets", presetCategories)
-    categories.addProperty("rows", src.editor.categories.rows)
-    categories.addProperty("explicits", src.editor.categories.explicits)
-    editor.add("categories", categories)
-    val editorColumns = JsonArray()
-    src.editor.columns.foreach((c) => editorColumns.add(context.serialize(c, attributeType)))
-    editor.add("columns", editorColumns)
-    editor.add("stripe", context.serialize(src.editor.stripe))
-    val hand = JsonObject()
-    hand.addProperty("size", src.editor.hand.size)
-    hand.addProperty("rounding", src.editor.hand.rounding)
-    hand.add("background", context.serialize(src.editor.hand.background))
-    editor.add("hand", hand)
-    val legality = JsonObject()
-    legality.addProperty("searchForCommander", src.editor.legality.searchForCommander)
-    legality.addProperty("main", src.editor.legality.main)
-    legality.addProperty("all", src.editor.legality.all)
-    legality.addProperty("list", src.editor.legality.list)
-    legality.addProperty("sideboard", src.editor.legality.sideboard)
-    editor.add("legality", legality)
-    editor.addProperty("manaValue", src.editor.manaValue)
-    val backFaceLands = JsonArray()
-    src.editor.backFaceLands.foreach((l) => backFaceLands.add(l.toString))
-    editor.add("backFaceLands", backFaceLands)
-    val manaAnalysis = JsonObject()
-    manaAnalysis.add("none", context.serialize(src.editor.manaAnalysis.none))
-    manaAnalysis.add("colorless", context.serialize(src.editor.manaAnalysis.colorless))
-    manaAnalysis.add("white", context.serialize(src.editor.manaAnalysis.white))
-    manaAnalysis.add("blue", context.serialize(src.editor.manaAnalysis.blue))
-    manaAnalysis.add("black", context.serialize(src.editor.manaAnalysis.black))
-    manaAnalysis.add("red", context.serialize(src.editor.manaAnalysis.red))
-    manaAnalysis.add("green", context.serialize(src.editor.manaAnalysis.green))
-    manaAnalysis.add("multi", context.serialize(src.editor.manaAnalysis.multi))
-    manaAnalysis.add("creature", context.serialize(src.editor.manaAnalysis.creature))
-    manaAnalysis.add("artifact", context.serialize(src.editor.manaAnalysis.artifact))
-    manaAnalysis.add("enchantment", context.serialize(src.editor.manaAnalysis.enchantment))
-    manaAnalysis.add("planeswalker", context.serialize(src.editor.manaAnalysis.planeswalker))
-    manaAnalysis.add("instant", context.serialize(src.editor.manaAnalysis.instant))
-    manaAnalysis.add("sorcery", context.serialize(src.editor.manaAnalysis.sorcery))
-    manaAnalysis.add("line", context.serialize(src.editor.manaAnalysis.line))
-    editor.add("manaAnalysis", manaAnalysis)
-
-    settings.add("inventory", inventory)
-    settings.add("editor", editor)
-    settings.addProperty("cwd", src.cwd)
-
-    settings
-  }
-}
+))

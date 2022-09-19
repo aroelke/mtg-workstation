@@ -1,6 +1,5 @@
 package editor
 
-import com.google.gson.GsonBuilder
 import editor.collection.Categorization
 import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
@@ -10,11 +9,11 @@ import editor.database.version.UpdateFrequency
 import editor.filter.Filter
 import editor.gui.deck.DeckSerializer
 import editor.gui.settings.Settings
+import org.json4s.Formats
+import org.json4s.NoTypeHints
+import org.json4s.native.Serialization
 
 import java.awt.Color
-import org.json4s.native.Serialization
-import org.json4s.NoTypeHints
-import org.json4s.Formats
 
 /**
  * Global serialization constants and utilities.

@@ -1,8 +1,5 @@
 package editor.gui.inventory
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonParser
-import com.google.gson.reflect.TypeToken
 import com.mdimension.jchronic.Chronic
 import editor.collection.CardListEntry
 import editor.collection.immutable.Inventory
@@ -14,9 +11,8 @@ import editor.gui.MainFrame
 import editor.gui.generic.ScrollablePanel
 import editor.gui.settings.SettingsDialog
 import editor.serialization
-import org.json4s.JArray
-import org.json4s.JObject
-import org.json4s.JString
+import editor.serialization.given
+import org.json4s._
 import org.json4s.native.JsonMethods
 
 import java.awt.BorderLayout
@@ -61,11 +57,9 @@ import javax.swing.WindowConstants
 import scala.collection.immutable.ListSet
 import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters._
+import scala.reflect.ClassTag
 import scala.util.Using
 import scala.util.control.Breaks._
-import org.json4s._
-import editor.serialization.given
-import scala.reflect.ClassTag
 
 /**
  * Worker that loads inventory data from JSON along with metadata like expansions, blocks, and existing supertypes, card types, and subtypes.

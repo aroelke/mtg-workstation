@@ -14,7 +14,6 @@ version := appProperties.value.getProperty("version")
 scalaVersion := "3.1.3"
 libraryDependencies ++= Seq(
   "org.json4s" % "json4s-native_3" % "4.1.0-M1",
-  "com.google.code.gson" % "gson" % "2.8.5",
   "com.rubiconproject.oss" % "jchronic" % "0.2.8",
   "org.jfree" % "jfreechart" % "1.5.2"
 )

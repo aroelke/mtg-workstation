@@ -1,23 +1,14 @@
 package editor.serialization
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonSerializer
+import editor.collection.CardListEntry
 import editor.collection.Categorization
 import editor.collection.mutable.Deck
 import editor.database.card.Card
-
-import java.lang.reflect.Type
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import scala.jdk.CollectionConverters._
 import org.json4s._
 import org.json4s.native._
-import editor.collection.CardListEntry
+
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 object DeckAdapter {
   val Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -43,28 +34,4 @@ class DeckAdapter extends CustomSerializer[Deck](implicit format => (
     )).toList)),
     JField("categories", JArray(deck.categories.map((c) => Extraction.decompose(c.categorization)).toList))
   ) }
-)) with JsonSerializer[Deck] {
-  override def serialize(src: Deck, typeOfSrc: Type, context: JsonSerializationContext) = {
-    val deck = JsonObject()
-
-    val cards = JsonArray()
-    src.foreach((e) => {
-      val entry = JsonObject()
-      entry.add("card", context.serialize(e.card))
-      entry.addProperty("count", e.count)
-      entry.addProperty("date", e.dateAdded.format(DeckAdapter.Formatter))
-      cards.add(entry)
-    })
-    deck.add("cards", cards)
-
-    val categories = JsonArray()
-    src.categories.foreach((c) => {
-      val category = context.serialize(c.categorization).getAsJsonObject
-      category.addProperty("rank", c.rank)
-      categories.add(category)
-    })
-    deck.add("categories", categories)
-
-    deck
-  }
-}
+))

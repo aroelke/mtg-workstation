@@ -1,19 +1,13 @@
 package editor.gui.deck
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonParseException
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonSerializer
 import editor.collection.`export`.CardListFormat
 import editor.collection.mutable.Deck
 import editor.gui.MainFrame
 import editor.serialization
 import editor.serialization.given
 import editor.util.ProgressInputStream
+import org.json4s._
+import org.json4s.native._
 
 import java.awt.BorderLayout
 import java.awt.Component
@@ -43,8 +37,6 @@ import javax.swing.JProgressBar
 import javax.swing.SwingWorker
 import scala.jdk.CollectionConverters._
 import scala.util.Using
-import org.json4s._
-import org.json4s.native._
 
 /**
  * Companion object containing global information about serializing decks and for creating new [[DeckSerializer]]s.
@@ -124,31 +116,16 @@ case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = M
       JField("notes", JString(notes)),
       JField("changelog", JString(changelog))
     )) }
-  )) with JsonSerializer[DeckSerializer]
+  ))
 {
   /** Save the serialized deck to a JSON file, if the file is defined. */
   @throws[IOException]("if the file could not be saved")
   @throws[NoSuchFileException]("if there is no file to save to")
   def save() = file.map((f) => Using.resource(FileWriter(f)){ writer =>
-//    writer.write(serialization.Serializer.toJson(this))
     writer.write(JsonMethods.pretty(JsonMethods.render(Extraction.decompose(this))))
   }).getOrElse(throw NoSuchFileException("no file to save to"))
-
-  override def serialize(src: DeckSerializer, typeOfSrc: Type, context: JsonSerializationContext) = {
-    val json = JsonObject()
-    json.add("main", context.serialize(src.deck))
-    val side = JsonArray()
-    src.sideboards.keys.foreach((n) => {
-      val board = context.serialize(src.sideboards(n)).getAsJsonObject
-      board.addProperty("name", n)
-      side.add(board)
-    })
-    json.add("sideboards", side)
-    json.addProperty("notes", src.notes)
-    json.addProperty("changelog", src.changelog)
-    json
-  }
 }
+
 /**
  * Helper class for loading a deck in the background. Shows a dialog indicating load progress.
  * 

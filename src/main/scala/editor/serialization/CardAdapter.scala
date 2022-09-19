@@ -1,19 +1,10 @@
 package editor.serialization
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonParseException
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonSerializer
 import editor.collection.immutable.Inventory
 import editor.database.card.Card
 import editor.gui.MainFrame
 import org.json4s._
 import org.json4s.native._
-
-import java.lang.reflect.Type
 
 /**
  * JSON serializer/deserializer for [[Card]]s. Primarily its [[Card.scryfallid]] is used, but if that is not present
@@ -33,12 +24,4 @@ class CardAdapter extends CustomSerializer[Card](format => (
     JField("name", JString(card.name)),
     JField("expansion", JString(card.expansion.name))
   ) }
-)) with JsonSerializer[Card] {
-  override def serialize(src: Card, typeOfSrc: Type, context: JsonSerializationContext) = {
-    val card = JsonObject()
-    card.addProperty("scryfallid", src(0).scryfallid)
-    card.addProperty("name", src.name)
-    card.addProperty("expansion", src.expansion.name)
-    card
-  }
-}
+))
