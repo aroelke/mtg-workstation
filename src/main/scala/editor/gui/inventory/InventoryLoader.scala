@@ -189,6 +189,7 @@ case class LoadedData(
 )
 
 private case class Ruling(date: String, text: String)
+private case class Identifiers(scryfallId: String, multiverseId: String = "-1")
 
 private class InventoryLoader(file: File, consumer: (String) => Unit, finished: () => Unit) extends SwingWorker[LoadedData, String] {
   private val v500 = DatabaseVersion(5, 0, 0)
@@ -344,8 +345,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             val name = (card \ "faceName").extract[Option[String]].orElse((card \ "name").extract[Option[String]]).getOrElse(throw CardLoadException("<unknown>", set, "card with missing name"))
 
             // Card's multiverseid and Scryfall id
-            val scryfallid = (if (version < v500) (card \ "scryfallId").extract[Option[String]] else (card \ "identifiers" \ "scryfallId").extract[Option[String]]).getOrElse(throw CardLoadException(name, set, "no Scryfall ID"))
-            val multiverseid = (if (version < v500) (card \ "multiverseId").extract[Option[String]] else (card \ "identifiers" \ "multiverseId").extract[Option[String]]).map(_.toInt).getOrElse(-1)
+            val Identifiers(scryfallid, multiverseid) = (if (version < v500) card else (card \ "identifiers")).extract[Identifiers]
 
             // If the card is a token, skip it
             try {
@@ -366,10 +366,6 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               // Formats the card can be commander in
               val commandFormats = (card \ "leadershipSkills").extract[Option[Map[String, Boolean]]].toSeq.flatMap(_.collect{ case (format, legal) if legal => formats.getOrElseUpdate(format, format) }).sorted
 
-              def getOrError[T <: JValue : ClassTag](key: String, error: String) = (card \ key) match {
-                case t: T => t
-                case _ => throw CardLoadException(name, set, error)
-              }
               val cost = (card \ "manaCost").extract[Option[String]].getOrElse("")
               val colors = (card \ "colors").extract[Seq[String]]
               val identity = (card \ "colorIdentity").extract[Seq[String]]
@@ -405,7 +401,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                 flavors.getOrElseUpdate(flavor, flavor),
                 texts.getOrElseUpdate(printed, printed),
                 artists.getOrElseUpdate(artist, artist),
-                multiverseid,
+                multiverseid.toInt,
                 scryfallid,
                 numbers.getOrElseUpdate(number, number),
                 power.map((p) => stats.getOrElseUpdate(p, CombatStat(p))),
