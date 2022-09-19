@@ -31,23 +31,7 @@ class SettingsAdapter extends CustomSerializer[Settings](implicit formats => (
       (v \ "cwd").extract[Option[String]].getOrElse(defaults.cwd)
     ) },
   { case settings: Settings => JObject(List(
-    JField("inventory", JObject(List(
-      JField("source", JString(settings.inventory.source)),
-      JField("file", JString(settings.inventory.file)),
-      JField("versionFile", JString(settings.inventory.versionFile)),
-      JField("version", Extraction.decompose(settings.inventory.version)),
-      JField("location", JString(settings.inventory.location)),
-      JField("scans", JString(settings.inventory.scans)),
-      JField("imageSource", JString(settings.inventory.imageSource)),
-      JField("imageLimitEnable", JBool(settings.inventory.imageLimitEnable)),
-      JField("imageLimit", JInt(settings.inventory.imageLimit)),
-      JField("tags", JString(settings.inventory.tags)),
-      JField("update", Extraction.decompose(settings.inventory.update)),
-      JField("columns", JArray(settings.inventory.columns.map(Extraction.decompose).toList)),
-      JField("background", Extraction.decompose(settings.inventory.background)),
-      JField("stripe", Extraction.decompose(settings.inventory.stripe)),
-      JField("warn", JBool(settings.inventory.warn))
-    ))),
+    JField("inventory", Extraction.decompose(settings.inventory)),
     JField("editor", JObject(List(
       JField("recents", JObject(List(
         JField("count", JInt(settings.editor.recents.count)),
