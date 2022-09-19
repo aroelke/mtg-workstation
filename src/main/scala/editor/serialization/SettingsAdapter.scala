@@ -33,10 +33,7 @@ class SettingsAdapter extends CustomSerializer[Settings](implicit formats => (
   { case settings: Settings => JObject(List(
     JField("inventory", Extraction.decompose(settings.inventory)),
     JField("editor", JObject(List(
-      JField("recents", JObject(List(
-        JField("count", JInt(settings.editor.recents.count)),
-        JField("files", JArray(settings.editor.recents.files.map(JString(_)).toList))
-      ))),
+      JField("recents", Extraction.decompose(settings.editor.recents)),
       JField("categories", JObject(List(
         JField("presets", JArray(settings.editor.categories.presets.map(Extraction.decompose).toList)),
         JField("rows", JInt(settings.editor.categories.rows)),
