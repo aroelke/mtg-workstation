@@ -22,7 +22,6 @@ import java.awt.Color
 package object serialization {
   /** Serializer for saving and loading external information. */
   given formats: Formats = Serialization.formats(NoTypeHints) +
-    new CategoryAdapter +
     new FilterAdapter +
     new ColorAdapter +
     new CardAdapter +
