@@ -10,10 +10,6 @@ import org.json4s.native._
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-object DeckAdapter {
-  val Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-}
-
 /**
  * JSON serializer/deserializer for [[Deck]]s.  Cards and categories are mapped to "cards" and "categories" keys,
  * respectively.  Does not include the extra lists in an [[EditorFrame]]; those are considered entirely separate
@@ -21,7 +17,7 @@ object DeckAdapter {
  * 
  * @author Alec Roelke
  */
-class DeckAdapter extends CustomSerializer[Deck](implicit format => (
+object DeckAdapter extends CustomSerializer[Deck](implicit format => (
   { case v => Deck(
     (v \ "cards").extract[Seq[CardListEntry]],
     (v \ "categories").extract[Set[Categorization]]
@@ -30,4 +26,6 @@ class DeckAdapter extends CustomSerializer[Deck](implicit format => (
     JField("cards", JArray(deck.map(Extraction.decompose).toList)),
     JField("categories", JArray(deck.categories.map(Extraction.decompose).toList))
   ) }
-))
+)) {
+  val Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+}

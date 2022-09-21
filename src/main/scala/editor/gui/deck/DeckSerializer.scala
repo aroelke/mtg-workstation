@@ -42,7 +42,19 @@ import scala.util.Using
  * Companion object containing global information about serializing decks and for creating new [[DeckSerializer]]s.
  * @author Alec Roelke
  */
-object DeckSerializer {
+object DeckSerializer extends CustomSerializer[DeckSerializer](implicit formats => (
+  { case JObject(JField("main", main) :: JField("sideboards", JArray(sideboards)) :: JField("notes", JString(notes)) :: JField("changelog", JString(changelog)) :: Nil) =>
+    DeckSerializer(main.extract[Deck], sideboards.map((e) => (e \ "name").extract[String] -> e.extract[Deck]).toMap, notes, changelog) },
+  { case DeckSerializer(deck, sideboards, notes, changelog, _) => JObject(List(
+    JField("main", Extraction.decompose(deck)),
+    JField("sideboards", JArray(sideboards.map{ case (name, sb) => JObject(Extraction.decompose(sb) match {
+      case JObject(obj) => JField("name", JString(name)) +: obj
+      case _ => throw MatchError("a deck should be a JObject")
+    }) }.toList)),
+    JField("notes", JString(notes)),
+    JField("changelog", JString(changelog))
+  )) }
+)) {
   /** @return the format used to serialize dates (e.g. for when a card was added to the deck) */
   def ChangelogDateFormat = SimpleDateFormat("MMMM d, yyyy HH:mm:ss")
 
@@ -57,7 +69,7 @@ object DeckSerializer {
   def load(file: File, parent: Component) = {
     val worker = LoadWorker(file, parent, (stream) => Using.resource(BufferedReader(InputStreamReader(stream)))((s) => {
       Extraction.extract[DeckSerializer](JsonMethods.parse(s))
-  }))
+    }))
     worker.executeAndDisplay()
     try {
       worker.get.copy(file = Some(file))
@@ -103,21 +115,7 @@ object DeckSerializer {
  * 
  * @author Alec Roelke
  */
-case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = Map.empty, notes: String = "", changelog: String = "", file: Option[File] = None)
-  extends CustomSerializer[DeckSerializer](implicit formats => (
-    { case JObject(JField("main", main) :: JField("sideboards", JArray(sideboards)) :: JField("notes", JString(notes)) :: JField("changelog", JString(changelog)) :: Nil) =>
-      DeckSerializer(main.extract[Deck], sideboards.map((e) => (e \ "name").extract[String] -> e.extract[Deck]).toMap, notes, changelog) },
-    { case DeckSerializer(deck, sideboards, notes, changelog, _) => JObject(List(
-      JField("main", Extraction.decompose(deck)),
-      JField("sideboards", JArray(sideboards.map{ case (name, sb) => JObject(Extraction.decompose(sb) match {
-        case JObject(obj) => JField("name", JString(name)) +: obj
-        case _ => throw MatchError("a deck should be a JObject")
-      }) }.toList)),
-      JField("notes", JString(notes)),
-      JField("changelog", JString(changelog))
-    )) }
-  ))
-{
+case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = Map.empty, notes: String = "", changelog: String = "", file: Option[File] = None) {
   /** Save the serialized deck to a JSON file, if the file is defined. */
   @throws[IOException]("if the file could not be saved")
   @throws[NoSuchFileException]("if there is no file to save to")

@@ -14,7 +14,7 @@ import org.json4s.native._
  * 
  * @author Alec Roelke
  */
-class CardAdapter extends CustomSerializer[Card](format => (
+object CardAdapter extends CustomSerializer[Card](format => (
   {
     case v if v \ "scryfallid" != JNothing => Inventory((v \ "scryfallid").extract[String]).card
     case v if v \ "multiverseid" != JNothing => val id = (v \ "multiverseid").extract[Int]; Inventory.find(_.card.faces.exists(_.multiverseid == id)).getOrElse(throw IndexOutOfBoundsException(id)).card

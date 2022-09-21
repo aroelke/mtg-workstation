@@ -22,14 +22,14 @@ import java.awt.Color
 package object serialization {
   /** Serializer for saving and loading external information. */
   given formats: Formats = Serialization.formats(NoTypeHints) +
-    new FilterAdapter +
-    new ColorAdapter +
-    new CardAdapter +
-    new CardListEntrySerializer +
-    new AttributeAdapter +
-    new DeckAdapter +
-    new VersionAdapter +
-    new UpdateAdapter +
-    new CardLayoutSerializer +
-    new DeckSerializer
+    FilterAdapter +
+    ColorAdapter +
+    CardAdapter +
+    CardListEntrySerializer +
+    AttributeAdapter +
+    DeckAdapter +
+    VersionAdapter +
+    UpdateAdapter +
+    CardLayoutSerializer +
+    DeckSerializer
 }

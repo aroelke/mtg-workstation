@@ -8,7 +8,7 @@ import org.json4s.JString
  * JSON serializer/deserializer for [[CardLayout]]s.
  * @author Alec Roelke
  */
-class CardLayoutSerializer extends CustomSerializer[CardLayout](formats => (
+object CardLayoutSerializer extends CustomSerializer[CardLayout](formats => (
 { case JString(layout) =>
     try {
       CardLayout.valueOf(layout.toUpperCase.replaceAll("[^A-Z]", "_"))

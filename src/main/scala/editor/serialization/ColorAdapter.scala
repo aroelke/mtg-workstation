@@ -10,7 +10,7 @@ import java.awt.Color
  * @constructor create a new [[Color]] serializer/deserializer
  * @author Alec Roelke
  */
-class ColorAdapter extends CustomSerializer[Color](formats => (
+object ColorAdapter extends CustomSerializer[Color](formats => (
   { case JString(hex) => Color(BigInt(hex, 16).toInt, true) },
   { case color: Color => JString(color.getRGB.toHexString) }
 ))
