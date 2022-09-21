@@ -27,11 +27,7 @@ class DeckAdapter extends CustomSerializer[Deck](implicit format => (
     (v \ "categories").extract[Set[Categorization]]
   ) },
   { case deck: Deck => JObject(
-    JField("cards", JArray(deck.map((e) => JObject(
-      JField("card", Extraction.decompose(e.card)),
-      JField("count", JInt(e.count)),
-      JField("date", JString(e.dateAdded.format(DeckAdapter.Formatter)))
-    )).toList)),
-    JField("categories", JArray(deck.categories.map((c) => Extraction.decompose(c.categorization)).toList))
+    JField("cards", JArray(deck.map(Extraction.decompose).toList)),
+    JField("categories", JArray(deck.categories.map(Extraction.decompose).toList))
   ) }
 ))
