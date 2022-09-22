@@ -116,7 +116,7 @@ object EditorFrame {
   val MainDeck = 0
 }
 
-class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSerializer()) extends JInternalFrame(manager.file.map(_.getName).getOrElse(s"Untitled $u"), true, true, true, true)
+class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignSerializer()) extends JInternalFrame(manager.file.map(_.getName).getOrElse(s"Untitled $u"), true, true, true, true)
   with SettingsObserver
 {
   import EditorFrame._
@@ -1619,13 +1619,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   def save(f: File): Boolean = {
     val changes = deck.changes
     if (!changes.isEmpty) {
-      changelogArea.append(s"""|~~~~~${DeckSerializer.ChangelogDateFormat.format(Date())}~~~~~)
+      changelogArea.append(s"""|~~~~~${DesignSerializer.ChangelogDateFormat.format(Date())}~~~~~)
                                |$changes
                                |""".stripMargin)
     }
 
     val sideboards = extras.map((l) => l.name -> l.current).toMap
-    val manager = DeckSerializer(deck.current, sideboards, notesArea.getText, changelogArea.getText, Some(f))
+    val manager = DesignSerializer(deck.current, sideboards, notesArea.getText, changelogArea.getText, Some(f))
     try {
       manager.save()
       deck.original.clear()

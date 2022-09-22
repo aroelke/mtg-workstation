@@ -20,7 +20,7 @@ import _root_.editor.gui.ccp.CCPItems
 import _root_.editor.gui.ccp.data.DataFlavors
 import _root_.editor.gui.ccp.handler.InventoryExportHandler
 import _root_.editor.gui.deck.DeckLoadException
-import _root_.editor.gui.deck.DeckSerializer
+import _root_.editor.gui.deck.DesignSerializer
 import _root_.editor.gui.deck.EditorFrame
 import _root_.editor.gui.display.CardImagePanel
 import _root_.editor.gui.display.CardTable
@@ -429,10 +429,10 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
         }
         format.foreach((fmt) => {
           val manager = try {
-            DeckSerializer.importList(fmt, importChooser.getSelectedFile, this)
+            DesignSerializer.importList(fmt, importChooser.getSelectedFile, this)
           } catch case x: DeckLoadException => {
             JOptionPane.showMessageDialog(this, s"Could not import ${importChooser.getSelectedFile}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
-            DeckSerializer()
+            DesignSerializer()
           }
           selectFrame(createEditor(manager))
         })
@@ -1330,7 +1330,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    * @param manager file manager containing the deck to display
    * @see EditorFrame
    */
-  def createEditor(manager: DeckSerializer = DeckSerializer()) = {
+  def createEditor(manager: DesignSerializer = DesignSerializer()) = {
     untitled += 1
     val frame = EditorFrame(this, untitled, manager)
     editors += frame
@@ -1358,7 +1358,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    */
   def open(f: File) = editors.find(_.file.contains(f)).orElse{
     val frame = try {
-      Some(createEditor(DeckSerializer.load(f, this)))
+      Some(createEditor(DesignSerializer.load(f, this)))
     } catch {
       case e: CancellationException => None
       case e: DeckLoadException =>

@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter
  * 
  * @author Alec Roelke
  */
-object DeckAdapter extends CustomSerializer[Deck](implicit format => (
+object DeckSerializer extends CustomSerializer[Deck](implicit format => (
   { case v => Deck(
     (v \ "cards").extract[Seq[CardListEntry]],
     (v \ "categories").extract[Set[Categorization]]

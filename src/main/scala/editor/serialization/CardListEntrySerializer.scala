@@ -13,6 +13,6 @@ import java.time.LocalDate
  * @author Alec Roelke
  */
 object CardListEntrySerializer extends CustomSerializer[CardListEntry](format => (
-  { case JObject(JField("card", card) :: JField("count", JInt(count)) :: JField("date", JString(date)) :: Nil) => CardListEntry(card.extract[Card], count.toInt, LocalDate.parse(date, DeckAdapter.Formatter)) },
-  { case CardListEntry(card, count, date) => JObject(List(JField("card", Extraction.decompose(card)), JField("count", JInt(count)), JField("date", JString(date.format(DeckAdapter.Formatter))))) }
+  { case JObject(JField("card", card) :: JField("count", JInt(count)) :: JField("date", JString(date)) :: Nil) => CardListEntry(card.extract[Card], count.toInt, LocalDate.parse(date, DeckSerializer.Formatter)) },
+  { case CardListEntry(card, count, date) => JObject(List(JField("card", Extraction.decompose(card)), JField("count", JInt(count)), JField("date", JString(date.format(DeckSerializer.Formatter))))) }
 ))

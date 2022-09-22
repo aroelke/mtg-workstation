@@ -42,10 +42,10 @@ import scala.util.Using
  * Companion object containing global information about serializing decks and for creating new [[DeckSerializer]]s.
  * @author Alec Roelke
  */
-object DeckSerializer extends CustomSerializer[DeckSerializer](implicit formats => (
+object DesignSerializer extends CustomSerializer[DesignSerializer](implicit formats => (
   { case JObject(JField("main", main) :: JField("sideboards", JArray(sideboards)) :: JField("notes", JString(notes)) :: JField("changelog", JString(changelog)) :: Nil) =>
-    DeckSerializer(main.extract[Deck], sideboards.map((e) => (e \ "name").extract[String] -> e.extract[Deck]).toMap, notes, changelog) },
-  { case DeckSerializer(deck, sideboards, notes, changelog, _) => JObject(List(
+    DesignSerializer(main.extract[Deck], sideboards.map((e) => (e \ "name").extract[String] -> e.extract[Deck]).toMap, notes, changelog) },
+  { case DesignSerializer(deck, sideboards, notes, changelog, _) => JObject(List(
     JField("main", Extraction.decompose(deck)),
     JField("sideboards", JArray(sideboards.map{ case (name, sb) => JObject(Extraction.decompose(sb) match {
       case JObject(obj) => JField("name", JString(name)) +: obj
@@ -68,13 +68,13 @@ object DeckSerializer extends CustomSerializer[DeckSerializer](implicit formats 
   @throws[DeckLoadException]("if the deck couldn't be loaded (not including user cancellation)")
   def load(file: File, parent: Component) = {
     val worker = LoadWorker(file, parent, (stream) => Using.resource(BufferedReader(InputStreamReader(stream)))((s) => {
-      Extraction.extract[DeckSerializer](JsonMethods.parse(s))
+      Extraction.extract[DesignSerializer](JsonMethods.parse(s))
     }))
     worker.executeAndDisplay()
     try {
       worker.get.copy(file = Some(file))
     } catch {
-      case _: CancellationException => DeckSerializer()
+      case _: CancellationException => DesignSerializer()
       case e => throw DeckLoadException(file, cause = Some(e))
     }
   }
@@ -96,7 +96,7 @@ object DeckSerializer extends CustomSerializer[DeckSerializer](implicit formats 
     try {
       worker.get
     } catch {
-      case _: CancellationException => DeckSerializer()
+      case _: CancellationException => DesignSerializer()
       case e => throw DeckLoadException(file, cause = Some(e))
     }
   }
@@ -115,7 +115,7 @@ object DeckSerializer extends CustomSerializer[DeckSerializer](implicit formats 
  * 
  * @author Alec Roelke
  */
-case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = Map.empty, notes: String = "", changelog: String = "", file: Option[File] = None) {
+case class DesignSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = Map.empty, notes: String = "", changelog: String = "", file: Option[File] = None) {
   /** Save the serialized deck to a JSON file, if the file is defined. */
   @throws[IOException]("if the file could not be saved")
   @throws[NoSuchFileException]("if there is no file to save to")
@@ -132,7 +132,7 @@ case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = M
  * @param parent component doing the loading, for positioning the dialog
  * @param background function converting the data from the file input stream into a [[DeckSerializer]]
  */
-private class LoadWorker(file: File, parent: Component, background: (InputStream) => DeckSerializer) extends SwingWorker[DeckSerializer, Integer] {
+private class LoadWorker(file: File, parent: Component, background: (InputStream) => DesignSerializer) extends SwingWorker[DesignSerializer, Integer] {
   private val dialog = JDialog(null, Dialog.ModalityType.APPLICATION_MODAL)
   private val progressBar = JProgressBar(0, file.length.toInt)
   private val progressPanel = JPanel(BorderLayout(0, 5))

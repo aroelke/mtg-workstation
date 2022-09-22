@@ -6,7 +6,7 @@ import editor.collection.immutable.Inventory
 import editor.collection.mutable.Deck
 import editor.database.card.CardFormat
 import editor.gui.MainFrame
-import editor.gui.deck.DeckSerializer
+import editor.gui.deck.DesignSerializer
 import editor.util.IterableReader
 
 import java.io.InputStream
@@ -80,6 +80,6 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
         extras += extra.get -> Deck()
       }
     })
-    DeckSerializer(deck, extras, "", "")
+    DesignSerializer(deck, extras, "", "")
   }
 }

@@ -19,7 +19,7 @@ import org.json4s.native._
  * JSON serializer/deserializer for [[Filter]]s using their methods for converting to/from JSON objects.
  * @author Alec Roelke
  */
-object FilterAdapter extends CustomSerializer[Filter](implicit format => (
+object FilterSerializer extends CustomSerializer[Filter](implicit format => (
   { case v =>
     val faces = (v \ "faces").extract[Option[String]].map(FaceSearchOptions.valueOf).getOrElse(FaceSearchOptions.ANY)
     val selected = (v \ "selected").extract[Option[Set[String]]]

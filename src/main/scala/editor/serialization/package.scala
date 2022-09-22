@@ -7,7 +7,7 @@ import editor.database.card.Card
 import editor.database.version.DatabaseVersion
 import editor.database.version.UpdateFrequency
 import editor.filter.Filter
-import editor.gui.deck.DeckSerializer
+import editor.gui.deck.DesignSerializer
 import editor.gui.settings.Settings
 import org.json4s.Formats
 import org.json4s.NoTypeHints
@@ -22,14 +22,14 @@ import java.awt.Color
 package object serialization {
   /** Serializer for saving and loading external information. */
   given formats: Formats = Serialization.formats(NoTypeHints) +
-    FilterAdapter +
-    ColorAdapter +
-    CardAdapter +
+    FilterSerializer +
+    ColorSerializer +
+    CardSerializer +
     CardListEntrySerializer +
-    AttributeAdapter +
-    DeckAdapter +
-    VersionAdapter +
-    UpdateAdapter +
+    AttributeSerializer +
+    DeckSerializer +
+    VersionSerializer +
+    UpdateSerializer +
     CardLayoutSerializer +
-    DeckSerializer
+    DesignSerializer
 }
