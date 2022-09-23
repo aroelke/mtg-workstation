@@ -72,47 +72,41 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
       case m: MultiOptionsFilter[?] => m.copy(contain = contain.get)
       case f => f
     }},
-  { case filter: Filter =>
-    var fields = List(JField("type", JString(filter.attribute.toString)))
-    filter match {
-      case l: FilterLeaf => fields :+= JField("faces", JString(l.faces.toString))
-      case g: FilterGroup =>
-        fields = fields ++ List(
-          JField("mode", JString(g.mode.toString)),
-          JField("comment", JString(g.comment)),
-          JField("children", JArray(g.map(Extraction.decompose).toList))
-        )
-    }
-    filter match {
-      case o: OptionsFilter[?, ?] => fields :+= JField("contains", JString(o.contain.toString))
-      case _ =>
-    }
-    filter match {
-      case t: TypeLineFilter => fields ++= List(
-        JField("contains", JString(t.contain.toString)),
-        JField("pattern", JString(t.line))
-      )
-      case t: TextFilter => fields ++= List(
-        JField("contains", JString(t.contain.toString)),
-        JField("regex", JBool(t.regex)),
-        JField("pattern", JString(t.text))
-      )
-      case n: NumberFilter => fields ++= List(
-        JField("operation", JString(n.operation.toString)),
-        JField("operand", JDouble(n.operand))
-      ) ++ n.variable.map(_ => JField("varies", JBool(n.varies))).toList
-      case m: ManaCostFilter => fields ++= List(
-        JField("contains", JString(m.contain.toString)),
-        JField("cost", JString(m.cost.toString))
-      )
-      case c: ColorFilter => fields ++= List(
-        JField("contains", JString(c.contain.toString)),
-        JField("colors", JArray(c.colors.map(Extraction.decompose).toList)),
-        JField("multicolored", JBool(c.multicolored))
-      )
-      case _: BinaryFilter => // Nothing additional actually needs to be serialized
-      case o: OptionsFilter[?, ?] => fields :+= JField("selected", JArray(o.selected.map((e) => JString(e.toString)).toList))
-      case _ =>
-    }
-    JObject(fields) }
+  { case filter: Filter => JObject(List(JField("type", JString(filter.attribute.toString))) ++ (filter match {
+    case l: FilterLeaf => List(JField("faces", JString(l.faces.toString)))
+    case g: FilterGroup => List(
+      JField("mode", JString(g.mode.toString)),
+      JField("comment", JString(g.comment)),
+      JField("children", JArray(g.map(Extraction.decompose).toList))
+    )
+  }) ++ (filter match {
+    case o: OptionsFilter[?, ?] => List(JField("contains", JString(o.contain.toString)))
+    case _ => Nil
+  }) ++ (filter match {
+    case t: TypeLineFilter => List(
+      JField("contains", JString(t.contain.toString)),
+      JField("pattern", JString(t.line))
+    )
+    case t: TextFilter => List(
+      JField("contains", JString(t.contain.toString)),
+      JField("regex", JBool(t.regex)),
+      JField("pattern", JString(t.text))
+    )
+    case n: NumberFilter => List(
+      JField("operation", JString(n.operation.toString)),
+      JField("operand", JDouble(n.operand))
+    ) ++ n.variable.map(_ => JField("varies", JBool(n.varies))).toList
+    case m: ManaCostFilter => List(
+      JField("contains", JString(m.contain.toString)),
+      JField("cost", JString(m.cost.toString))
+    )
+    case c: ColorFilter => List(
+      JField("contains", JString(c.contain.toString)),
+      JField("colors", JArray(c.colors.map(Extraction.decompose).toList)),
+      JField("multicolored", JBool(c.multicolored))
+    )
+    case _: BinaryFilter => Nil // Nothing additional actually needs to be serialized
+    case o: OptionsFilter[?, ?] => List(JField("selected", JArray(o.selected.map((e) => JString(e.toString)).toList)))
+    case _ => Nil
+  }))}
 ))
