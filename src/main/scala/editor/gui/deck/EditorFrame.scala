@@ -3,7 +3,7 @@ package editor.gui.deck
 import editor.collection.CardList
 import editor.collection.CardListEntry
 import editor.collection.Categorization
-import editor.collection.`export`.CardListFormat
+import editor.collection.format.CardListFormat
 import editor.collection.mutable.Deck
 import editor.collection.mutable.Hand
 import editor.database.attributes.ManaType

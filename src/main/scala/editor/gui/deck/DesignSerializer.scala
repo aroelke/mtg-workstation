@@ -1,6 +1,6 @@
 package editor.gui.deck
 
-import editor.collection.`export`.CardListFormat
+import editor.collection.format.CardListFormat
 import editor.collection.mutable.Deck
 import editor.gui.MainFrame
 import editor.serialization

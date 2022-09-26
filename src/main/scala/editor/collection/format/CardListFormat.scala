@@ -1,4 +1,4 @@
-package editor.collection.`export`
+package editor.collection.format
 
 import editor.collection.CardList
 import editor.gui.deck.DesignSerializer
