@@ -24,7 +24,7 @@ object DeckSerializer extends CustomSerializer[Deck](implicit format => (
   ) },
   { case deck: Deck => JObject(
     JField("cards", JArray(deck.map(Extraction.decompose).toList)),
-    JField("categories", JArray(deck.categories.map(Extraction.decompose).toList))
+    JField("categories", JArray(deck.categories.map((c) => Extraction.decompose(c.categorization)).toList))
   ) }
 )) {
   val Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
