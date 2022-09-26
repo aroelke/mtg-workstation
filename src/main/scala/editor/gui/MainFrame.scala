@@ -20,7 +20,7 @@ import _root_.editor.gui.ccp.CCPItems
 import _root_.editor.gui.ccp.data.DataFlavors
 import _root_.editor.gui.ccp.handler.InventoryExportHandler
 import _root_.editor.gui.deck.DeckLoadException
-import _root_.editor.gui.deck.DeckSerializer
+import _root_.editor.gui.deck.DesignSerializer
 import _root_.editor.gui.deck.EditorFrame
 import _root_.editor.gui.display.CardImagePanel
 import _root_.editor.gui.display.CardTable
@@ -43,13 +43,13 @@ import _root_.editor.gui.inventory.InventoryLoader
 import _root_.editor.gui.settings.Settings
 import _root_.editor.gui.settings.SettingsDialog
 import _root_.editor.gui.settings.SettingsObserver
+import _root_.editor.serialization.given
 import _root_.editor.unicode.{_, given}
 import _root_.editor.util.MenuListenerFactory
 import _root_.editor.util.MouseListenerFactory
 import _root_.editor.util.PopupMenuListenerFactory
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonParseException
-import com.google.gson.JsonParser
+import org.json4s._
+import org.json4s.native.JsonMethods
 
 import java.awt.BorderLayout
 import java.awt.Color
@@ -211,7 +211,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     case e: MalformedURLException =>
       JOptionPane.showMessageDialog(this, s"Bad file URL: ${SettingsDialog.settings.inventory.url}", "Warning", JOptionPane.WARNING_MESSAGE)
       SettingsDialog.settings = Settings()
-    case e @ (_: IOException | _: JsonParseException) =>
+    case e: IOException =>
       var ex: Throwable = e
       while (ex.getCause != null)
         ex = ex.getCause
@@ -429,10 +429,10 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
         }
         format.foreach((fmt) => {
           val manager = try {
-            DeckSerializer.importList(fmt, importChooser.getSelectedFile, this)
+            DesignSerializer.importList(fmt, importChooser.getSelectedFile, this)
           } catch case x: DeckLoadException => {
             JOptionPane.showMessageDialog(this, s"Could not import ${importChooser.getSelectedFile}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
-            DeckSerializer()
+            DesignSerializer()
           }
           selectFrame(createEditor(manager))
         })
@@ -1213,14 +1213,14 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     if (!SettingsDialog.settings.inventory.inventoryFile.exists()) {
       JOptionPane.showMessageDialog(this, s"${SettingsDialog.settings.inventory.inventoryFile.getName} not found.  It will be downloaded.", "Update", JOptionPane.WARNING_MESSAGE)
       val in = BufferedReader(InputStreamReader(SettingsDialog.settings.inventory.versionSite.openStream()))
-      val data = (new JsonParser).parse(in.lines.collect(Collectors.joining)).getAsJsonObject
+      val json = JsonMethods.parse(in.lines.collect(Collectors.joining))
       in.close()
-      (DatabaseVersion.parseVersion((if (data.has("data")) data.get("data").getAsJsonObject else data).get("version").getAsString), UpdateNeeded)
+      ((json \ "data" \ "version").extract[DatabaseVersion], UpdateNeeded)
     } else if (SettingsDialog.settings.inventory.update != UpdateFrequency.Never) {
       val in = BufferedReader(InputStreamReader(SettingsDialog.settings.inventory.versionSite.openStream()))
-      val data = (new JsonParser).parse(in.lines.collect(Collectors.joining)).getAsJsonObject
+      val json = JsonMethods.parse(in.lines.collect(Collectors.joining))
       in.close()
-      val latest = DatabaseVersion.parseVersion((if (data.has("data")) data.get("data").getAsJsonObject else data).get("version").getAsString)
+      val latest = (json \ "data" \ "version").extract[DatabaseVersion]
       if (latest.needsUpdate(SettingsDialog.settings.inventory.version, freq)) {
         if (JOptionPane.showConfirmDialog(
           this,
@@ -1330,7 +1330,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    * @param manager file manager containing the deck to display
    * @see EditorFrame
    */
-  def createEditor(manager: DeckSerializer = DeckSerializer()) = {
+  def createEditor(manager: DesignSerializer = DesignSerializer()) = {
     untitled += 1
     val frame = EditorFrame(this, untitled, manager)
     editors += frame
@@ -1358,7 +1358,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    */
   def open(f: File) = editors.find(_.file.contains(f)).orElse{
     val frame = try {
-      Some(createEditor(DeckSerializer.load(f, this)))
+      Some(createEditor(DesignSerializer.load(f, this)))
     } catch {
       case e: CancellationException => None
       case e: DeckLoadException =>

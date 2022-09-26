@@ -8,7 +8,7 @@ import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 import editor.database.card.CardFormat
 import editor.gui.MainFrame
-import editor.gui.deck.DeckSerializer
+import editor.gui.deck.DesignSerializer
 import editor.unicode.{_, given}
 import editor.util.IterableReader
 
@@ -136,6 +136,6 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute[?, ?]
       pos += line.size
     })
 
-    DeckSerializer(deck, extras, "", "")
+    DesignSerializer(deck, extras, "", "")
   }
 }

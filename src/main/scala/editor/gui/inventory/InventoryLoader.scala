@@ -1,8 +1,5 @@
 package editor.gui.inventory
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonParser
-import com.google.gson.reflect.TypeToken
 import com.mdimension.jchronic.Chronic
 import editor.collection.CardListEntry
 import editor.collection.immutable.Inventory
@@ -14,6 +11,9 @@ import editor.gui.MainFrame
 import editor.gui.generic.ScrollablePanel
 import editor.gui.settings.SettingsDialog
 import editor.serialization
+import editor.serialization.given
+import org.json4s._
+import org.json4s.native.JsonMethods
 
 import java.awt.BorderLayout
 import java.awt.Component
@@ -57,6 +57,7 @@ import javax.swing.WindowConstants
 import scala.collection.immutable.ListSet
 import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters._
+import scala.reflect.ClassTag
 import scala.util.Using
 import scala.util.control.Breaks._
 
@@ -181,6 +182,9 @@ case class LoadedData(
   warnings: Seq[String] = Seq.empty
 )
 
+private case class Ruling(date: String, text: String)
+private case class Identifiers(scryfallId: String, multiverseId: String = "-1")
+
 private class InventoryLoader(file: File, consumer: (String) => Unit, finished: () => Unit) extends SwingWorker[LoadedData, String] {
   private val v500 = DatabaseVersion(5, 0, 0)
 
@@ -271,11 +275,17 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
     val data = Using.resource(BufferedReader(InputStreamReader(FileInputStream(file), "UTF8"))){ reader =>
       publish(s"Parsing ${file.getName}...")
 
-      val root = JsonParser().parse(reader).getAsJsonObject
-      val version = if (root.has("meta")) DatabaseVersion.parseVersion(root.get("meta").getAsJsonObject.get("version").getAsString) else DatabaseVersion(0, 0, 0)
+      val root = JsonMethods.parse(reader)
+      val version = (root \ "meta" \ "version").extract[Option[DatabaseVersion]].getOrElse(DatabaseVersion(0, 0, 0))
 
-      val entries = (if (version < v500) root else root.get("data").getAsJsonObject).entrySet.asScala
-      val numCards = entries.foldLeft(0)(_ + _.getValue.getAsJsonObject.get("cards").getAsJsonArray.size)
+      val entries = (if (version < v500) root else root \ "data") match {
+        case JObject(fields) => fields.map{ case (_, entry) => entry }
+        case _ => throw ParseException("unknown JSON data format", 0)
+      }
+      val numCards = entries.foldLeft(0)((a, b) => a + ((b \ "cards") match {
+        case JArray(cards) => cards.size
+        case _ => throw ParseException("could not parse number of cards", 0)
+      }))
 
       // We don't use String.intern() here because the String pool that is maintained must include extra data that adds several MB
       // to the overall memory consumption of the inventory
@@ -301,187 +311,130 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       publish(s"Reading cards from ${file.getName}...")
       var progress = 0
       setProgress(progress)
-      val cards = tryBreakable { entries.flatMap{ (e) =>
+      val cards = tryBreakable { collection.mutable.Set.from(entries.flatMap((setProperties) =>
         if (isCancelled) {
           expansions.clear()
           break
         }
 
-        val setProperties = e.getValue.getAsJsonObject
-        val setCards = setProperties.get("cards").getAsJsonArray
-        val set = Expansion(
-          setProperties.get("name").getAsString,
-          Option(setProperties.get("block")).map(_.getAsString).getOrElse(Expansion.NoBlock),
-          setProperties.get("code").getAsString,
-          setCards.size,
-          try {
-            Option(Chronic.parse(setProperties.get("releaseDate").getAsString))
-                .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
-                .getOrElse(LocalDate.now)
-          } catch case _: IllegalStateException => LocalDate.now
-        )
-        expansions += set
-
-        publish(s"Loading cards from $set...")
-        setCards.asScala.flatMap{ cardElement =>
-          // Create the new card for the expansion
-          val card = cardElement.getAsJsonObject
-
-          // Card's name
-          val name = {
-            if (card.has("faceName"))
-              card.get("faceName").getAsString
-            else if (card.has("name"))
-              card.get("name").getAsString
-            else
-              throw CardLoadException("<unknown>", set, "card with missing name")
-          }
-
-          // Card's multiverseid and Scryfall id
-          val scryfallid = {
-            if (version < v500) {
-              Option(card.get("scryfallId")).map(_.getAsString)
-            } else {
-              Option(card.get("identifiers")).map(_.getAsJsonObject).flatMap(id => Option(id.get("scryfallId")).map(_.getAsString))
-            }
-          }.getOrElse(throw CardLoadException(name, set, "no Scryfall ID"))
-          val multiverseid = {
-            if (version < v500) {
-              Option(card.get("multiverseId")).map(_.getAsInt)
-            } else {
-              Option(card.get("identifiers")).map(_.getAsJsonObject).flatMap(id => Option(id.get("multiverseId")).map(_.getAsInt))
-            }
-          }.getOrElse(-1)
-
-          // If the card is a token, skip it
-          try {
-            val layout = Option(card.get("layout")).map(l => CardLayout.valueOf(l.getAsString.toUpperCase.replaceAll("[^A-Z]", "_"))).getOrElse(throw CardLoadException(name, set, "no valid layout"))
-
-            // Rulings
-            val rulings = collection.mutable.TreeMap[Date, collection.mutable.ArrayBuffer[String]]()
-            Option(card.get("rulings")).toSeq.flatMap(_.getAsJsonArray.asScala.map(_.getAsJsonObject)).foreach{ o =>
-              (Option(o.get("text")), Option(o.get("date"))) match {
-                case (Some(t), Some(d)) =>
-                  val r = t.getAsString
-                  val ruling = rulingContents.getOrElseUpdate(r, r)
-                  try {
-                    val date = rulingDates.getOrElseUpdate(d.getAsString, format.parse(d.getAsString))
-                    if (!rulings.contains(date))
-                      rulings += date -> collection.mutable.ArrayBuffer[String]()
-                    rulings(date) += ruling
-                  } catch case x: ParseException => errors += CardLoadException(name, set, x.getMessage).toString
-                case _ => errors += CardLoadException(name, set, "ruling missing date or text").getMessage
-              }
-            }
-
-            // Format legality
-            val legality = Option(card.get("legalities"))
-              .map(_.getAsJsonObject.entrySet.asScala.map((e) => formats.getOrElseUpdate(e.getKey, e.getKey) -> Legality.parse(e.getValue.getAsString).get).toMap)
-              .getOrElse(Map.empty)
-
-            // Formats the card can be commander in
-            val commandFormats = Option(card.get("leadershipSkills")).toSeq.flatMap(_.getAsJsonObject.entrySet.asScala.collect{ case e if e.getValue.getAsBoolean =>
-              formats.getOrElseUpdate(e.getKey, e.getKey)
-            }.toSeq.sorted)
-
-            def getOrError[T](key: String, value: (JsonElement) => T, error: String) = Option(card.get(key)).map(value).getOrElse(throw CardLoadException(name, set, error))
-            val cost = Option(card.get("manaCost")).map(_.getAsString).getOrElse("")
-            val colors = getOrError("colors", _.getAsJsonArray, "invalid colors")
-            val identity = getOrError("colorIdentity", _.getAsJsonArray, "invalid color identity")
-            val supers = getOrError("supertypes", _.getAsJsonArray, "invalid supertypes")
-            val types = getOrError("types", _.getAsJsonArray, "invalid types")
-            val subs = getOrError("subtypes", _.getAsJsonArray, "invalid subtypes")
-            val oTypes = Option(card.get("originalType")).map(_.getAsString).getOrElse("")
-            val text = Option(card.get("text")).map(_.getAsString).getOrElse("")
-            val flavor = Option(card.get("flavorText")).map(_.getAsString).getOrElse("")
-            val printed = Option(card.get("originalText")).map(_.getAsString).getOrElse("")
-            val artist = Option(card.get("artist")).map(_.getAsString).getOrElse("")
-            val number = Option(card.get("number")).map(_.getAsString).getOrElse("")
-            val power = Option(card.get("power")).map(_.getAsString)
-            val toughness = Option(card.get("toughness")).map(_.getAsString)
-            val loyalty = Option(card.get("loyalty")).map(l => if (l.isJsonNull) "X" else l.getAsString)
-
-            val c = SingleCard(
-              layout,
-              name,
-              costs.getOrElseUpdate(cost, ManaCost.parse(cost).get),
-              colorSets.getOrElseUpdate(colors.toString, {
-                val col = collection.mutable.ArrayBuffer[ManaType]()
-                colors.asScala.foreach((e) => col += ManaType.parse(e.getAsString).get)
-                col.toSet
-              }),
-              colorSets.getOrElseUpdate(identity.toString, {
-                val col = collection.mutable.ArrayBuffer[ManaType]()
-                identity.asScala.foreach((e) => col += ManaType.parse(e.getAsString).get)
-                col.toSet
-              }),
-              supertypeSets.getOrElseUpdate(supers.toString, {
-                val s = collection.mutable.Buffer[String]()
-                supers.asScala.foreach((e) => s += allSupertypes.getOrElseUpdate(e.getAsString, e.getAsString))
-                ListSet.from(s)
-              }),
-              typeSets.getOrElseUpdate(types.toString, {
-                val s = collection.mutable.Buffer[String]()
-                types.asScala.foreach((e) => s += allTypes.getOrElseUpdate(e.getAsString, e.getAsString))
-                ListSet.from(s)
-              }),
-              subtypeSets.getOrElseUpdate(subs.toString, {
-                val s = collection.mutable.Buffer[String]()
-                subs.asScala.foreach((e) => s += allSubtypes.getOrElseUpdate(e.getAsString, e.getAsString))
-                ListSet.from(s)
-              }),
-              printedTypes.getOrElseUpdate(oTypes, oTypes),
-              Rarity.parse(card.get("rarity").getAsString).getOrElse(Rarity.Unknown),
-              set,
-              texts.getOrElseUpdate(text, text),
-              flavors.getOrElseUpdate(flavor, flavor),
-              texts.getOrElseUpdate(printed, printed),
-              artists.getOrElseUpdate(artist, artist),
-              multiverseid,
-              scryfallid,
-              numbers.getOrElseUpdate(number, number),
-              power.map((p) => stats.getOrElseUpdate(p, CombatStat(p))),
-              toughness.map((t) => stats.getOrElseUpdate(t, CombatStat(t))),
-              loyalty.map((l) => loyalties.getOrElseUpdate(l, Loyalty(l))),
-              TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
-              legality,
-              commandFormats
+        (setProperties \ "cards") match {
+          case JArray(setCards) =>
+            val set = Expansion(
+              (setProperties \ "name").extract[String],
+              (setProperties \ "block").extract[Option[String]].getOrElse(Expansion.NoBlock),
+              (setProperties \ "code").extract[String],
+              setCards.size,
+              try {
+                Option(Chronic.parse((setProperties \ "releaseDate").extract[String]))
+                    .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
+                    .getOrElse(LocalDate.now)
+              } catch case _: IllegalStateException => LocalDate.now
             )
+            expansions += set
 
-            // Collect unexpected card values
-            if (c.artist.isEmpty)
-              errors += s"${c.name} (${c.expansion}): missing artist"
+            publish(s"Loading cards from $set...")
+            setCards.flatMap((card) => {
+                // Card's name
+                val name = (card \ "faceName").extract[Option[String]].orElse((card \ "name").extract[Option[String]]).getOrElse(throw CardLoadException("<unknown>", set, "card with missing name"))
 
-            // Add to map of faces if the card has multiple faces
-            if (layout.isMultiFaced) {
-              if (version < v500) {
-                if (card.has("names"))
-                  faces += c -> card.get("names").getAsJsonArray.asScala.map(_.getAsString).toSeq
-                else
-                  throw CardLoadException(name, set, "other faces of multi-faced card not defined")
-              } else {
-                multiUUIDs += card.get("uuid").getAsString -> c
-                facesNames += c -> card.get("name").getAsString.split(Card.FaceSeparator).toSeq
-                if (card.has("otherFaceIds"))
-                  otherFaceIds += c -> card.get("otherFaceIds").getAsJsonArray.asScala.map(_.getAsString).toSeq
-                else
-                  throw CardLoadException(name, set, "other faces of multi-faced card not defined")
-              }
-            }
+                // Card's multiverseid and Scryfall id
+                val Identifiers(scryfallid, multiverseid) = (if (version < v500) card else (card \ "identifiers")).extract[Identifiers]
 
-            progress += 1
-            setProgress(progress*100/numCards)
-            Some(c)
-          } catch {
-            case e: IllegalArgumentException =>
-              errors += CardLoadException(name, set, e.getMessage, Some(e)).getMessage
-              None
-            case e: CardLoadException =>
-              errors += e.getMessage
-              None
-          }
+                // If the card is a token, skip it
+                try {
+                  val layout = (card \ "layout").extract[Option[CardLayout]].getOrElse(throw CardLoadException(name, set, "no valid layout"))
+
+                  // Rulings
+                  val rulings = (card \ "rulings").extract[Option[Seq[Ruling]]].toSeq.flatMap(_.flatMap((r) => {
+                    val ruling = rulingContents.getOrElseUpdate(r.text, r.text)
+                    try {
+                      val date = rulingDates.getOrElseUpdate(r.date, format.parse(r.date))
+                      Some(date -> ruling)
+                    } catch case x: ParseException => { errors += CardLoadException(name, set, x.getMessage).toString; None }
+                  })).groupBy{ case (date, _) => date }.mapValues(_.map{ case (_, ruling) => ruling }).toMap
+
+                  // Format legality
+                  val legality = (card \ "legalities").extract[Option[Map[String, String]]].map(_.map{ case (format, legality) => formats.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap).getOrElse(Map.empty)
+
+                  // Formats the card can be commander in
+                  val commandFormats = (card \ "leadershipSkills").extract[Option[Map[String, Boolean]]].toSeq.flatMap(_.collect{ case (format, legal) if legal => formats.getOrElseUpdate(format, format) }).sorted
+
+                  val cost = (card \ "manaCost").extract[Option[String]].getOrElse("")
+                  val colors = (card \ "colors").extract[Seq[String]]
+                  val identity = (card \ "colorIdentity").extract[Seq[String]]
+                  val supers = (card \ "supertypes").extract[Seq[String]]
+                  val types = (card \ "types").extract[Seq[String]]
+                  val subs = (card \ "subtypes").extract[Seq[String]]
+                  val oTypes = (card \ "originalType").extract[Option[String]].getOrElse("")
+                  val text = (card \ "text").extract[Option[String]].getOrElse("")
+                  val flavor = (card \ "flavorText").extract[Option[String]].getOrElse("")
+                  val printed = (card \ "originalText").extract[Option[String]].getOrElse("")
+                  val artist = (card \ "artist").extract[Option[String]].getOrElse("")
+                  val number = (card \ "number").extract[Option[String]].getOrElse("")
+                  val power = (card \ "power").extract[Option[String]]
+                  val toughness = (card \ "toughness").extract[Option[String]]
+                  val loyalty = (card \ "loyalty") match {
+                    case JNull => Some("X")
+                    case l => l.extract[Option[String]]
+                  }
+
+                  val c = SingleCard(
+                    layout,
+                    name,
+                    costs.getOrElseUpdate(cost, ManaCost.parse(cost).get),
+                    colorSets.getOrElseUpdate(colors.toString, colors.map(ManaType.parse(_).get).toSet),
+                    colorSets.getOrElseUpdate(identity.toString, identity.map(ManaType.parse(_).get).toSet),
+                    supertypeSets.getOrElseUpdate(supers.toString, ListSet.from(supers.map((s) => allSupertypes.getOrElseUpdate(s, s)))),
+                    typeSets.getOrElseUpdate(types.toString, ListSet.from(types.map((t) => allTypes.getOrElseUpdate(t, t)))),
+                    subtypeSets.getOrElseUpdate(subs.toString, ListSet.from(subs.map((s) => allSubtypes.getOrElseUpdate(s, s)))),
+                    printedTypes.getOrElseUpdate(oTypes, oTypes),
+                    Rarity.parse((card \ "rarity").extract[String]).getOrElse(Rarity.Unknown),
+                    set,
+                    texts.getOrElseUpdate(text, text),
+                    flavors.getOrElseUpdate(flavor, flavor),
+                    texts.getOrElseUpdate(printed, printed),
+                    artists.getOrElseUpdate(artist, artist),
+                    multiverseid.toInt,
+                    scryfallid,
+                    numbers.getOrElseUpdate(number, number),
+                    power.map((p) => stats.getOrElseUpdate(p, CombatStat(p))),
+                    toughness.map((t) => stats.getOrElseUpdate(t, CombatStat(t))),
+                    loyalty.map((l) => loyalties.getOrElseUpdate(l, Loyalty(l))),
+                    TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
+                    legality,
+                    commandFormats
+                  )
+
+                  // Collect unexpected card values
+                  if (c.artist.isEmpty)
+                    errors += s"${c.name} (${c.expansion}): missing artist"
+
+                  // Add to map of faces if the card has multiple faces
+                  if (layout.isMultiFaced) {
+                    if (version < v500) {
+                      (card \ "names").extract[Option[Seq[String]]].map((n) => faces += (c -> n)).getOrElse(throw CardLoadException(name, set, "other faces of multi-faced card not defined"))
+                    } else {
+                      multiUUIDs += (card \ "uuid").extract[String] -> c
+                      facesNames += c -> (card \ "name").extract[String].split(Card.FaceSeparator).toSeq
+                      (card \ "otherFaceIds").extract[Option[Seq[String]]].map((i) => otherFaceIds += (c -> i)).getOrElse(throw CardLoadException(name, set, "other faces of multi-faced card not defined"))
+                    }
+                  }
+
+                  progress += 1
+                  setProgress(progress*100/numCards)
+                  Some(c)
+                } catch {
+                  case e: IllegalArgumentException =>
+                    errors += CardLoadException(name, set, e.getMessage, Some(e)).getMessage
+                    None
+                  case e: CardLoadException =>
+                    errors += e.getMessage
+                    None
+                }
+            })
+          case _ => collection.mutable.Set.empty[Card]
         }
-      }}.catchBreak(collection.mutable.Set.empty[Card])
+      ))}.catchBreak(collection.mutable.Set.empty[Card])
 
       if (!isCancelled) {
         publish("Processing multi-faced cards...")
@@ -537,9 +490,17 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
 
     if (!isCancelled && Files.exists(Path.of(SettingsDialog.settings.inventory.tags))) {
       publish("Processing tags...")
-      val tk = new TypeToken[java.util.Map[String, java.util.Set[String]]] {}
-      val raw = serialization.Serializer.fromJson(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n"), tk.getType).asInstanceOf[java.util.Map[String, java.util.Set[String]]].asScala.map{ case (n, t) => n -> t.asScala.toSet }.toMap
-      CardAttribute.Tags.tags = raw.flatMap{ case (id, tags) => data.inventory.find(_.scryfallid == id).map(_ -> collection.mutable.Set.from(tags)) }
+
+      CardAttribute.Tags.tags = JsonMethods.parse(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n")) match {
+        case JObject(entries) => entries.flatMap{
+          case (id, JArray(tags)) => data.inventory.find(_.faces.exists(_.scryfallid == id)).map((c) => c -> collection.mutable.Set.from(tags.map{
+            case JString(tag) => tag
+            case x => throw MatchError(x)
+          }))
+          case x => throw MatchError(x)
+        }
+        case x => throw MatchError(x)
+      }
     }
 
     data

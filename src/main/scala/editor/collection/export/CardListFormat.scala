@@ -1,7 +1,7 @@
 package editor.collection.`export`
 
 import editor.collection.CardList
-import editor.gui.deck.DeckSerializer
+import editor.gui.deck.DesignSerializer
 
 import java.io.InputStream
 
@@ -28,5 +28,5 @@ trait CardListFormat {
    * @param source stream to convert to a deck
    * @return a [[DeckSerializer]] containing all of the information about the deck
    */
-  def parse(source: InputStream): DeckSerializer
+  def parse(source: InputStream): DesignSerializer
 }

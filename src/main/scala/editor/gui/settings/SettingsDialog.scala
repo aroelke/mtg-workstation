@@ -15,6 +15,7 @@ import editor.gui.generic.ComponentUtils
 import editor.gui.generic.ScrollablePanel
 import editor.gui.generic.VerticalButtonList
 import editor.serialization
+import editor.serialization.given
 import editor.unicode.{_, given}
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
@@ -27,6 +28,8 @@ import org.jfree.chart.renderer.category.LineAndShapeRenderer
 import org.jfree.chart.renderer.category.StackedBarRenderer
 import org.jfree.chart.renderer.category.StandardBarPainter
 import org.jfree.data.category.DefaultCategoryDataset
+import org.json4s._
+import org.json4s.native.JsonMethods
 
 import java.awt.BorderLayout
 import java.awt.CardLayout
@@ -931,9 +934,9 @@ object SettingsDialog {
   @throws[IOException]("if an error occurred while loading the file")
   @throws[MalformedURLException]("if the URL for the inventory source or version is invalid")
   def load(): Unit = {
-    if (Files.exists(PropertiesFile))
-      settings = serialization.Serializer.fromJson(Files.readAllLines(PropertiesFile).asScala.mkString("\n"), classOf[Settings])
-    else
+    if (Files.exists(PropertiesFile)) {
+      settings = JsonMethods.parse(Files.readAllLines(PropertiesFile).asScala.mkString("\n")).extract[Settings]
+    } else
       settings = Settings()
   }
 
@@ -942,10 +945,10 @@ object SettingsDialog {
   def save(): Unit = {
     if (!CardAttribute.Tags.tags.flatMap{ case (_, s) => s }.isEmpty) {
       Files.createDirectories(Path.of(settings.inventory.tags).getParent)
-      Files.writeString(Path.of(settings.inventory.tags), serialization.Serializer.toJson(CardAttribute.Tags.tags.collect{ case (card, tags) if !tags.isEmpty => card.faces(0).scryfallid -> tags.asJava }.toMap.asJava))
+      Files.writeString(Path.of(settings.inventory.tags), JsonMethods.pretty(JsonMethods.render(Extraction.decompose(CardAttribute.Tags.tags.collect{ case (card, tags) if !tags.isEmpty => card.faces(0).scryfallid -> tags.toSet }.toMap))))
     } else
       Files.deleteIfExists(Path.of(settings.inventory.tags))
-    Files.writeString(PropertiesFile, serialization.Serializer.toJson(settings))
+    Files.writeString(PropertiesFile, JsonMethods.pretty(JsonMethods.render(Extraction.decompose(settings))))
   }
 
   /**
