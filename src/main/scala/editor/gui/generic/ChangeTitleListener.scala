@@ -51,6 +51,7 @@ object ChangeTitleListener {
  */
 class ChangeTitleListener(component: JComponent, border: TitledBorder, change: (String) => Unit, hgap: (String) => Int, vgap: (String) => Int) extends MouseAdapter {
   private val field = JTextField();
+  field.setBorder(BorderFactory.createEmptyBorder)
   private val popup = JPopupMenu();
   popup.setBorder(BorderFactory.createEmptyBorder);
   popup.add(field);
