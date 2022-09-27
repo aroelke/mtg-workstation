@@ -16,6 +16,10 @@ import javax.swing.DefaultComboBoxModel
 import javax.swing.JButton
 import javax.swing.JComboBox
 import javax.swing.JPanel
+import javax.swing.JPopupMenu
+import javax.swing.JMenuItem
+import javax.swing.JMenu
+import _root_.editor.gui.settings.SettingsDialog
 
 /**
  * Convenience constructors for [[FilterGroupPanel]].
@@ -122,6 +126,19 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     repaint()
     firePanelsChanged()
   }, _ => Gap, (s) => if (s.isEmpty) 0 else Gap))
+
+  val popup = JPopupMenu()
+  val defaultsMenu = JMenu("Add From Default Category")
+  SettingsDialog.settings.editor.categories.presets.foreach((c) => {
+    val default = JMenuItem(c.name)
+    default.addActionListener((e) => {
+      this += FilterGroupPanel(c.filter)
+      firePanelsChanged()
+    })
+    defaultsMenu.add(default)
+  })
+  popup.add(defaultsMenu)
+  setComponentPopupMenu(popup)
 
   /**
    * Add a new filter to the group.
