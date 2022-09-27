@@ -128,16 +128,26 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
   }, _ => Gap, (s) => if (s.isEmpty) 0 else Gap))
 
   val popup = JPopupMenu()
-  val defaultsMenu = JMenu("Add From Default Category")
+  val defaults = JMenu("Add")
   SettingsDialog.settings.editor.categories.presets.foreach((c) => {
     val default = JMenuItem(c.name)
-    default.addActionListener((e) => {
+    default.addActionListener(_ => {
       this += FilterGroupPanel(c.filter)
       firePanelsChanged()
     })
-    defaultsMenu.add(default)
+    defaults.add(default)
   })
-  popup.add(defaultsMenu)
+  popup.add(defaults)
+  val replacements = JMenu("Replace with")
+  SettingsDialog.settings.editor.categories.presets.foreach((c) => {
+    val replacement = JMenuItem(c.name)
+    replacement.addActionListener(_ => {
+      setContents(c.filter)
+      firePanelsChanged()
+    })
+    replacements.add(replacement)
+  })
+  popup.add(replacements)
   setComponentPopupMenu(popup)
 
   /**
