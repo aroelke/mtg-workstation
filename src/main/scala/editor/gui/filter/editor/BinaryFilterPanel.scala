@@ -17,8 +17,8 @@ import javax.swing.JLabel
  * @author Alec Roelke
  */
 class BinaryFilterPanel(allow: Boolean) extends FilterEditorPanel[BinaryFilter] {
-  val All = "This clause will match every card."
-  val None = "This clause will not match any card."
+  val All = "This term will match every card."
+  val None = "This term will not match any card."
 
   setLayout(GridLayout(1, 1))
   setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0))

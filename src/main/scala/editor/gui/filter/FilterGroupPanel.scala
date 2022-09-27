@@ -4,6 +4,7 @@ import _root_.editor.filter.Filter
 import _root_.editor.filter.FilterGroup
 import _root_.editor.filter.leaf.FilterLeaf
 import _root_.editor.gui.generic.ChangeTitleListener
+import _root_.editor.gui.settings.SettingsDialog
 import _root_.editor.unicode.{_, given}
 
 import java.awt.BorderLayout
@@ -15,11 +16,11 @@ import javax.swing.BoxLayout
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JButton
 import javax.swing.JComboBox
+import javax.swing.JMenu
+import javax.swing.JMenuItem
 import javax.swing.JPanel
 import javax.swing.JPopupMenu
-import javax.swing.JMenuItem
-import javax.swing.JMenu
-import _root_.editor.gui.settings.SettingsDialog
+import javax.swing.JSeparator
 
 /**
  * Convenience constructors for [[FilterGroupPanel]].
@@ -128,26 +129,40 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
   }, _ => Gap, (s) => if (s.isEmpty) 0 else Gap))
 
   val popup = JPopupMenu()
-  val defaults = JMenu("Add")
+  val addMenu = JMenu("Add")
   SettingsDialog.settings.editor.categories.presets.foreach((c) => {
     val default = JMenuItem(c.name)
     default.addActionListener(_ => {
       this += FilterGroupPanel(c.filter)
       firePanelsChanged()
     })
-    defaults.add(default)
+    addMenu.add(default)
   })
-  popup.add(defaults)
-  val replacements = JMenu("Replace with")
+  if (!SettingsDialog.settings.editor.categories.presets.isEmpty)
+    addMenu.add(JSeparator())
+  val addGroup = JMenuItem("New group")
+  addGroup.addActionListener(_ => {
+    this += FilterGroupPanel()
+    firePanelsChanged()
+  })
+  addMenu.add(addGroup)
+  val addTerm = JMenuItem("New term")
+  addTerm.addActionListener(_ => {
+    this += FilterSelectorPanel()
+    firePanelsChanged()
+  })
+  addMenu.add(addTerm)
+  popup.add(addMenu)
+  val replaceMenu = JMenu("Replace with")
   SettingsDialog.settings.editor.categories.presets.foreach((c) => {
     val replacement = JMenuItem(c.name)
     replacement.addActionListener(_ => {
       setContents(c.filter)
       firePanelsChanged()
     })
-    replacements.add(replacement)
+    replaceMenu.add(replacement)
   })
-  popup.add(replacements)
+  popup.add(replaceMenu)
   setComponentPopupMenu(popup)
 
   /**
