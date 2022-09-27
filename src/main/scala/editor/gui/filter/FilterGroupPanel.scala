@@ -163,6 +163,13 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     replaceMenu.add(replacement)
   })
   popup.add(replaceMenu)
+  val clearItem = JMenuItem("Clear")
+  clearItem.addActionListener(_ => {
+    clear()
+    this += FilterSelectorPanel()
+    firePanelsChanged()
+  })
+  popup.add(clearItem)
   setComponentPopupMenu(popup)
 
   /**
