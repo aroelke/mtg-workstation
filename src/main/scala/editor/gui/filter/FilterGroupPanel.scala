@@ -21,6 +21,7 @@ import javax.swing.JMenuItem
 import javax.swing.JPanel
 import javax.swing.JPopupMenu
 import javax.swing.JSeparator
+import _root_.editor.util.PopupMenuListenerFactory
 
 /**
  * Convenience constructors for [[FilterGroupPanel]].
@@ -170,7 +171,18 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     firePanelsChanged()
   })
   popup.add(clearItem)
+  val groupSeparator = JSeparator()
+  val ungroupItem = JMenuItem("Ungroup")
+  ungroupItem.addActionListener(_ => group.foreach((g) => {
+    g -= this
+    g.firePanelsChanged()
+  }))
+  popup.add(ungroupItem)
   setComponentPopupMenu(popup)
+  popup.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
+    groupSeparator.setVisible(group.isDefined)
+    ungroupItem.setVisible(group.isDefined)
+  }))
 
   /**
    * Add a new filter to the group.
