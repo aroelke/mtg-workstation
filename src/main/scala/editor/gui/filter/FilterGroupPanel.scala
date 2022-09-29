@@ -178,10 +178,18 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     g.firePanelsChanged()
   }))
   popup.add(ungroupItem)
+  val deleteItem = JMenuItem("Delete")
+  deleteItem.addActionListener(_ => group.foreach((g) => {
+    clear()
+    g -= this
+    g.firePanelsChanged()
+  }))
+  popup.add(deleteItem)
   setComponentPopupMenu(popup)
   popup.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
     groupSeparator.setVisible(group.isDefined)
     ungroupItem.setVisible(group.isDefined)
+    deleteItem.setVisible(group.exists(_.children.size > 1))
   }))
 
   /**
