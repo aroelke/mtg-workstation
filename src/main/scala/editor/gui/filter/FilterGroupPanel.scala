@@ -172,6 +172,7 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
   })
   popup.add(clearItem)
   val groupSeparator = JSeparator()
+  popup.add(groupSeparator)
   val ungroupItem = JMenuItem("Ungroup")
   ungroupItem.addActionListener(_ => group.foreach((g) => {
     g -= this
