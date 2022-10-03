@@ -4,6 +4,7 @@ import _root_.editor.filter.Filter
 import _root_.editor.filter.FilterGroup
 import _root_.editor.filter.leaf.FilterLeaf
 import _root_.editor.gui.generic.ChangeTitleListener
+import _root_.editor.gui.settings.SettingsDialog
 import _root_.editor.unicode.{_, given}
 
 import java.awt.BorderLayout
@@ -15,7 +16,12 @@ import javax.swing.BoxLayout
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JButton
 import javax.swing.JComboBox
+import javax.swing.JMenu
+import javax.swing.JMenuItem
 import javax.swing.JPanel
+import javax.swing.JPopupMenu
+import javax.swing.JSeparator
+import _root_.editor.util.PopupMenuListenerFactory
 
 /**
  * Convenience constructors for [[FilterGroupPanel]].
@@ -122,6 +128,70 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     repaint()
     firePanelsChanged()
   }, _ => Gap, (s) => if (s.isEmpty) 0 else Gap))
+
+  val popup = JPopupMenu()
+  val addMenu = JMenu("Add")
+  SettingsDialog.settings.editor.categories.presets.foreach((c) => {
+    val default = JMenuItem(c.name)
+    default.addActionListener(_ => {
+      this += FilterGroupPanel(c.filter)
+      firePanelsChanged()
+    })
+    addMenu.add(default)
+  })
+  if (!SettingsDialog.settings.editor.categories.presets.isEmpty)
+    addMenu.add(JSeparator())
+  val addGroup = JMenuItem("New group")
+  addGroup.addActionListener(_ => {
+    this += FilterGroupPanel()
+    firePanelsChanged()
+  })
+  addMenu.add(addGroup)
+  val addTerm = JMenuItem("New term")
+  addTerm.addActionListener(_ => {
+    this += FilterSelectorPanel()
+    firePanelsChanged()
+  })
+  addMenu.add(addTerm)
+  popup.add(addMenu)
+  val replaceMenu = JMenu("Replace with")
+  SettingsDialog.settings.editor.categories.presets.foreach((c) => {
+    val replacement = JMenuItem(c.name)
+    replacement.addActionListener(_ => {
+      setContents(c.filter)
+      firePanelsChanged()
+    })
+    replaceMenu.add(replacement)
+  })
+  popup.add(replaceMenu)
+  val clearItem = JMenuItem("Clear")
+  clearItem.addActionListener(_ => {
+    clear()
+    this += FilterSelectorPanel()
+    firePanelsChanged()
+  })
+  popup.add(clearItem)
+  val groupSeparator = JSeparator()
+  popup.add(groupSeparator)
+  val ungroupItem = JMenuItem("Ungroup")
+  ungroupItem.addActionListener(_ => group.foreach((g) => {
+    g -= this
+    g.firePanelsChanged()
+  }))
+  popup.add(ungroupItem)
+  val deleteItem = JMenuItem("Delete")
+  deleteItem.addActionListener(_ => group.foreach((g) => {
+    clear()
+    g -= this
+    g.firePanelsChanged()
+  }))
+  popup.add(deleteItem)
+  setComponentPopupMenu(popup)
+  popup.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
+    groupSeparator.setVisible(group.isDefined)
+    ungroupItem.setVisible(group.isDefined)
+    deleteItem.setVisible(group.exists(_.children.size > 1))
+  }))
 
   /**
    * Add a new filter to the group.
