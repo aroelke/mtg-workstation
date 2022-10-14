@@ -102,7 +102,7 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
     )
     case c: ColorFilter => List(
       JField("contains", JString(c.contain.toString)),
-      JField("colors", JArray(c.colors.map(Extraction.decompose).toList)),
+      JField("colors", JArray(c.colors.map((m) => JString(m.toString)).toList)),
       JField("multicolored", JBool(c.multicolored))
     )
     case _: BinaryFilter => Nil // Nothing additional actually needs to be serialized
