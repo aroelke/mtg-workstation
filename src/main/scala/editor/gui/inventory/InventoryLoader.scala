@@ -373,10 +373,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                   val number = (card \ "number").extract[Option[String]].getOrElse("")
                   val power = (card \ "power").extract[Option[String]]
                   val toughness = (card \ "toughness").extract[Option[String]]
-                  val loyalty = (card \ "loyalty") match {
-                    case JNull => Some("X")
-                    case l => l.extract[Option[String]]
-                  }
+                  val loyalty = (card \ "loyalty").extract[Option[String]]
 
                   val c = SingleCard(
                     layout,
