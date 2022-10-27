@@ -334,100 +334,100 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
 
             publish(s"Loading cards from $set...")
             setCards.flatMap((card) => {
-                // Card's name
-                val name = (card \ "faceName").extract[Option[String]].orElse((card \ "name").extract[Option[String]]).getOrElse(throw CardLoadException("<unknown>", set, "card with missing name"))
+              // Card's name
+              val name = (card \ "faceName").extract[Option[String]].orElse((card \ "name").extract[Option[String]]).getOrElse(throw CardLoadException("<unknown>", set, "card with missing name"))
 
-                // Card's multiverseid and Scryfall id
-                val Identifiers(scryfallid, multiverseid) = (if (version < v500) card else (card \ "identifiers")).extract[Identifiers]
+              // Card's multiverseid and Scryfall id
+              val Identifiers(scryfallid, multiverseid) = (if (version < v500) card else (card \ "identifiers")).extract[Identifiers]
 
-                // If the card is a token, skip it
-                try {
-                  val layout = (card \ "layout").extract[Option[CardLayout]].getOrElse(throw CardLoadException(name, set, "no valid layout"))
+              // If the card is a token, skip it
+              try {
+                val layout = (card \ "layout").extract[Option[CardLayout]].getOrElse(throw CardLoadException(name, set, "no valid layout"))
 
-                  // Rulings
-                  val rulings = (card \ "rulings").extract[Option[Seq[Ruling]]].toSeq.flatMap(_.flatMap((r) => {
-                    val ruling = rulingContents.getOrElseUpdate(r.text, r.text)
-                    try {
-                      val date = rulingDates.getOrElseUpdate(r.date, format.parse(r.date))
-                      Some(date -> ruling)
-                    } catch case x: ParseException => { errors += CardLoadException(name, set, x.getMessage).toString; None }
-                  })).groupBy{ case (date, _) => date }.mapValues(_.map{ case (_, ruling) => ruling }).toMap
+                // Rulings
+                val rulings = (card \ "rulings").extract[Option[Seq[Ruling]]].toSeq.flatMap(_.flatMap((r) => {
+                  val ruling = rulingContents.getOrElseUpdate(r.text, r.text)
+                  try {
+                    val date = rulingDates.getOrElseUpdate(r.date, format.parse(r.date))
+                    Some(date -> ruling)
+                  } catch case x: ParseException => { errors += CardLoadException(name, set, x.getMessage).toString; None }
+                })).groupBy{ case (date, _) => date }.mapValues(_.map{ case (_, ruling) => ruling }).toMap
 
-                  // Format legality
-                  val legality = (card \ "legalities").extract[Option[Map[String, String]]].map(_.map{ case (format, legality) => formats.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap).getOrElse(Map.empty)
+                // Format legality
+                val legality = (card \ "legalities").extract[Option[Map[String, String]]].map(_.map{ case (format, legality) => formats.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap).getOrElse(Map.empty)
 
-                  // Formats the card can be commander in
-                  val commandFormats = (card \ "leadershipSkills").extract[Option[Map[String, Boolean]]].toSeq.flatMap(_.collect{ case (format, legal) if legal => formats.getOrElseUpdate(format, format) }).sorted
+                // Formats the card can be commander in
+                val commandFormats = (card \ "leadershipSkills").extract[Option[Map[String, Boolean]]].toSeq.flatMap(_.collect{ case (format, legal) if legal => formats.getOrElseUpdate(format, format) }).sorted
 
-                  val cost = (card \ "manaCost").extract[Option[String]].getOrElse("")
-                  val colors = (card \ "colors").extract[Seq[String]]
-                  val identity = (card \ "colorIdentity").extract[Seq[String]]
-                  val supers = (card \ "supertypes").extract[Seq[String]]
-                  val types = (card \ "types").extract[Seq[String]]
-                  val subs = (card \ "subtypes").extract[Seq[String]]
-                  val oTypes = (card \ "originalType").extract[Option[String]].getOrElse("")
-                  val text = (card \ "text").extract[Option[String]].getOrElse("")
-                  val flavor = (card \ "flavorText").extract[Option[String]].getOrElse("")
-                  val printed = (card \ "originalText").extract[Option[String]].getOrElse("")
-                  val artist = (card \ "artist").extract[Option[String]].getOrElse("")
-                  val number = (card \ "number").extract[Option[String]].getOrElse("")
-                  val power = (card \ "power").extract[Option[String]]
-                  val toughness = (card \ "toughness").extract[Option[String]]
-                  val loyalty = (card \ "loyalty").extract[Option[String]]
+                val cost = (card \ "manaCost").extract[Option[String]].getOrElse("")
+                val colors = (card \ "colors").extract[Seq[String]]
+                val identity = (card \ "colorIdentity").extract[Seq[String]]
+                val supers = (card \ "supertypes").extract[Seq[String]]
+                val types = (card \ "types").extract[Seq[String]]
+                val subs = (card \ "subtypes").extract[Seq[String]]
+                val oTypes = (card \ "originalType").extract[Option[String]].getOrElse("")
+                val text = (card \ "text").extract[Option[String]].getOrElse("")
+                val flavor = (card \ "flavorText").extract[Option[String]].getOrElse("")
+                val printed = (card \ "originalText").extract[Option[String]].getOrElse("")
+                val artist = (card \ "artist").extract[Option[String]].getOrElse("")
+                val number = (card \ "number").extract[Option[String]].getOrElse("")
+                val power = (card \ "power").extract[Option[String]]
+                val toughness = (card \ "toughness").extract[Option[String]]
+                val loyalty = (card \ "loyalty").extract[Option[String]]
 
-                  val c = SingleCard(
-                    layout,
-                    name,
-                    costs.getOrElseUpdate(cost, ManaCost.parse(cost).get),
-                    colorSets.getOrElseUpdate(colors.toString, colors.map(ManaType.parse(_).get).toSet),
-                    colorSets.getOrElseUpdate(identity.toString, identity.map(ManaType.parse(_).get).toSet),
-                    supertypeSets.getOrElseUpdate(supers.toString, ListSet.from(supers.map((s) => allSupertypes.getOrElseUpdate(s, s)))),
-                    typeSets.getOrElseUpdate(types.toString, ListSet.from(types.map((t) => allTypes.getOrElseUpdate(t, t)))),
-                    subtypeSets.getOrElseUpdate(subs.toString, ListSet.from(subs.map((s) => allSubtypes.getOrElseUpdate(s, s)))),
-                    printedTypes.getOrElseUpdate(oTypes, oTypes),
-                    Rarity.parse((card \ "rarity").extract[String]).getOrElse(Rarity.Unknown),
-                    set,
-                    texts.getOrElseUpdate(text, text),
-                    flavors.getOrElseUpdate(flavor, flavor),
-                    texts.getOrElseUpdate(printed, printed),
-                    artists.getOrElseUpdate(artist, artist),
-                    multiverseid.toInt,
-                    scryfallid,
-                    numbers.getOrElseUpdate(number, number),
-                    power.map((p) => stats.getOrElseUpdate(p, CombatStat(p))),
-                    toughness.map((t) => stats.getOrElseUpdate(t, CombatStat(t))),
-                    loyalty.map((l) => loyalties.getOrElseUpdate(l, Loyalty(l))),
-                    TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
-                    legality,
-                    commandFormats
-                  )
+                val c = SingleCard(
+                  layout,
+                  name,
+                  costs.getOrElseUpdate(cost, ManaCost.parse(cost).get),
+                  colorSets.getOrElseUpdate(colors.toString, colors.map(ManaType.parse(_).get).toSet),
+                  colorSets.getOrElseUpdate(identity.toString, identity.map(ManaType.parse(_).get).toSet),
+                  supertypeSets.getOrElseUpdate(supers.toString, ListSet.from(supers.map((s) => allSupertypes.getOrElseUpdate(s, s)))),
+                  typeSets.getOrElseUpdate(types.toString, ListSet.from(types.map((t) => allTypes.getOrElseUpdate(t, t)))),
+                  subtypeSets.getOrElseUpdate(subs.toString, ListSet.from(subs.map((s) => allSubtypes.getOrElseUpdate(s, s)))),
+                  printedTypes.getOrElseUpdate(oTypes, oTypes),
+                  Rarity.parse((card \ "rarity").extract[String]).getOrElse(Rarity.Unknown),
+                  set,
+                  texts.getOrElseUpdate(text, text),
+                  flavors.getOrElseUpdate(flavor, flavor),
+                  texts.getOrElseUpdate(printed, printed),
+                  artists.getOrElseUpdate(artist, artist),
+                  multiverseid.toInt,
+                  scryfallid,
+                  numbers.getOrElseUpdate(number, number),
+                  power.map((p) => stats.getOrElseUpdate(p, CombatStat(p))),
+                  toughness.map((t) => stats.getOrElseUpdate(t, CombatStat(t))),
+                  loyalty.map((l) => loyalties.getOrElseUpdate(l, Loyalty(l))),
+                  TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
+                  legality,
+                  commandFormats
+                )
 
-                  // Collect unexpected card values
-                  if (c.artist.isEmpty)
-                    errors += s"${c.name} (${c.expansion}): missing artist"
+                // Collect unexpected card values
+                if (c.artist.isEmpty)
+                  errors += s"${c.name} (${c.expansion}): missing artist"
 
-                  // Add to map of faces if the card has multiple faces
-                  if (layout.isMultiFaced) {
-                    if (version < v500) {
-                      (card \ "names").extract[Option[Seq[String]]].map((n) => faces += (c -> n)).getOrElse(throw CardLoadException(name, set, "other faces of multi-faced card not defined"))
-                    } else {
-                      multiUUIDs += (card \ "uuid").extract[String] -> c
-                      facesNames += c -> (card \ "name").extract[String].split(Card.FaceSeparator).toSeq
-                      (card \ "otherFaceIds").extract[Option[Seq[String]]].map((i) => otherFaceIds += (c -> i)).getOrElse(throw CardLoadException(name, set, "other faces of multi-faced card not defined"))
-                    }
+                // Add to map of faces if the card has multiple faces
+                if (layout.isMultiFaced) {
+                  if (version < v500) {
+                    (card \ "names").extract[Option[Seq[String]]].map((n) => faces += (c -> n)).getOrElse(throw CardLoadException(name, set, "other faces of multi-faced card not defined"))
+                  } else {
+                    multiUUIDs += (card \ "uuid").extract[String] -> c
+                    facesNames += c -> (card \ "name").extract[String].split(Card.FaceSeparator).toSeq
+                    (card \ "otherFaceIds").extract[Option[Seq[String]]].map((i) => otherFaceIds += (c -> i)).getOrElse(throw CardLoadException(name, set, "other faces of multi-faced card not defined"))
                   }
-
-                  progress += 1
-                  setProgress(progress*100/numCards)
-                  Some(c)
-                } catch {
-                  case e: IllegalArgumentException =>
-                    errors += CardLoadException(name, set, e.getMessage, Some(e)).getMessage
-                    None
-                  case e: CardLoadException =>
-                    errors += e.getMessage
-                    None
                 }
+
+                progress += 1
+                setProgress(progress*100/numCards)
+                Some(c)
+              } catch {
+                case e: IllegalArgumentException =>
+                  errors += CardLoadException(name, set, e.getMessage, Some(e)).getMessage
+                  None
+                case e: CardLoadException =>
+                  errors += e.getMessage
+                  None
+              }
             })
           case _ => collection.mutable.Set.empty[Card]
         }
