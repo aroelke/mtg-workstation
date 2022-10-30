@@ -211,6 +211,13 @@ private case class RawCard(
   rarity: String = "",
   otherFaceIds: Option[Seq[String]] = None
 )
+case class RawExpansion(name: String, block: String = Expansion.NoBlock, code: String, releaseDate: String) {
+  def toExpansion(size: Int) = Expansion(name, block, code, size, try {
+    Option(Chronic.parse(releaseDate))
+        .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
+        .getOrElse(LocalDate.now)
+  } catch case _: IllegalStateException => LocalDate.now)
+}
 
 private class InventoryLoader(file: File, consumer: (String) => Unit, finished: () => Unit) extends SwingWorker[LoadedData, String] {
   private val errors = collection.mutable.ArrayBuffer[String]()
@@ -344,17 +351,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
 
         (setProperties \ "cards") match {
           case JArray(setCards) =>
-            val set = Expansion(
-              (setProperties \ "name").extract[String],
-              (setProperties \ "block").extract[Option[String]].getOrElse(Expansion.NoBlock),
-              (setProperties \ "code").extract[String],
-              setCards.size,
-              try {
-                Option(Chronic.parse((setProperties \ "releaseDate").extract[String]))
-                    .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
-                    .getOrElse(LocalDate.now)
-              } catch case _: IllegalStateException => LocalDate.now
-            )
+            val set = setProperties.extract[RawExpansion].toExpansion(setCards.size)
             expansions += set
 
             publish(s"Loading cards from $set...")
