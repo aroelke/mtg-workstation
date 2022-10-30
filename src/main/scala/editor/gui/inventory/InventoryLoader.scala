@@ -211,8 +211,8 @@ private case class RawCard(
   rarity: String = "",
   otherFaceIds: Option[Seq[String]] = None
 )
-case class RawExpansion(name: String, block: String = Expansion.NoBlock, code: String, releaseDate: String) {
-  def toExpansion(size: Int) = Expansion(name, block, code, size, try {
+case class RawExpansion(name: String, block: String = Expansion.NoBlock, code: String, releaseDate: String, cards: Seq[RawCard]) {
+  def toExpansion = Expansion(name, block, code, cards.size, try {
     Option(Chronic.parse(releaseDate))
         .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
         .getOrElse(LocalDate.now)
@@ -349,90 +349,85 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
           break
         }
 
-        (setProperties \ "cards") match {
-          case JArray(setCards) =>
-            val set = setProperties.extract[RawExpansion].toExpansion(setCards.size)
-            expansions += set
+        val rawSet = setProperties.extract[RawExpansion]
+        val set = rawSet.toExpansion
+        expansions += set
 
-            publish(s"Loading cards from $set...")
-            setCards.flatMap((card) => {
-              val raw = card.extract[RawCard]
+        publish(s"Loading cards from $set...")
+        rawSet.cards.flatMap((raw) => {
+          // Card's name
+          val name = raw.faceName.getOrElse(raw.name)
 
-              // Card's name
-              val name = raw.faceName.getOrElse(raw.name)
+          // If the card is a token, skip it
+          try {
+            val layout = raw.layout.getOrElse(throw CardLoadException(name, set, "no valid layout"))
 
-              // If the card is a token, skip it
+            // Rulings
+            val rulings = raw.rulings.toSeq.flatMap(_.flatMap((r) => {
+              val ruling = rulingContents.getOrElseUpdate(r.text, r.text)
               try {
-                val layout = raw.layout.getOrElse(throw CardLoadException(name, set, "no valid layout"))
+                val date = rulingDates.getOrElseUpdate(r.date, format.parse(r.date))
+                Some(date -> ruling)
+              } catch case x: ParseException => { errors += CardLoadException(name, set, x.getMessage).toString; None }
+            })).groupBy{ case (date, _) => date }.mapValues(_.map{ case (_, ruling) => ruling }).toMap
 
-                // Rulings
-                val rulings = raw.rulings.toSeq.flatMap(_.flatMap((r) => {
-                  val ruling = rulingContents.getOrElseUpdate(r.text, r.text)
-                  try {
-                    val date = rulingDates.getOrElseUpdate(r.date, format.parse(r.date))
-                    Some(date -> ruling)
-                  } catch case x: ParseException => { errors += CardLoadException(name, set, x.getMessage).toString; None }
-                })).groupBy{ case (date, _) => date }.mapValues(_.map{ case (_, ruling) => ruling }).toMap
+            // Format legality
+            val legality = raw.legalities.map{ case (format, legality) => formats.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap
 
-                // Format legality
-                val legality = raw.legalities.map{ case (format, legality) => formats.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap
+            // Formats the card can be commander in
+//            val ls = (card \ "leadershipSkills").extract[Map[String, Boolean]]
+            val commandFormats = Seq.empty[String] // ls.toSeq.collect{ case (format, legal) if legal => formats.getOrElseUpdate(format, format) }.sorted
 
-                // Formats the card can be commander in
-                val ls = (card \ "leadershipSkills").extract[Map[String, Boolean]]
-                val commandFormats = ls.toSeq.collect{ case (format, legal) if legal => formats.getOrElseUpdate(format, format) }.sorted
+            val c = SingleCard(
+              layout,
+              name,
+              costs.getOrElseUpdate(raw.manaCost, ManaCost.parse(raw.manaCost).get),
+              colorSets.getOrElseUpdate(raw.colors.toString, raw.colors.map(ManaType.parse(_).get).toSet),
+              colorSets.getOrElseUpdate(raw.colorIdentity.toString, raw.colorIdentity.map(ManaType.parse(_).get).toSet),
+              supertypeSets.getOrElseUpdate(raw.supertypes.toString, ListSet.from(raw.supertypes.map((s) => allSupertypes.getOrElseUpdate(s, s)))),
+              typeSets.getOrElseUpdate(raw.types.toString, ListSet.from(raw.types.map((t) => allTypes.getOrElseUpdate(t, t)))),
+              subtypeSets.getOrElseUpdate(raw.subtypes.toString, ListSet.from(raw.subtypes.map((s) => allSubtypes.getOrElseUpdate(s, s)))),
+              printedTypes.getOrElseUpdate(raw.originalType, raw.originalType),
+              Rarity.parse(raw.rarity).getOrElse(Rarity.Unknown),
+              set,
+              texts.getOrElseUpdate(raw.text, raw.text),
+              flavors.getOrElseUpdate(raw.flavorText, raw.flavorText),
+              texts.getOrElseUpdate(raw.originalText, raw.originalText),
+              artists.getOrElseUpdate(raw.artist, raw.artist),
+              raw.identifiers.multiverseId.toInt,
+              raw.identifiers.scryfallId,
+              numbers.getOrElseUpdate(raw.number, raw.number),
+              raw.power.map((p) => stats.getOrElseUpdate(p, CombatStat(p))),
+              raw.toughness.map((t) => stats.getOrElseUpdate(t, CombatStat(t))),
+              raw.loyalty.map((l) => loyalties.getOrElseUpdate(l, Loyalty(l))),
+              TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
+              legality,
+              commandFormats
+            )
 
-                val c = SingleCard(
-                  layout,
-                  name,
-                  costs.getOrElseUpdate(raw.manaCost, ManaCost.parse(raw.manaCost).get),
-                  colorSets.getOrElseUpdate(raw.colors.toString, raw.colors.map(ManaType.parse(_).get).toSet),
-                  colorSets.getOrElseUpdate(raw.colorIdentity.toString, raw.colorIdentity.map(ManaType.parse(_).get).toSet),
-                  supertypeSets.getOrElseUpdate(raw.supertypes.toString, ListSet.from(raw.supertypes.map((s) => allSupertypes.getOrElseUpdate(s, s)))),
-                  typeSets.getOrElseUpdate(raw.types.toString, ListSet.from(raw.types.map((t) => allTypes.getOrElseUpdate(t, t)))),
-                  subtypeSets.getOrElseUpdate(raw.subtypes.toString, ListSet.from(raw.subtypes.map((s) => allSubtypes.getOrElseUpdate(s, s)))),
-                  printedTypes.getOrElseUpdate(raw.originalType, raw.originalType),
-                  Rarity.parse(raw.rarity).getOrElse(Rarity.Unknown),
-                  set,
-                  texts.getOrElseUpdate(raw.text, raw.text),
-                  flavors.getOrElseUpdate(raw.flavorText, raw.flavorText),
-                  texts.getOrElseUpdate(raw.originalText, raw.originalText),
-                  artists.getOrElseUpdate(raw.artist, raw.artist),
-                  raw.identifiers.multiverseId.toInt,
-                  raw.identifiers.scryfallId,
-                  numbers.getOrElseUpdate(raw.number, raw.number),
-                  raw.power.map((p) => stats.getOrElseUpdate(p, CombatStat(p))),
-                  raw.toughness.map((t) => stats.getOrElseUpdate(t, CombatStat(t))),
-                  raw.loyalty.map((l) => loyalties.getOrElseUpdate(l, Loyalty(l))),
-                  TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
-                  legality,
-                  commandFormats
-                )
+            // Collect unexpected card values
+            if (c.artist.isEmpty)
+              errors += s"${c.name} (${c.expansion}): missing artist"
 
-                // Collect unexpected card values
-                if (c.artist.isEmpty)
-                  errors += s"${c.name} (${c.expansion}): missing artist"
+            // Add to map of faces if the card has multiple faces
+            if (layout.isMultiFaced) {
+              multiUUIDs += raw.uuid -> c
+              facesNames += c -> raw.name.split(Card.FaceSeparator).toSeq
+              raw.otherFaceIds.map((i) => otherFaceIds += (c -> i)).getOrElse(throw CardLoadException(name, set, "other faces of multi-faced card not defined"))
+            }
 
-                // Add to map of faces if the card has multiple faces
-                if (layout.isMultiFaced) {
-                  multiUUIDs += raw.uuid -> c
-                  facesNames += c -> raw.name.split(Card.FaceSeparator).toSeq
-                  raw.otherFaceIds.map((i) => otherFaceIds += (c -> i)).getOrElse(throw CardLoadException(name, set, "other faces of multi-faced card not defined"))
-                }
-
-                progress += 1
-                setProgress(progress*100/numCards)
-                Some(c)
-              } catch {
-                case e: IllegalArgumentException =>
-                  errors += CardLoadException(name, set, e.getMessage, Some(e)).getMessage
-                  None
-                case e: CardLoadException =>
-                  errors += e.getMessage
-                  None
-              }
-            })
-          case _ => collection.mutable.Set.empty[Card]
-        }
+            progress += 1
+            setProgress(progress*100/numCards)
+            Some(c)
+          } catch {
+            case e: IllegalArgumentException =>
+              errors += CardLoadException(name, set, e.getMessage, Some(e)).getMessage
+              None
+            case e: CardLoadException =>
+              errors += e.getMessage
+              None
+          }
+        })
       ))}.catchBreak(collection.mutable.Set.empty[Card])
 
       if (!isCancelled) {
