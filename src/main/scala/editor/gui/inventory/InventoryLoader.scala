@@ -191,8 +191,8 @@ private case class RawCard(
   faceName: Option[String] = None,
   layout: Option[CardLayout] = None,
   rulings: Option[Seq[Ruling]] = None,
-  legalities: Option[Map[String, String]] = None,
-  leadershipSkills: Option[Map[String, String]] = None,
+  legalities: Map[String, String] = Map.empty,
+//  leadershipSkills: Map[String, Boolean],
   manaCost: String = "",
   colors: Seq[String] = Seq.empty,
   colorIdentity: Seq[String] = Seq.empty,
@@ -378,10 +378,12 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                 })).groupBy{ case (date, _) => date }.mapValues(_.map{ case (_, ruling) => ruling }).toMap
 
                 // Format legality
-                val legality = raw.legalities.map(_.map{ case (format, legality) => formats.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap).getOrElse(Map.empty)
+                val legality = raw.legalities.map{ case (format, legality) => formats.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap
 
                 // Formats the card can be commander in
-                val commandFormats = raw.leadershipSkills.toSeq.flatMap(_.collect{ case (format, legal) if legal.toBoolean => formats.getOrElseUpdate(format, format) }).sorted
+                val ls = (card \ "leadershipSkills").extract[Map[String, Boolean]]
+                val commandFormats = ls.toSeq.collect{ case (format, legal) if legal => formats.getOrElseUpdate(format, format) }.sorted
+
                 val c = SingleCard(
                   layout,
                   name,
