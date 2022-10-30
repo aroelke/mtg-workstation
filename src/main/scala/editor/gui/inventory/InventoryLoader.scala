@@ -311,13 +311,10 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       val version = (root \ "meta" \ "version").extract[Option[DatabaseVersion]].getOrElse(DatabaseVersion(0, 0, 0))
 
       val entries = (root \ "data") match {
-        case JObject(fields) => fields.map{ case (_, entry) => entry }
+        case JObject(fields) => fields.map{ case (_, entry) => entry.extract[RawExpansion] }
         case _ => throw ParseException("unknown JSON data format", 0)
       }
-      val numCards = entries.foldLeft(0)((a, b) => a + ((b \ "cards") match {
-        case JArray(cards) => cards.size
-        case _ => throw ParseException("could not parse number of cards", 0)
-      }))
+      val numCards = entries.foldLeft(0)((a, b) => a + b.cards.size)
 
       // We don't use String.intern() here because the String pool that is maintained must include extra data that adds several MB
       // to the overall memory consumption of the inventory
@@ -343,13 +340,12 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       publish(s"Reading cards from ${file.getName}...")
       var progress = 0
       setProgress(progress)
-      val cards = tryBreakable { collection.mutable.Set.from(entries.flatMap((setProperties) =>
+      val cards = tryBreakable { collection.mutable.Set.from(entries.flatMap((rawSet) =>
         if (isCancelled) {
           expansions.clear()
           break
         }
 
-        val rawSet = setProperties.extract[RawExpansion]
         val set = rawSet.toExpansion
         expansions += set
 
