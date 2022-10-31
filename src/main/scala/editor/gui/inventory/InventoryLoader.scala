@@ -308,7 +308,6 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       publish(s"Parsing ${file.getName}...")
 
       val root = JsonMethods.parse(reader)
-      val version = (root \ "meta" \ "version").extract[Option[DatabaseVersion]].getOrElse(DatabaseVersion(0, 0, 0))
 
       val entries = (root \ "data").extract[Map[String, RawExpansion]].map{ case (_, set) => set }
       val numCards = entries.map(_.cards.size).sum
