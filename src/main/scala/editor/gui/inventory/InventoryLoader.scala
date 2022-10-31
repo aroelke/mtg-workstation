@@ -310,11 +310,8 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       val root = JsonMethods.parse(reader)
       val version = (root \ "meta" \ "version").extract[Option[DatabaseVersion]].getOrElse(DatabaseVersion(0, 0, 0))
 
-      val entries = (root \ "data") match {
-        case JObject(fields) => fields.map{ case (_, entry) => entry.extract[RawExpansion] }
-        case _ => throw ParseException("unknown JSON data format", 0)
-      }
-      val numCards = entries.foldLeft(0)((a, b) => a + b.cards.size)
+      val entries = (root \ "data").extract[Map[String, RawExpansion]].map{ case (_, set) => set }
+      val numCards = entries.map(_.cards.size).sum
 
       // We don't use String.intern() here because the String pool that is maintained must include extra data that adds several MB
       // to the overall memory consumption of the inventory
