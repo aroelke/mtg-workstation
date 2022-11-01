@@ -11,7 +11,6 @@ import editor.gui.MainFrame
 import editor.gui.generic.ScrollablePanel
 import editor.gui.settings.SettingsDialog
 import editor.serialization
-import editor.serialization.given
 import org.json4s._
 import org.json4s.native.JsonMethods
 
@@ -182,6 +181,7 @@ case class LoadedData(
   warnings: Seq[String] = Seq.empty
 )
 
+private case class LeadershipSkills(commands: Map[String, Boolean])
 private case class Ruling(date: String, text: String)
 private case class Identifiers(scryfallId: String, multiverseId: String = "-1")
 private case class RawCard(
@@ -192,7 +192,7 @@ private case class RawCard(
   layout: Option[CardLayout] = None,
   rulings: Option[Seq[Ruling]] = None,
   legalities: Map[String, String] = Map.empty,
-//  leadershipSkills: Map[String, Boolean],
+  leadershipSkills: Option[LeadershipSkills] = None,
   manaCost: String = "",
   colors: Seq[String] = Seq.empty,
   colorIdentity: Seq[String] = Seq.empty,
@@ -307,6 +307,10 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
     val data = Using.resource(BufferedReader(InputStreamReader(FileInputStream(file), "UTF8"))){ reader =>
       publish(s"Parsing ${file.getName}...")
 
+      given formats: Formats = serialization.formats + CustomSerializer[LeadershipSkills]((format) => (
+        { case JObject(fields) => LeadershipSkills(fields.collect{ case JField(name, JBool(bool)) => name -> bool }.toMap) },
+        { case _ => JNothing } // this is unused
+      ))
       val root = JsonMethods.parse(reader)
 
       val entries = (root \ "data").extract[Map[String, RawExpansion]].map{ case (_, set) => set }
@@ -326,7 +330,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       val texts = collection.mutable.Map[String, String]()
       val flavors = collection.mutable.Map[String, String]()
       val artists = collection.mutable.Map[String, String]()
-      val formats = collection.mutable.Map.from(FormatConstraints.FormatNames.map((n) => n -> n).toMap)
+      val formatNames = collection.mutable.Map.from(FormatConstraints.FormatNames.map((n) => n -> n).toMap)
       val numbers = collection.mutable.Map[String, String]()
       val stats = collection.mutable.Map[String, CombatStat]()
       val loyalties = collection.mutable.Map[String, Loyalty]()
@@ -364,11 +368,10 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             })).groupBy{ case (date, _) => date }.mapValues(_.map{ case (_, ruling) => ruling }).toMap
 
             // Format legality
-            val legality = raw.legalities.map{ case (format, legality) => formats.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap
+            val legality = raw.legalities.map{ case (format, legality) => formatNames.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap
 
             // Formats the card can be commander in
-//            val ls = (card \ "leadershipSkills").extract[Map[String, Boolean]]
-            val commandFormats = Seq.empty[String] // ls.toSeq.collect{ case (format, legal) if legal => formats.getOrElseUpdate(format, format) }.sorted
+            val commandFormats = raw.leadershipSkills.toSeq.flatMap(_.commands.collect{ case (format, legal) if legal => formatNames.getOrElseUpdate(format, format) }).sorted
 
             val c = SingleCard(
               layout,
@@ -434,7 +437,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             errors += CardLoadException(face.name, face.expansion, "other faces not found").getMessage
         }
 
-        val missingFormats = formats.collect{ case (_, f) if !FormatConstraints.FormatNames.contains(f) => f }.toSeq.sorted
+        val missingFormats = formatNames.collect{ case (_, f) if !FormatConstraints.FormatNames.contains(f) => f }.toSeq.sorted
         if (!missingFormats.isEmpty)
           errors += s"""Could not find definitions for the following formats: ${missingFormats.mkString(", ")}"""
       }
