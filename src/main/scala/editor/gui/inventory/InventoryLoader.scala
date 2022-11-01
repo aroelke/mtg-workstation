@@ -188,8 +188,8 @@ private case class RawCard(
   uuid: String,
   identifiers: Identifiers,
   name: String,
+  layout: String,
   faceName: Option[String] = None,
-  layout: Option[CardLayout] = None,
   rulings: Option[Seq[Ruling]] = None,
   legalities: Map[String, String] = Map.empty,
   leadershipSkills: Option[LeadershipSkills] = None,
@@ -354,7 +354,9 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
 
           // If the card is a token, skip it
           try {
-            val layout = raw.layout.getOrElse(throw CardLoadException(name, set, "no valid layout"))
+            val layout = try {
+              CardLayout.valueOf(raw.layout.toUpperCase.replaceAll("[^A-Z]", "_"))
+            } catch case _ => CardLayout.values.find(_.toString.equalsIgnoreCase(raw.layout)).getOrElse(throw CardLoadException(name, set, "no valid layout"))
 
             // Rulings
             val rulings = raw.rulings.toSeq.flatMap(_.flatMap((r) => {
