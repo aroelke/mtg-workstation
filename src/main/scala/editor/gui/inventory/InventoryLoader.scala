@@ -311,9 +311,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
         { case JObject(fields) => LeadershipSkills(fields.collect{ case JField(name, JBool(bool)) => name -> bool }.toMap) },
         { case _ => JNothing } // this is unused
       ))
-      val root = JsonMethods.parse(reader)
-
-      val entries = (root \ "data").extract[Map[String, RawExpansion]].map{ case (_, set) => set }
+      val entries = (JsonMethods.parse(reader) \ "data").extract[Map[String, RawExpansion]].map{ case (_, set) => set }
       val numCards = entries.map(_.cards.size).sum
 
       // We don't use String.intern() here because the String pool that is maintained must include extra data that adds several MB
