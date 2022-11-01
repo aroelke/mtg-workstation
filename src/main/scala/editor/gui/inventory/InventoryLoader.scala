@@ -367,12 +367,6 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               } catch case x: ParseException => { errors += CardLoadException(name, set, x.getMessage).toString; None }
             })).groupBy{ case (date, _) => date }.mapValues(_.map{ case (_, ruling) => ruling }).toMap
 
-            // Format legality
-            val legality = raw.legalities.map{ case (format, legality) => formatNames.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap
-
-            // Formats the card can be commander in
-            val commandFormats = raw.leadershipSkills.toSeq.flatMap(_.commands.collect{ case (format, legal) if legal => formatNames.getOrElseUpdate(format, format) }).sorted
-
             val c = SingleCard(
               layout,
               name,
@@ -396,8 +390,8 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               raw.toughness.map((t) => stats.getOrElseUpdate(t, CombatStat(t))),
               raw.loyalty.map((l) => loyalties.getOrElseUpdate(l, Loyalty(l))),
               TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
-              legality,
-              commandFormats
+              raw.legalities.map{ case (format, legality) => formatNames.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap,
+              raw.leadershipSkills.toSeq.flatMap(_.commands.collect{ case (format, legal) if legal => formatNames.getOrElseUpdate(format, format) }).sorted
             )
 
             // Collect unexpected card values
