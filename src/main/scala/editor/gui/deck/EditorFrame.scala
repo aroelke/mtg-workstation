@@ -1801,6 +1801,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     _lists.flatten.foreach(_.model.fireTableDataChanged())
     categoryPanels.foreach(_.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged())
     parent.getSelectedTable.foreach((t) => {
+      t.getSelectionModel().setValueIsAdjusting(true);
       parent.getSelectedList.foreach((l) => {
         for (c <- selected) {
           if (l.contains(c)) {
@@ -1811,6 +1812,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         if (t.isEditing)
           t.getCellEditor.cancelCellEditing()
       })
+      t.getSelectionModel().setValueIsAdjusting(false);
     })
     hand.refresh()
     handCalculations.update()
