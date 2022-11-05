@@ -234,6 +234,7 @@ class Deck extends CardList {
     def update(name: String, next: Categorization): Unit = if (next.name == name || !caches.contains(next.name)) {
       val cache = caches(name)
       caches -= name
+      entries.foreach(_._categories -= cache.categorization.name)
       cache.categorization = next
       caches += next.name -> cache
     } else throw IllegalArgumentException(s"there is already a category named ${next.name}")
