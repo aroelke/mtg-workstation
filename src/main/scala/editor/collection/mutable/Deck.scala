@@ -53,7 +53,11 @@ class Deck extends CardList {
     private[Deck] val _categories = collection.mutable.Map[String, Categorization]()
     if (amount > 0) {
       Deck.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization(card)) {
-        cache.filtrate += this
+        val index = cache.indexOf(card)
+        if (index < 0)
+          cache.filtrate += this
+        else
+          cache.filtrate(index) = this
         _categories += cache.categorization.name -> cache.categorization
       }}
     }
@@ -81,7 +85,11 @@ class Deck extends CardList {
         amount = n
         entries += this
         Deck.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization(card)) {
-          cache.filtrate += this
+          val index = cache.indexOf(card)
+          if (index < 0)
+            cache.filtrate += this
+          else
+            cache.filtrate(index) = this
           _categories += cache.categorization.name -> cache.categorization
         }}
       }
@@ -138,20 +146,7 @@ class Deck extends CardList {
     this
   }
 
-  override def update(index: Int, card: CardListEntry) = {
-    val old = entries(index)
-    entries(index) = Entry(card.card, card.count, card.dateAdded)
-    categories.caches.foreach{ case (_, cache) =>
-      if (cache.contains(entries(index)) && cache.contains(old)) {
-        cache.filtrate.remove(cache.filtrate.size - 1)
-        cache.filtrate(cache.filtrate.indexOf(old)) = entries(index)
-      } else if (cache.contains(entries(index))) {
-        cache.filtrate -= entries(index)
-      } else if (cache.contains(old)) {
-        cache.filtrate -= old
-      }
-    }
-  }
+  override def update(index: Int, card: CardListEntry) = entries(index) = Entry(card.card, card.count, card.dateAdded)
 
   override def apply(index: Int): Entry = entries(index)
   override def length = entries.size
