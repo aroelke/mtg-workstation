@@ -80,7 +80,9 @@ class CardTableModel(private var cards: CardList, private var attributes: Indexe
 
   override def setValueAt(value: Object, row: Int, column: Int) = if (isCellEditable(row, column)) {
     (editor, attributes(column), value) match {
-      case (Some(frame), ElementAttribute.CountElement, i: java.lang.Integer) => frame.lists(EditorFrame.MainDeck)(frame.deck.indexOf(cards(row).card)).count = i
+      case (Some(frame), ElementAttribute.CountElement, i: java.lang.Integer) =>
+        val masterRow = frame.deck.indexOf(cards(row).card)
+        frame.lists(EditorFrame.MainDeck)(masterRow) = frame.lists(EditorFrame.MainDeck)(masterRow).copy(count = i)
       case (Some(frame), ElementAttribute.CategoriesElement, ie: IncludeExcludePanel) => frame.categories.update(ie.updates.map((c) => c.name -> c).toMap)
       case (None, _, _) => throw IllegalArgumentException("cannot edit values in table")
       case _ => throw IllegalArgumentException(s"cannot edit data type ${attributes(column)} to $value (${value.getClass})")

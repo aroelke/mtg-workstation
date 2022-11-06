@@ -138,7 +138,20 @@ class Deck extends CardList {
     this
   }
 
-  override def update(index: Int, card: CardListEntry) = entries(index) = Entry(card.card, card.count, card.dateAdded)
+  override def update(index: Int, card: CardListEntry) = {
+    val old = entries(index)
+    entries(index) = Entry(card.card, card.count, card.dateAdded)
+    categories.caches.foreach{ case (_, cache) =>
+      if (cache.contains(entries(index)) && cache.contains(old)) {
+        cache.filtrate.remove(cache.filtrate.size - 1)
+        cache.filtrate(cache.filtrate.indexOf(old)) = entries(index)
+      } else if (cache.contains(entries(index))) {
+        cache.filtrate -= entries(index)
+      } else if (cache.contains(old)) {
+        cache.filtrate -= old
+      }
+    }
+  }
 
   override def apply(index: Int): Entry = entries(index)
   override def length = entries.size
