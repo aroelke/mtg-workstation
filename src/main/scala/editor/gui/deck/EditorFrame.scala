@@ -206,8 +206,18 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     private[EditorFrame] val current: Deck,
     private[EditorFrame] val original: Deck
   ) extends editor.collection.mutable.CardList {
+    def name = _name
+    private[EditorFrame] def name_=(n: String) = _name = n
+
+    private def preserveTables[T](action: => T) = {
+      val selected = parent.getSelectedCards.map(_.card)
+      val result = action
+      updateTables(selected)
+      result
+    }
+
     class Entry private[DeckData](override val card: Card) extends CardListEntry {
-      private def entry = _lists(id).flatMap(_.current.find(_.card == card)).get
+      private def entry = _lists(id).map(_.current(card)).get
 
       def count_=(n: Int) = {
         val old = entry.count
@@ -220,16 +230,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       override def count: Int = entry.count
       override def dateAdded: LocalDate = entry.dateAdded
       override def categories: Set[Categorization] = entry.categories
-    }
-
-    def name = _name
-    private[EditorFrame] def name_=(n: String) = _name = n
-
-    private def preserveTables[T](action: => T) = {
-      val selected = parent.getSelectedCards.map(_.card)
-      val result = action
-      updateTables(selected)
-      result
     }
 
     override def addOne(card: CardListEntry) = {
