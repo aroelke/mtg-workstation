@@ -212,8 +212,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       def count_=(n: Int) = {
         val old = entry.count
         performAction(
-          () => preserveTables{ entry.count = n; true },
-          () => preserveTables{ entry.count = old; true }
+          () => preserveTables{ try { entry.count = n; true } catch case _: NoSuchElementException => false },
+          () => preserveTables{ try { entry.count = old; true } catch case _: NoSuchElementException => false }
         )
       }
 
@@ -235,8 +235,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     override def addOne(card: CardListEntry) = {
       if (card.count > 0) {
         performAction(
-          () => preserveTables{ _lists(id).map(_.current += card); true },
-          () => preserveTables{ _lists(id).foreach(_.current -= card); true }
+          () => preserveTables{ _lists(id).map(_.current += card).isDefined },
+          () => preserveTables{ _lists(id).map(_.current -= card).isDefined }
         )
       }
       this
@@ -246,8 +246,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       val added = cards.filter(_.count > 0).toSeq
       if (!added.isEmpty) {
         performAction(
-          () => preserveTables{ _lists(id).foreach(_.current ++= added); true },
-          () => preserveTables{ _lists(id).foreach(_.current --= added); true }
+          () => preserveTables{ _lists(id).map(_.current ++= added).isDefined },
+          () => preserveTables{ _lists(id).map(_.current --= added).isDefined }
         )
       }
       this
@@ -257,8 +257,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       val capped = card.copy(count = math.min(card.count, current.find(_.card == card.card).map(_.count).getOrElse(0)))
       if (capped.count > 0) {
         performAction(
-          () => preserveTables{ _lists(id).foreach(_.current -= capped); true },
-          () => preserveTables{ _lists(id).foreach(_.current += capped); true }
+          () => preserveTables{ _lists(id).map(_.current -= capped).isDefined },
+          () => preserveTables{ _lists(id).map(_.current += capped).isDefined }
         )
       }
       this
@@ -268,8 +268,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       val capped = cards.map((e) => e.copy(count = math.min(e.count, current.find(_.card == e.card).map(_.count).getOrElse(0)))).filter(_.count > 0).toSeq
       if (!capped.isEmpty) {
         performAction(
-          () => preserveTables{ _lists(id).foreach(_.current --= capped); true },
-          () => preserveTables{ _lists(id).foreach(_.current ++= capped); true }
+          () => preserveTables{ _lists(id).map(_.current --= capped).isDefined },
+          () => preserveTables{ _lists(id).map(_.current ++= capped).isDefined }
         )
       }
       this
@@ -278,8 +278,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     override def update(index: Int, card: CardListEntry) = if (card != current(index)) {
       val orig = current(index)
       performAction(
-        () => preserveTables{ _lists(id).foreach(_.current(index) = card); true },
-        () => preserveTables{ _lists(id).foreach(_.current(index) = orig); true }
+        () => preserveTables{ _lists(id).map(_.current(index) = card).isDefined },
+        () => preserveTables{ _lists(id).map(_.current(index) = orig).isDefined }
       )
     }
 
