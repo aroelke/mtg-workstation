@@ -157,6 +157,8 @@ class Deck extends CardList {
     categories.caches.foreach{ case (_, cache) => cache.filtrate.clear() }
   }
 
+  override def find(p: (CardListEntry) => Boolean): Option[Entry] = entries.find(p)
+
   private class Cache(private var spec: Categorization) extends editor.collection.immutable.CardList {
     var filtrate = collection.mutable.ArrayBuffer[Entry]()
     var rank = categories.size
