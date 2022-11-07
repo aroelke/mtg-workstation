@@ -53,7 +53,11 @@ class Deck extends CardList {
     private[Deck] val _categories = collection.mutable.Map[String, Categorization]()
     if (amount > 0) {
       Deck.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization(card)) {
-        cache.filtrate += this
+        val index = cache.indexOf(card)
+        if (index < 0)
+          cache.filtrate += this
+        else
+          cache.filtrate(index) = this
         _categories += cache.categorization.name -> cache.categorization
       }}
     }
@@ -81,7 +85,11 @@ class Deck extends CardList {
         amount = n
         entries += this
         Deck.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization(card)) {
-          cache.filtrate += this
+          val index = cache.indexOf(card)
+          if (index < 0)
+            cache.filtrate += this
+          else
+            cache.filtrate(index) = this
           _categories += cache.categorization.name -> cache.categorization
         }}
       }
@@ -148,6 +156,8 @@ class Deck extends CardList {
     entries.clear()
     categories.caches.foreach{ case (_, cache) => cache.filtrate.clear() }
   }
+
+  override def find(p: (CardListEntry) => Boolean): Option[Entry] = entries.find(p)
 
   private class Cache(private var spec: Categorization) extends editor.collection.immutable.CardList {
     var filtrate = collection.mutable.ArrayBuffer[Entry]()
@@ -234,6 +244,7 @@ class Deck extends CardList {
     def update(name: String, next: Categorization): Unit = if (next.name == name || !caches.contains(next.name)) {
       val cache = caches(name)
       caches -= name
+      entries.foreach(_._categories -= cache.categorization.name)
       cache.categorization = next
       caches += next.name -> cache
     } else throw IllegalArgumentException(s"there is already a category named ${next.name}")

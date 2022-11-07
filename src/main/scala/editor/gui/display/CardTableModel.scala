@@ -79,10 +79,11 @@ class CardTableModel(private var cards: CardList, private var attributes: Indexe
   override def isCellEditable(row: Int, column: Int) = attributes(column).cellEditor(editor).isDefined
 
   override def setValueAt(value: Object, row: Int, column: Int) = if (isCellEditable(row, column)) {
-    (cards, attributes(column), value) match {
-      case (deck: EditorFrame#DeckData, ElementAttribute.CountElement, i: java.lang.Integer) => deck(row).count = i
-      case (deck: EditorFrame#DeckData, ElementAttribute.CategoriesElement, ie: IncludeExcludePanel) => editor.foreach(_.categories.update(ie.updates.map((c) => c.name -> c).toMap))
-      case _ => throw IllegalArgumentException(s"cannot edit data type ${attributes(column)} to $value (${cards.getClass} | ${value.getClass}")
+    (editor, attributes(column), value) match {
+      case (Some(frame), ElementAttribute.CountElement, i: java.lang.Integer) => frame.lists(EditorFrame.MainDeck)(frame.deck.indexOf(cards(row).card)).count = i
+      case (Some(frame), ElementAttribute.CategoriesElement, ie: IncludeExcludePanel) => frame.categories.update(ie.updates.map((c) => c.name -> c).toMap)
+      case (None, _, _) => throw IllegalArgumentException("cannot edit values in table")
+      case _ => throw IllegalArgumentException(s"cannot edit data type ${attributes(column)} to $value (${value.getClass})")
     }
     fireTableDataChanged()
   } else throw UnsupportedOperationException("cells cannot be edited")
