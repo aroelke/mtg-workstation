@@ -1737,19 +1737,15 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
 
     manaCurve.clear()
     landDrops.clear()
-    (sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
-      case ByNothing => Seq(SettingsDialog.settings.editor.manaAnalysis.none)
-      case ByColor   => SettingsDialog.settings.editor.manaAnalysis.colorColors
-      case ByType    => SettingsDialog.settings.editor.manaAnalysis.typeColors
-    }).zipWithIndex.foreach{ case (color, i) => manaCurveRenderer.setSeriesPaint(i, color) }
+    var sections = sectionsBox.getItemAt(sectionsBox.getSelectedIndex()) match {
+      case ByNothing => Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex) else "Main Deck")
+      case ByColor   => Seq("Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored")
+      case ByType    => Seq("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"); // Land is omitted because we don't count them here
+    }
+    sections.zipWithIndex.foreach{ case (color, i) => manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings.editor.manaAnalysis.getOrElse(color))}
     val analyte = if (analyzeCategoryBox.isSelected) deck.current.categories(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex)).list else deck.current
     val analyteLands = analyte.collect{ case e if SettingsDialog.settings.editor.isLand(e.card) => e.count }.sum
     if (analyte.total - analyteLands > 0) {
-      var sections = sectionsBox.getItemAt(sectionsBox.getSelectedIndex()) match {
-        case ByNothing => Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex) else "Main Deck")
-        case ByColor   => Seq("Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored")
-        case ByType    => Seq("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"); // Land is omitted because we don't count them here
-      }
       var sectionManaValues = sections.map((s) => s -> analyte
           .filter((e) => !SettingsDialog.settings.editor.isLand(e.card))
           .filter((e) => sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
