@@ -1742,7 +1742,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       case ByColor   => Seq("Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored")
       case ByType    => Seq("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"); // Land is omitted because we don't count them here
     }
-    sections.zipWithIndex.foreach{ case (color, i) => manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings.editor.manaAnalysis.getOrElse(color))}
     val analyte = if (analyzeCategoryBox.isSelected) deck.current.categories(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex)).list else deck.current
     val analyteLands = analyte.collect{ case e if SettingsDialog.settings.editor.isLand(e.card) => e.count }.sum
     if (analyte.total - analyteLands > 0) {
@@ -1768,8 +1767,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       ).toMap
       val minMV = math.ceil(manaValue.head).toInt
       val maxMV = math.ceil(manaValue.last).toInt
-      for (i <- minMV to maxMV) {
-        sections.foreach((s) => manaCurve.addValue(sectionManaValues(s).count(_ == i), s, i.toString))
+      sections.filter(!sectionManaValues(_).isEmpty).zipWithIndex.foreach{ case (s, i) =>
+        manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings.editor.manaAnalysis.getOrElse(s))
+        for (j <- minMV to maxMV)
+          manaCurve.addValue(sectionManaValues(s).count(_ == j), s, j.toString)
       }
 
       if (minMV >= 0) {
