@@ -1746,24 +1746,24 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     val analyteLands = analyte.collect{ case e if SettingsDialog.settings.editor.isLand(e.card) => e.count }.sum
     if (analyte.total - analyteLands > 0) {
       var sectionManaValues = sections.map((s) => s -> analyte
-          .filter((e) => !SettingsDialog.settings.editor.isLand(e.card))
-          .filter((e) => sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
-            case ByNothing => true
-            case ByColor => s match {
-              case "Colorless"    => e.card.colors.size == 0
-              case "White"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.White)
-              case "Blue"         => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Blue)
-              case "Black"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Black)
-              case "Red"          => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Red)
-              case "Green"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Green)
-              case "Multicolored" => e.card.colors.size > 1
-              case _ => true
-            }
-            case ByType => e.card.types.exists(_.equalsIgnoreCase(s)) && !sections.slice(0, sections.indexOf(s)).exists(s => e.card.types.exists(_.equalsIgnoreCase(s)))
-          })
-          .flatMap((e) => Seq.tabulate(e.count)(_ => SettingsDialog.settings.editor.getManaValue(e.card)))
-          .toSeq.sorted
-          .map(math.ceil)
+        .filter((e) => !SettingsDialog.settings.editor.isLand(e.card))
+        .filter((e) => sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
+          case ByNothing => true
+          case ByColor => s match {
+            case "Colorless"    => e.card.colors.size == 0
+            case "White"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.White)
+            case "Blue"         => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Blue)
+            case "Black"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Black)
+            case "Red"          => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Red)
+            case "Green"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Green)
+            case "Multicolored" => e.card.colors.size > 1
+            case _ => true
+          }
+          case ByType => e.card.types.exists(_.equalsIgnoreCase(s)) && !sections.slice(0, sections.indexOf(s)).exists(s => e.card.types.exists(_.equalsIgnoreCase(s)))
+        })
+        .flatMap((e) => Seq.tabulate(e.count)(_ => SettingsDialog.settings.editor.getManaValue(e.card)))
+        .toSeq.sorted
+        .map(math.ceil)
       ).toMap
       val minMV = math.ceil(manaValue.head).toInt
       val maxMV = math.ceil(manaValue.last).toInt
