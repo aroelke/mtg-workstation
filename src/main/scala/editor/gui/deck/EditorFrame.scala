@@ -55,13 +55,19 @@ import java.awt.Color
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.GridBagConstraints
+import java.awt.Paint
 import java.awt.PopupMenu
 import java.awt.Rectangle
+import java.awt.RenderingHints
 import java.awt.ScrollPane
 import java.awt.Toolkit
+import java.awt.Transparency
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.awt.event.MouseEvent
+import java.awt.geom.AffineTransform
+import java.awt.geom.Rectangle2D
+import java.awt.image.ColorModel
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -111,6 +117,7 @@ import javax.swing.event.PopupMenuListener
 import javax.swing.table.AbstractTableModel
 import scala.collection.immutable.ListMap
 import scala.util.Using
+import java.awt.PaintContext
 
 object EditorFrame {
   val MainDeck = 0
@@ -1737,40 +1744,60 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
 
     manaCurve.clear()
     landDrops.clear()
-    var sections = sectionsBox.getItemAt(sectionsBox.getSelectedIndex()) match {
-      case ByNothing => Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex) else "Main Deck")
-      case ByColor   => Seq("Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored")
-      case ByType    => Seq("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"); // Land is omitted because we don't count them here
+    val colorSets = ListMap((1 to ManaType.colors.size).flatMap(ManaType.colors.combinations(_).map((c) => ManaType.sorted(c).map(_.toString) -> c.toSet)):_*)
+    val sections = sectionsBox.getItemAt(sectionsBox.getSelectedIndex()) match {
+      case ByNothing => Seq(Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex) else "Main Deck"))
+      case ByColor   => Seq(Seq("Colorless")) ++ colorSets.keys ++ Seq(Seq("Multicolored"))
+      case ByType    => Seq(Seq("Creature"), Seq("Artifact"), Seq("Enchantment"), Seq("Planeswalker"), Seq("Instant"), Seq("Sorcery")); // Land is omitted because we don't count them here
     }
     val analyte = if (analyzeCategoryBox.isSelected) deck.current.categories(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex)).list else deck.current
     val analyteLands = analyte.collect{ case e if SettingsDialog.settings.editor.isLand(e.card) => e.count }.sum
     if (analyte.total - analyteLands > 0) {
-      var sectionManaValues = sections.map((s) => s -> analyte
+      var sectionManaValues = sections.zipWithIndex.map{ case (s, i) => s -> analyte
         .filter((e) => !SettingsDialog.settings.editor.isLand(e.card))
         .filter((e) => sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
           case ByNothing => true
           case ByColor => s match {
-            case "Colorless"    => e.card.colors.size == 0
-            case "White"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.White)
-            case "Blue"         => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Blue)
-            case "Black"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Black)
-            case "Red"          => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Red)
-            case "Green"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Green)
-            case "Multicolored" => e.card.colors.size > 1
-            case _ => true
+            case Seq("Colorless")    => e.card.colors.isEmpty
+            case Seq("Multicolored") => false // e.card.colors.size > 1
+            case _ => e.card.colors == colorSets(s)
           }
-          case ByType => e.card.types.exists(_.equalsIgnoreCase(s)) && !sections.slice(0, sections.indexOf(s)).exists(s => e.card.types.exists(_.equalsIgnoreCase(s)))
+          case ByType => e.card.typeLine.containsIgnoreCase(s(0)) && !sections.slice(0, i).exists((s) => e.card.typeLine.containsIgnoreCase(s(0)))
         })
         .flatMap((e) => Seq.tabulate(e.count)(_ => SettingsDialog.settings.editor.getManaValue(e.card)))
         .toSeq.sorted
         .map(math.ceil)
-      ).toMap
+      }.toMap
       val minMV = math.ceil(manaValue.head).toInt
       val maxMV = math.ceil(manaValue.last).toInt
       sections.filter(!sectionManaValues(_).isEmpty).zipWithIndex.foreach{ case (s, i) =>
-        manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings.editor.manaAnalysis.getOrElse(s))
+        val paint = s match {
+          case Nil => SettingsDialog.settings.editor.manaAnalysis.none
+          case Seq(c) => SettingsDialog.settings.editor.manaAnalysis.getOrElse(c)
+          case _ => new Paint {
+            override def createContext(cm: ColorModel, deviceBounds: Rectangle, userBounds: Rectangle2D, xform: AffineTransform, hints: RenderingHints) = new PaintContext {
+              override def getColorModel = cm
+
+              override def getRaster(x: Int, y: Int, w: Int, h: Int) = {
+                val raster = cm.createCompatibleWritableRaster(w, h)
+                for (j <- 0 until h) {
+                  for (i <- 0 until w) {
+                    val color = SettingsDialog.settings.editor.manaAnalysis(s(i*s.size/w))
+                    raster.setPixel(i, j, Array(color.getRed, color.getGreen, color.getBlue, color.getAlpha))
+                  }
+                }
+                raster
+              }
+
+              override def dispose = {}
+            }
+
+            override def getTransparency = Transparency.OPAQUE;
+          }
+        }
+        manaCurveRenderer.setSeriesPaint(i, paint)
         for (j <- minMV to maxMV)
-          manaCurve.addValue(sectionManaValues(s).count(_ == j), s, j.toString)
+          manaCurve.addValue(sectionManaValues(s).count(_ == j), s.mkString("-"), j.toString)
       }
 
       if (minMV >= 0) {
