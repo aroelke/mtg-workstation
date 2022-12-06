@@ -1782,7 +1782,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
                 val raster = cm.createCompatibleWritableRaster(w, h)
                 for (j <- 0 until h) {
                   for (i <- 0 until w) {
-                    val color = SettingsDialog.settings.editor.manaAnalysis(s(i*s.size/w))
+                    val color = if (deviceBounds.contains(x + i, y + j)) SettingsDialog.settings.editor.manaAnalysis(s((x - deviceBounds.x + i)*s.size/deviceBounds.width)) else Color.WHITE
                     raster.setPixel(i, j, Array(color.getRed, color.getGreen, color.getBlue, color.getAlpha))
                   }
                 }
