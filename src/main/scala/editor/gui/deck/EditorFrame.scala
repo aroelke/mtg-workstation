@@ -1776,10 +1776,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
           case Seq(c) => SettingsDialog.settings.editor.manaAnalysis.getOrElse(c)
           case _ => new Paint {
             override def createContext(cm: ColorModel, deviceBounds: Rectangle, userBounds: Rectangle2D, xform: AffineTransform, hints: RenderingHints) = new PaintContext {
-              override def getColorModel = cm
+              override def getColorModel = Option(cm).getOrElse(ColorModel.getRGBdefault)
 
               override def getRaster(x: Int, y: Int, w: Int, h: Int) = {
-                val raster = cm.createCompatibleWritableRaster(w, h)
+                val raster = getColorModel.createCompatibleWritableRaster(w, h)
                 for (j <- 0 until h) {
                   for (i <- 0 until w) {
                     val color = if (deviceBounds.contains(x + i, y + j)) SettingsDialog.settings.editor.manaAnalysis(s((x - deviceBounds.x + i)*s.size/deviceBounds.width)) else Color.WHITE
