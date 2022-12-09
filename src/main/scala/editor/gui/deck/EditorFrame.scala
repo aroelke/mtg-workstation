@@ -1776,8 +1776,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
           case Seq(c) => SettingsDialog.settings.editor.manaAnalysis.getOrElse(c)
           case _ => new Paint {
             override def createContext(cm: ColorModel, deviceBounds: Rectangle, userBounds: Rectangle2D, xform: AffineTransform, hints: RenderingHints) = new PaintContext {
-              val bounds = 0 +: (0 until s.size).map((i) => deviceBounds.x + deviceBounds.width*i/s.size).toIndexedSeq :+ deviceBounds.width
-
               override def getColorModel = Option(cm).getOrElse(ColorModel.getRGBdefault)
 
               override def getRaster(x: Int, y: Int, w: Int, h: Int) = {
