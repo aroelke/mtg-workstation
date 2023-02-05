@@ -1748,7 +1748,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     val colorSets = ListMap((1 to ManaType.colors.size).flatMap(ManaType.colors.combinations(_).map((c) => ManaType.sorted(c).map(_.toString) -> c.toSet)):_*)
     val sections = sectionsBox.getItemAt(sectionsBox.getSelectedIndex()) match {
       case ByNothing    => Seq(Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex) else "Main Deck"))
-      case ByColorGroup => Seq(Seq("Colorless"), Seq("White"), Seq("Blue"), Seq("Black"), Seq("Red"), Seq("Green"), Seq("Multicolored"))
+      case ByColorGroup => Seq(Seq("Colorless")) ++ ManaType.colors.map((m) => Seq(m.toString)) ++ Seq(Seq("Multicolored"))
       case ByColors     => Seq(Seq("Colorless")) ++ colorSets.keys
       case ByType       => Seq(Seq("Creature"), Seq("Artifact"), Seq("Enchantment"), Seq("Planeswalker"), Seq("Instant"), Seq("Sorcery")); // Land is omitted because we don't count them here
     }
@@ -1760,17 +1760,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         .filter((e) => sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
           case ByNothing => true
           case ByColorGroup => s match {
-            case Seq("Colorless")    => e.card.colors.isEmpty
-            case Seq("White")        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.White)
-            case Seq("Blue")         => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Blue)
-            case Seq("Black")        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Black)
-            case Seq("Red")          => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Red)
-            case Seq("Green")        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Green)
+            case Seq("Colorless") => e.card.colors.isEmpty
+            case Seq(color) if e.card.colors.size == 1 => ManaType.parse(color.toLowerCase).filter(e.card.colors.contains).isDefined
             case Seq("Multicolored") => e.card.colors.size > 1
             case _ => false
           }
           case ByColors => s match {
-            case Seq("Colorless")    => e.card.colors.isEmpty
+            case Seq("Colorless") => e.card.colors.isEmpty
             case _ => e.card.colors == colorSets(s)
           }
           case ByType => e.card.typeLine.containsIgnoreCase(s(0)) && !sections.slice(0, i).exists((s) => e.card.typeLine.containsIgnoreCase(s(0)))
