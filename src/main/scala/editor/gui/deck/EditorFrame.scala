@@ -823,9 +823,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
 
   /* MANA ANALYSIS TAB */
   private enum ManaCurveSection(override val toString: String) {
-    case ByNothing extends ManaCurveSection("Nothing")
-    case ByColor   extends ManaCurveSection("Color")
-    case ByType    extends ManaCurveSection("Card Type")    
+    case ByNothing    extends ManaCurveSection("Nothing")
+    case ByColorGroup extends ManaCurveSection("Color Group")
+    case ByColors     extends ManaCurveSection("Color(s)")
+    case ByType       extends ManaCurveSection("Card Type")    
   }
   private enum LandAnalysisChoice(override val toString: String) {
     case Played      extends LandAnalysisChoice("Expected Lands Played")
@@ -1746,9 +1747,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     landDrops.clear()
     val colorSets = ListMap((1 to ManaType.colors.size).flatMap(ManaType.colors.combinations(_).map((c) => ManaType.sorted(c).map(_.toString) -> c.toSet)):_*)
     val sections = sectionsBox.getItemAt(sectionsBox.getSelectedIndex()) match {
-      case ByNothing => Seq(Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex) else "Main Deck"))
-      case ByColor   => Seq(Seq("Colorless")) ++ colorSets.keys ++ Seq(Seq("Multicolored"))
-      case ByType    => Seq(Seq("Creature"), Seq("Artifact"), Seq("Enchantment"), Seq("Planeswalker"), Seq("Instant"), Seq("Sorcery")); // Land is omitted because we don't count them here
+      case ByNothing    => Seq(Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex) else "Main Deck"))
+      case ByColorGroup => Seq(Seq("Colorless"), Seq("White"), Seq("Blue"), Seq("Black"), Seq("Red"), Seq("Green"), Seq("Multicolored"))
+      case ByColors     => Seq(Seq("Colorless")) ++ colorSets.keys
+      case ByType       => Seq(Seq("Creature"), Seq("Artifact"), Seq("Enchantment"), Seq("Planeswalker"), Seq("Instant"), Seq("Sorcery")); // Land is omitted because we don't count them here
     }
     val analyte = if (analyzeCategoryBox.isSelected) deck.current.categories(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex)).list else deck.current
     val analyteLands = analyte.collect{ case e if SettingsDialog.settings.editor.isLand(e.card) => e.count }.sum
@@ -1757,9 +1759,18 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         .filter((e) => !SettingsDialog.settings.editor.isLand(e.card))
         .filter((e) => sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
           case ByNothing => true
-          case ByColor => s match {
+          case ByColorGroup => s match {
             case Seq("Colorless")    => e.card.colors.isEmpty
-            case Seq("Multicolored") => false // e.card.colors.size > 1
+            case Seq("White")        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.White)
+            case Seq("Blue")         => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Blue)
+            case Seq("Black")        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Black)
+            case Seq("Red")          => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Red)
+            case Seq("Green")        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Green)
+            case Seq("Multicolored") => e.card.colors.size > 1
+            case _ => false
+          }
+          case ByColors => s match {
+            case Seq("Colorless")    => e.card.colors.isEmpty
             case _ => e.card.colors == colorSets(s)
           }
           case ByType => e.card.typeLine.containsIgnoreCase(s(0)) && !sections.slice(0, i).exists((s) => e.card.typeLine.containsIgnoreCase(s(0)))
