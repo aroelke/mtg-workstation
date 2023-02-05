@@ -1771,7 +1771,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
           }
           case ByType => e.card.typeLine.containsIgnoreCase(s(0)) && !sections.slice(0, i).exists((s) => e.card.typeLine.containsIgnoreCase(s(0)))
         })
-        .flatMap((e) => Seq.tabulate(e.count)(_ => SettingsDialog.settings.editor.getManaValue(e.card)))
+        .flatMap((e) => Seq.fill(e.count)(SettingsDialog.settings.editor.getManaValue(e.card)))
         .toSeq.sorted
         .map(math.ceil)
       }.toMap
