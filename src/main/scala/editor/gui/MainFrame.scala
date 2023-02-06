@@ -48,6 +48,7 @@ import _root_.editor.unicode.{_, given}
 import _root_.editor.util.MenuListenerFactory
 import _root_.editor.util.MouseListenerFactory
 import _root_.editor.util.PopupMenuListenerFactory
+import _root_.editor.util.extensions._
 import org.json4s._
 import org.json4s.native.JsonMethods
 
@@ -643,7 +644,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             None
           }
           format.foreach((fmt) => {
-            val sorted = new Ordering[CardListEntry] { def compare(a: CardListEntry, b: CardListEntry) = sortBox.getItemAt(sortBox.getSelectedIndex).comparingEntry.compare(a, b) }
+            val sorted = new Ordering[CardListEntry] { def compare(a: CardListEntry, b: CardListEntry) = sortBox.getCurrentItem.comparingEntry.compare(a, b) }
             val unsorted = new Ordering[CardListEntry] { def compare(a: CardListEntry, b: CardListEntry) = 0 }
             f.exportList(fmt, if (sortCheck.isSelected) sorted else unsorted, extras.collect{ case (e, s) if s => e }.toSeq, exportChooser.getSelectedFile) match {
               case Success(_) =>

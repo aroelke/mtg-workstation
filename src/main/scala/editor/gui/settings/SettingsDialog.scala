@@ -17,6 +17,7 @@ import editor.gui.generic.VerticalButtonList
 import editor.serialization
 import editor.serialization.given
 import editor.unicode.{_, given}
+import editor.util.extensions._
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.axis.CategoryAxis
@@ -607,7 +608,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   private val chooserLayout = CardLayout()
   private val sectionChooserPanel = JPanel(chooserLayout)
   sections.foreach(s => sectionChooserPanel.add(sectionChoosers(s), s))
-  sectionsBox.addItemListener((e) => chooserLayout.show(sectionChooserPanel, sectionsBox.getItemAt(sectionsBox.getSelectedIndex)))
+  sectionsBox.addItemListener((e) => chooserLayout.show(sectionChooserPanel, sectionsBox.getCurrentItem))
   manaAnalysisColorPanel.add(sectionChooserPanel)
   manaAnalysisPanel.add(manaAnalysisColorPanel)
 
@@ -739,10 +740,10 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
           file = inventoryFileField.getText,
           location = inventoryDirField.getText,
           scans = scansDirField.getText,
-          imageSource = imgSourceBox.getItemAt(imgSourceBox.getSelectedIndex),
+          imageSource = imgSourceBox.getCurrentItem,
           imageLimitEnable = limitImageBox.isSelected,
           imageLimit = limitImageSpinner.getValue.asInstanceOf[Int],
-          update = updateBox.getItemAt(updateBox.getSelectedIndex),
+          update = updateBox.getCurrentItem,
           warn = suppressCheckBox.isSelected,
           columns = inventoryColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toIndexedSeq.sortBy(_.ordinal),
           background = scanBGChooser.getColor,
@@ -769,7 +770,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
           manaAnalysis = ManaAnalysisSettings(sectionChoosers.map{ case (s, c) => s -> c.getColor }.toMap).copy(line = landLineChooser.getColor),
           columns = editorColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toIndexedSeq.sortBy(_.ordinal),
           stripe = editorStripeColor.getColor,
-          manaValue = manaValueBox.getItemAt(manaValueBox.getSelectedIndex),
+          manaValue = manaValueBox.getCurrentItem,
           backFaceLands = landsCheckBoxes.filter(_.isSelected).map(b => editor.database.card.CardLayout.values.find(_.toString == b.getText).get).toSet
         )
       )

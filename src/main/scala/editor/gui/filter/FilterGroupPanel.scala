@@ -6,6 +6,7 @@ import _root_.editor.filter.leaf.FilterLeaf
 import _root_.editor.gui.generic.ChangeTitleListener
 import _root_.editor.gui.settings.SettingsDialog
 import _root_.editor.unicode.{_, given}
+import _root_.editor.util.extensions._
 
 import java.awt.BorderLayout
 import java.awt.FlowLayout
@@ -250,7 +251,7 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     }
   }
 
-  override def filter = FilterGroup(children.map(_.filter), modeBox.getItemAt(modeBox.getSelectedIndex), border.getTitle)
+  override def filter = FilterGroup(children.map(_.filter), modeBox.getCurrentItem, border.getTitle)
 
   override def setContents(filter: Filter) = {
     clear()

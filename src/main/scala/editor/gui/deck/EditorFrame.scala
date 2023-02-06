@@ -36,6 +36,7 @@ import editor.util.MouseListenerFactory
 import editor.util.PopupMenuListenerFactory
 import editor.util.StringUtils
 import editor.util.UndoableAction
+import editor.util.extensions._
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.axis.CategoryAxis
@@ -56,6 +57,7 @@ import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.GridBagConstraints
 import java.awt.Paint
+import java.awt.PaintContext
 import java.awt.PopupMenu
 import java.awt.Rectangle
 import java.awt.RenderingHints
@@ -117,7 +119,6 @@ import javax.swing.event.PopupMenuListener
 import javax.swing.table.AbstractTableModel
 import scala.collection.immutable.ListMap
 import scala.util.Using
-import java.awt.PaintContext
 
 object EditorFrame {
   val MainDeck = 0
@@ -771,7 +772,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   private val switchCategoryBox = JComboBox(switchCategoryModel)
   switchCategoryBox.setEnabled(false)
   switchCategoryBox.addActionListener(_ => if (switchCategoryBox.isPopupVisible) {
-    getCategoryPanel(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex)).foreach((c) => {
+    getCategoryPanel(switchCategoryBox.getCurrentItem).foreach((c) => {
       c.scrollRectToVisible(Rectangle(c.getSize()))
       c.flash()
     })
@@ -1692,7 +1693,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       switchCategoryBox.setEnabled(false)
     else {
       switchCategoryBox.setEnabled(true)
-      deck.current.categories.map(_.categorization).toSeq.sorted(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex)(deck.current)).foreach((c) => {
+      deck.current.categories.map(_.categorization).toSeq.sorted(sortCategoriesBox.getCurrentItem(deck.current)).foreach((c) => {
         categoriesContainer.add(getCategoryPanel(c.name).get)
         switchCategoryModel.addElement(c.name)
       })
@@ -1703,7 +1704,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     if (deck.current.categories.isEmpty)
       analyzeCategoryBox.setSelected(false)
     else {
-      val selectedForAnalysis = analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex)
+      val selectedForAnalysis = analyzeCategoryCombo.getCurrentItem
       analyzeCategoryCombo.removeAllItems()
       deck.current.categories.foreach((c) => analyzeCategoryCombo.addItem(c.categorization.name))
       analyzeCategoryCombo.setMaximumSize(analyzeCategoryCombo.getPreferredSize())
@@ -1746,18 +1747,18 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     manaCurve.clear()
     landDrops.clear()
     val colorSets = ListMap((1 to ManaType.colors.size).flatMap(ManaType.colors.combinations(_).map((c) => ManaType.sorted(c).map(_.toString) -> c.toSet)):_*)
-    val sections = sectionsBox.getItemAt(sectionsBox.getSelectedIndex()) match {
-      case ByNothing    => Seq(Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex) else "Main Deck"))
+    val sections = sectionsBox.getCurrentItem match {
+      case ByNothing    => Seq(Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getCurrentItem else "Main Deck"))
       case ByColorGroup => Seq(Seq("Colorless")) ++ ManaType.colors.map((m) => Seq(m.toString)) ++ Seq(Seq("Multicolored"))
       case ByColors     => Seq(Seq("Colorless")) ++ colorSets.keys
       case ByType       => Seq(Seq("Creature"), Seq("Artifact"), Seq("Enchantment"), Seq("Planeswalker"), Seq("Instant"), Seq("Sorcery")); // Land is omitted because we don't count them here
     }
-    val analyte = if (analyzeCategoryBox.isSelected) deck.current.categories(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex)).list else deck.current
+    val analyte = if (analyzeCategoryBox.isSelected) deck.current.categories(analyzeCategoryCombo.getCurrentItem).list else deck.current
     val analyteLands = analyte.collect{ case e if SettingsDialog.settings.editor.isLand(e.card) => e.count }.sum
     if (analyte.total - analyteLands > 0) {
       var sectionManaValues = sections.zipWithIndex.map{ case (s, i) => s -> analyte
         .filter((e) => !SettingsDialog.settings.editor.isLand(e.card))
-        .filter((e) => sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
+        .filter((e) => sectionsBox.getCurrentItem match {
           case ByNothing => true
           case ByColorGroup => s match {
             case Seq("Colorless") => e.card.colors.isEmpty
@@ -1815,7 +1816,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       if (minMV >= 0) {
         if (maxMV < 0)
           throw IllegalStateException("min mana value but no max mana value")
-        val choice = landsBox.getItemAt(landsBox.getSelectedIndex)
+        val choice = landsBox.getCurrentItem
         landAxis.setLabel(choice.toString)
         for (i <- minMV to maxMV) {
           val v = choice match {
