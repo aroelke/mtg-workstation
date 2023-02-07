@@ -128,7 +128,7 @@ sealed trait ColorElement { this: ElementAttribute[Set[ManaType], ColorFilter] =
     panel
   }
   override def tooltip(value: Set[ManaType]) = ManaType.sorted(value).map((t) => {
-    s"""<img src="${getClass.getResource(s"/images/icons/${ColorSymbol(t).name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
+    s"""<img src="${getClass.getResource(s"/images/symbols/${ColorSymbol(t).name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
   }).mkString
 }
 
@@ -266,7 +266,7 @@ object ElementAttribute {
     }
     override def tooltip(value: Seq[ManaCost]) = {
       value.map(_.map((s) => {
-        s"""<img src="${getClass.getResource(s"/images/icons/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
+        s"""<img src="${getClass.getResource(s"/images/symbols/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
       }).mkString).mkString(Card.FaceSeparator)
     }
   }
