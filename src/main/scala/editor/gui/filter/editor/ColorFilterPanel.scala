@@ -16,6 +16,7 @@ import javax.swing.BoxLayout
 import javax.swing.JCheckBox
 import javax.swing.JLabel
 import scala.collection.immutable.ListMap
+import editor.gui.SymbolButton
 
 /**
  * Convenience constructors for creating [[ColorFilterPanel]]s.
@@ -53,6 +54,8 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
 
   // Check box for filtering for colorless
   private val colorless = JCheckBox()
+
+  add(SymbolButton(ColorSymbol.values(ManaType.White)))
 
   // Check boxes for selecting colors
   val colorBoxes = ListMap(ManaType.colors.map(_ -> JCheckBox()):_*)
