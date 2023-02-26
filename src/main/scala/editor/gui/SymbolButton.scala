@@ -1,18 +1,18 @@
 package editor.gui
 
-import editor.database.symbol.ColorSymbol
 import editor.database.symbol.Symbol
-import javax.swing.JCheckBox
-import javax.swing.ImageIcon
-import javax.imageio.ImageIO
-import java.io.IOException
-import java.awt.Image
 import editor.gui.generic.ComponentUtils
+
+import java.awt.Image
+import java.io.IOException
+import javax.imageio.ImageIO
+import javax.swing.ImageIcon
+import javax.swing.JCheckBox
 
 object SymbolButton {
   private val IconHeight = 13
 
-  def apply(symbol: ColorSymbol, selected: Boolean = false) = try {
+  def apply(symbol: Symbol, selected: Boolean = false) = try {
     val box = JCheckBox()
 
     val unselected = ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/ui/SymbolButton/${symbol.name}/unselected.png")).getScaledInstance(-1, IconHeight, Image.SCALE_SMOOTH))
