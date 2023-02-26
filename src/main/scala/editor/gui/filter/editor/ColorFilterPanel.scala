@@ -59,6 +59,7 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
   add(SymbolButton(ColorSymbol.values(ManaType.Blue)))
   add(SymbolButton(ColorSymbol.values(ManaType.Black)))
   add(SymbolButton(ColorSymbol.values(ManaType.Red)))
+  add(SymbolButton(ColorSymbol.values(ManaType.Green)))
 
   // Check boxes for selecting colors
   val colorBoxes = ListMap(ManaType.colors.map(_ -> JCheckBox()):_*)
