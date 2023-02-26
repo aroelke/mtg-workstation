@@ -15,20 +15,15 @@ object SymbolButton {
   def apply(symbol: Symbol, selected: Boolean = false) = try {
     val box = JCheckBox()
 
-    val unselected = ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/ui/SymbolButton/${symbol.name}/unselected.png")).getScaledInstance(-1, IconHeight, Image.SCALE_SMOOTH))
-    val disabledUnselected = ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/ui/SymbolButton/${symbol.name}/disabled_unselected.png")).getScaledInstance(-1, IconHeight, Image.SCALE_SMOOTH))
-    val disabledSelected = ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/ui/SymbolButton/${symbol.name}/disabled_selected.png")).getScaledInstance(-1, IconHeight, Image.SCALE_SMOOTH))
-    val pressed = ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/ui/SymbolButton/${symbol.name}/pressed.png")).getScaledInstance(-1, IconHeight, Image.SCALE_SMOOTH))
-    val rolloverUnselected = ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/ui/SymbolButton/${symbol.name}/rollover_unselected.png")).getScaledInstance(-1, IconHeight, Image.SCALE_SMOOTH))
-    val rolloverSelected = ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/ui/SymbolButton/${symbol.name}/rollover_selected.png")).getScaledInstance(-1, IconHeight, Image.SCALE_SMOOTH))
+    def createIcon(name: String) = ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/ui/SymbolButton/${symbol.name}/$name.png")).getScaledInstance(-1, IconHeight, Image.SCALE_SMOOTH))
 
-    box.setIcon(unselected)
+    box.setIcon(createIcon("unselected"))
     box.setSelectedIcon(symbol.scaled(IconHeight))
-    box.setDisabledIcon(disabledUnselected)
-    box.setDisabledSelectedIcon(disabledSelected)
-    box.setPressedIcon(pressed)
-    box.setRolloverIcon(rolloverUnselected)
-    box.setRolloverSelectedIcon(rolloverSelected)
+    box.setDisabledIcon(createIcon("disabled_unselected"))
+    box.setDisabledSelectedIcon(createIcon("disabled_selected"))
+    box.setPressedIcon(createIcon("pressed"))
+    box.setRolloverIcon(createIcon("rollover_unselected"))
+    box.setRolloverSelectedIcon(createIcon("rollover_selected"))
 
     box.setSelected(selected)
     box
