@@ -8,14 +8,20 @@ import java.io.IOException
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import javax.swing.JCheckBox
+import javax.swing.Icon
 
 object SymbolButton {
   private val IconHeight = 13
 
+  private val cache = collection.mutable.Map.empty[String, Icon]
+
   def apply(symbol: Symbol, selected: Boolean = false) = try {
     val box = JCheckBox()
 
-    def createIcon(name: String) = ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/ui/SymbolButton/${symbol.name}/$name.png")).getScaledInstance(-1, IconHeight, Image.SCALE_SMOOTH))
+    def createIcon(name: String) = cache.getOrElseUpdate(
+      s"${symbol.name}/$name",
+      ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/ui/SymbolButton/${symbol.name}/$name.png")).getScaledInstance(-1, IconHeight, Image.SCALE_SMOOTH))
+    )
 
     box.setIcon(createIcon("unselected"))
     box.setSelectedIcon(symbol.scaled(IconHeight))
