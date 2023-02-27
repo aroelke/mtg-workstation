@@ -1,22 +1,34 @@
 package editor.gui
 
-import editor.database.symbol.Symbol
-import editor.database.symbol.ManaSymbolInstances.ColorSymbol
-import editor.gui.generic.ComponentUtils
 import editor.database.attributes.ManaType
+import editor.database.symbol.ManaSymbolInstances.ColorSymbol
+import editor.database.symbol.Symbol
+import editor.gui.generic.ComponentUtils
 
 import java.awt.Image
 import java.io.IOException
 import javax.imageio.ImageIO
+import javax.swing.Icon
 import javax.swing.ImageIcon
 import javax.swing.JCheckBox
-import javax.swing.Icon
 
+/**
+ * A two-state button using a [[Symbol]] as an icon. Dims when unselected.
+ * @author Alec Roelke
+ */
 object SymbolButton {
   private val IconHeight = 13
 
   private val cache = collection.mutable.Map.empty[String, Icon]
 
+  /**
+   * Create a new symbol button using a [[Symbol]] or one derived from a [[ManaType]].
+   * 
+   * @param item symbol or mana type to use for the new button
+   * @param selected initial state of the button
+   * 
+   * @return a [[JCheckBox]] that uses the given symbol, or derived symbol instead of the standard check box
+   */
   def apply(item: Symbol | ManaType, selected: Boolean = false): JCheckBox = try { item match {
     case symbol: Symbol =>
       val box = JCheckBox()
