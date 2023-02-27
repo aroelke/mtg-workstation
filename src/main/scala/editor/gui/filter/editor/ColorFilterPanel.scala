@@ -44,8 +44,6 @@ object ColorFilterPanel {
  * @author Alec Roelke
  */
 class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[ColorFilter] {
-  private val IconHeight = 13
-
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
   // Containment options
@@ -53,36 +51,25 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
   add(contain)
 
   // Check box for filtering for colorless
-  private val colorless = JCheckBox()
-
-  add(SymbolButton(ColorSymbol(ManaType.White)))
-  add(SymbolButton(ColorSymbol(ManaType.Blue)))
-  add(SymbolButton(ColorSymbol(ManaType.Black)))
-  add(SymbolButton(ColorSymbol(ManaType.Red)))
-  add(SymbolButton(ColorSymbol(ManaType.Green)))
-  add(SymbolButton(ColorSymbol(ManaType.Colorless)))
-  add(SymbolButton(StaticSymbol("M")))
+  private val colorless = SymbolButton(ManaType.Colorless)
 
   // Check boxes for selecting colors
-  val colorBoxes = ListMap(ManaType.colors.map(_ -> JCheckBox()):_*)
+  val colorBoxes = ListMap(ManaType.colors.map((c) => c -> SymbolButton(c)):_*)
   colorBoxes.foreach{ case (color, box) =>
     add(box)
-    add(JLabel(ColorSymbol(color).scaled(IconHeight)))
     box.addActionListener(_ => if (box.isSelected) colorless.setSelected(false))
   }
   add(Box.createHorizontalStrut(4))
   add(ComponentUtils.createHorizontalSeparator(4, contain.getPreferredSize.height))
 
   // Check box for multicolored cards
-  private val multi = JCheckBox()
+  private val multi = SymbolButton(StaticSymbol("M"))
   add(multi)
-  add(JLabel(StaticSymbol("M").scaled(IconHeight)))
   multi.addActionListener(_ => if (multi.isSelected) colorless.setSelected(false))
 
   // Actually add the colorless box here
   colorless.setSelected(true)
   add(colorless)
-  add(JLabel(ColorSymbol(ManaType.Colorless).scaled(IconHeight)))
   colorless.addActionListener(_ => if (colorless.isSelected) {
     colorBoxes.foreach{ case (_, box) => box.setSelected(false) }
     multi.setSelected(false)
