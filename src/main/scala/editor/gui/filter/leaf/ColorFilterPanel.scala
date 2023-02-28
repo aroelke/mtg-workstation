@@ -1,4 +1,4 @@
-package editor.gui.filter.editor
+package editor.gui.filter.leaf
 
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.ManaType
