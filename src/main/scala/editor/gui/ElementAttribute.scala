@@ -272,6 +272,15 @@ object ElementAttribute {
   }
 
   /**
+   * Element for filtering card devotion contribution.
+   * @see [[CardAttribute.Devotion]]
+   */
+  case object DevotionElement extends ElementAttribute[Seq[(Set[ManaType]) => Int], DevotionFilter] with CantBeRendered[Seq[(Set[ManaType]) => Int]] with CantBeEdited {
+    override def attribute = CardAttribute.Devotion
+    override def filter(selector: FilterSelectorPanel) = DevotionFilterPanel(selector)
+  }
+
+  /**
    * Element for rendering and filtering card "real" (global) mana value.
    * @see [[CardAttribute.RealManaValue]]
    */
@@ -479,7 +488,7 @@ object ElementAttribute {
   }
 
   /** Array of GUI element attributes. */
-  val values: IndexedSeq[ElementAttribute[?, ?]] = IndexedSeq(NameElement, RuleTextElement, PrintedTextElement, ManaCostElement, RealManaValueElement, EffManaValueElement, ColorsElement, ColorIdentityElement, TypeLineElement, PrintedTypesElement, CardTypeElement, SubtypeElement, SupertypeElement, PowerElement, ToughnessElement, LoyaltyElement, LayoutElement, ExpansionElement, BlockElement, RarityElement, ArtistElement, CardNumberElement, LegalInElement, TagsElement, AnyCardElement, NoCardElement, CategoriesElement, CountElement, DateAddedElement)
+  val values: IndexedSeq[ElementAttribute[?, ?]] = IndexedSeq(NameElement, RuleTextElement, PrintedTextElement, ManaCostElement, RealManaValueElement, EffManaValueElement, ColorsElement, ColorIdentityElement, DevotionElement, TypeLineElement, PrintedTypesElement, CardTypeElement, SubtypeElement, SupertypeElement, PowerElement, ToughnessElement, LoyaltyElement, LayoutElement, ExpansionElement, BlockElement, RarityElement, ArtistElement, CardNumberElement, LegalInElement, TagsElement, AnyCardElement, NoCardElement, CategoriesElement, CountElement, DateAddedElement)
 
   /** Array of GUI element attributes that can create filters. */
   val filterableValues = values.filter(!_.attribute.isInstanceOf[CantBeFiltered])
