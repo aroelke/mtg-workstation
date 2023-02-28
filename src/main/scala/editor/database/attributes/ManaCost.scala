@@ -55,6 +55,26 @@ case class ManaCost(private val cost: IndexedSeq[ManaSymbol] = IndexedSeq.empty)
    */
   def isSuperset(other: ManaCost) = other.isSubset(this)
 
+  /**
+   * Calculate the devotion to a set of colors this mana cost contributes. A player's devotion to a
+   * set of colors is the number of mana symbols of any color in that set among the mana costs of
+   * permanents they control. This has an extended definition for colorless as well that works
+   * specifically with the colorless mana type (NOT generic symbols) for potential future
+   * compatibility.
+   * 
+   * @param types set of mana types to calculate devotion for
+   * @return the devotion to the set of mana types this mana cost contributes
+   */
+  def devotionTo(types: Set[ManaType]): Int = count((s) => types.map(s.colorIntensity).sum > 0)
+
+  /**
+   * Convenience method for calculating the devotion to a single mana type that this mana cost contributes.
+   * 
+   * @param mana type of mana to calculate devotion for
+   * @return the devotion to the mana type this mana cost contributes
+   */
+  def devotionTo(mana: ManaType): Int = devotionTo(Set(mana))
+
   override def apply(i: Int) = cost(i)
   override def iterator = cost.iterator
   override def length = cost.length
