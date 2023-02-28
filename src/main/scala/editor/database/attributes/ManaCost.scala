@@ -8,7 +8,7 @@ object ManaCost {
   val Pattern = raw"\{([cwubrgCWUBRG\/phPH\dsSxXyYzZ]+)\}".r
 
   def parse(s: String) = {
-    val symbols = Pattern.findAllMatchIn(s).map(_.group(1)).flatMap(ManaSymbol.parse).toSeq
+    val symbols = Pattern.findAllMatchIn(s).map(_.group(1)).flatMap(ManaSymbol.parse).toIndexedSeq
     val remainder = symbols.foldLeft(s.toUpperCase)((r, t) => r.replaceFirst(Regex.quote(t.toString.toUpperCase), ""))
     Option.when(remainder.isEmpty)(ManaCost(symbols))
   }
@@ -23,7 +23,7 @@ object ManaCost {
  * 
  * @author Alec Roelke
  */
-case class ManaCost(private val cost: Seq[ManaSymbol] = Seq.empty) extends Seq[ManaSymbol] with Ordered[ManaCost] {
+case class ManaCost(private val cost: IndexedSeq[ManaSymbol] = IndexedSeq.empty) extends IndexedSeq[ManaSymbol] with Ordered[ManaCost] {
   /** Total color intensity of the mana cost. @see [[ManaSymbol.colorIntensity]] */
   lazy val intensity = ManaType.values.map((t) => t -> cost.map(_.colorIntensity(t)).sum).filter{ case (_, c) => c > 0 }.toMap.withDefaultValue(0.0)
 
