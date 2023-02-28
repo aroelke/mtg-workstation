@@ -2,8 +2,8 @@ package editor.gui
 
 import editor.database.attributes.ManaType
 
-import java.awt.FlowLayout
 import java.awt.event.ActionListener
+import javax.swing.BoxLayout
 import javax.swing.JPanel
 
 import collection.immutable.ListSet
@@ -17,7 +17,9 @@ import collection.immutable.ListSet
  * 
  * @author Alec Roelke
  */
-class ManaSetPanel(types: Set[ManaType] = Set.empty, available: ListSet[ManaType] = ListSet(ManaType.colors:_*)) extends JPanel(FlowLayout(FlowLayout.LEADING, 0, 0)) {
+class ManaSetPanel(types: Set[ManaType] = Set.empty, available: ListSet[ManaType] = ListSet(ManaType.colors:_*)) extends JPanel() {
+  setLayout(BoxLayout(this, BoxLayout.X_AXIS))
+
   private val buttons = available.map((m) => {
     val button = SymbolButton(m, types.contains(m))
     add(button)
