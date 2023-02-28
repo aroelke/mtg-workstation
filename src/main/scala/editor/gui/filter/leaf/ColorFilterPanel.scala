@@ -10,6 +10,7 @@ import editor.gui.filter.FilterSelectorPanel
 import editor.gui.generic.ComboBoxPanel
 import editor.gui.generic.ComponentUtils
 import editor.util.Containment
+import editor.gui.ManaSetPanel
 
 import javax.swing.Box
 import javax.swing.BoxLayout
@@ -54,11 +55,16 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
   private val colorless = SymbolButton(ManaType.Colorless)
 
   // Check boxes for selecting colors
-  val colorBoxes = ListMap(ManaType.colors.map((c) => c -> SymbolButton(c)):_*)
-  colorBoxes.foreach{ case (color, box) =>
-    add(box)
-    box.addActionListener(_ => if (box.isSelected) colorless.setSelected(false))
-  }
+  val colorBoxes = ManaSetPanel()
+  add(colorBoxes)
+  colorBoxes.addActionListener((e) => e.getSource match {
+    case b: JCheckBox =>
+      if (b.isSelected)
+        colorless.setSelected(false)
+      else if (colorBoxes.selected.isEmpty)
+        colorless.setSelected(true)
+  })
+
   add(Box.createHorizontalStrut(4))
   add(ComponentUtils.createHorizontalSeparator(4, contain.getPreferredSize.height))
 
@@ -71,7 +77,7 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
   colorless.setSelected(true)
   add(colorless)
   colorless.addActionListener(_ => if (colorless.isSelected) {
-    colorBoxes.foreach{ case (_, box) => box.setSelected(false) }
+    colorBoxes.selected = Set.empty
     multi.setSelected(false)
   })
 
@@ -79,12 +85,12 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
 
   protected override var attribute = CardAttribute.Colors
 
-  override def filter = attribute.filter.copy(faces = selector.faces, contain = contain.getSelectedItem, colors = colorBoxes.collect{ case (c, b) if b.isSelected => c }.toSet, multicolored = multi.isSelected)
+  override def filter = attribute.filter.copy(faces = selector.faces, contain = contain.getSelectedItem, colors = colorBoxes.selected, multicolored = multi.isSelected)
 
   override def setFields(filter: ColorFilter) = {
     attribute = filter.attribute
     contain.setSelectedItem(filter.contain)
-    filter.colors.foreach(colorBoxes(_).setSelected(true))
+    colorBoxes.selected = filter.colors
     multi.setSelected(filter.multicolored)
     colorless.setSelected(!filter.multicolored && filter.colors.isEmpty)
   }
