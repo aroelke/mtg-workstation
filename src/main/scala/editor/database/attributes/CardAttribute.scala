@@ -5,23 +5,13 @@ import editor.collection.Categorization
 import editor.database.FormatConstraints
 import editor.database.card.Card
 import editor.database.card.CardLayout
-import editor.filter.leaf.BinaryFilter
-import editor.filter.leaf.ColorFilter
-import editor.filter.leaf.FilterLeaf
-import editor.filter.leaf.LegalityFilter
-import editor.filter.leaf.ManaCostFilter
-import editor.filter.leaf.MultiOptionsFilter
-import editor.filter.leaf.NumberFilter
-import editor.filter.leaf.OptionsFilter
-import editor.filter.leaf.SingletonOptionsFilter
-import editor.filter.leaf.TextFilter
-import editor.filter.leaf.TypeLineFilter
+import editor.filter.leaf._
 import editor.math.{_, given}
 
 import java.text.Collator
 import java.time.LocalDate
-import scala.reflect.ClassTag
 import java.time.format.DateTimeFormatter
+import scala.reflect.ClassTag
 
 /**
  * An attribute of a Magic: The Gathering card that can be used for filtering or display in a GUI. Generally corresponds to a field of [[Card]].
@@ -234,6 +224,13 @@ object CardAttribute {
   case object ManaCost extends CardAttribute[Seq[ManaCost], ManaCostFilter]("Mana Cost", "Mana cost, including symbols") with ComparesOrdered[Seq[ManaCost]] {
     override def apply(e: CardListEntry) = e.card.faces.map(_.manaCost)
     override def filter = ManaCostFilter()
+  }
+
+  /** Devotion to some set of colors for each face. */
+  case object Devotion extends CardAttribute[Seq[(Set[ManaType]) => Int], DevotionFilter]("Devotion", "Devotion to a set of colors")
+      with CantCompare[Seq[(Set[ManaType]) => Int]] {
+    override def apply(e: CardListEntry) = e.card.faces.map(_.manaCost.devotionTo)
+    override def filter = DevotionFilter()
   }
 
   /** "Real" mana value.  Corresponds to the mana value of the entire card as defined by the rules. */
@@ -464,7 +461,7 @@ object CardAttribute {
       with CantCompare[Unit]
 
   /** Array of all card attributes. */
-  val values: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(Name, RulesText, FlavorText, PrintedText, ManaCost, RealManaValue, EffManaValue, Colors, ColorIdentity, TypeLine, PrintedTypes, CardType, Subtype, Supertype, Power, Toughness, Loyalty, Layout, Expansion, Block, Rarity, Artist, CardNumber, LegalIn, Tags, Categories, Count, DateAdded, AnyCard, NoCard, Group)
+  val values: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(Name, RulesText, FlavorText, PrintedText, ManaCost, RealManaValue, EffManaValue, Colors, ColorIdentity, Devotion, TypeLine, PrintedTypes, CardType, Subtype, Supertype, Power, Toughness, Loyalty, Layout, Expansion, Block, Rarity, Artist, CardNumber, LegalIn, Tags, Categories, Count, DateAdded, AnyCard, NoCard, Group)
 
   /** Array of all card attributes that can be displayed in a GUI. */
   lazy val displayableValues = values.filter(!_.isInstanceOf[CantCompare[?]])
