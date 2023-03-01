@@ -60,7 +60,7 @@ class DevotionFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPan
   protected override val attribute = CardAttribute.Devotion
 
   override def filter = spinner.getValue match {
-    case v: Int => DevotionFilter(types = colors.selected, operation = comparison.getSelectedItem, operand = v)
+    case v: Int => DevotionFilter(faces = selector.faces, types = colors.selected, operation = comparison.getSelectedItem, operand = v)
   }
 
   override def setFields(filter: DevotionFilter) = {
