@@ -33,6 +33,10 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
       case CardAttribute.EffManaValue => CardAttribute.EffManaValue.filter.copy(faces = faces)
       case CardAttribute.Colors => CardAttribute.Colors.filter
       case CardAttribute.ColorIdentity => CardAttribute.ColorIdentity.filter
+      case CardAttribute.Devotion => CardAttribute.Devotion.filter.copy(faces = faces, types = (v \ "colors") match {
+        case JArray(colors) => colors.map((s) => ManaType.parse(s.extract[String]).get).toSet
+        case x => throw MatchError(x)
+      }, operation = Comparison.valueOf((v \ "operation").extract[String].apply(0)), operand = (v \ "operand").extract[Int])
       case CardAttribute.TypeLine => CardAttribute.TypeLine.filter.copy(faces = faces)
       case CardAttribute.PrintedTypes => CardAttribute.PrintedTypes.filter.copy(faces = faces)
       case CardAttribute.CardType => CardAttribute.CardType.filter.copy(selected = selected.get)
@@ -104,6 +108,11 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
       JField("contains", JString(c.contain.toString)),
       JField("colors", JArray(c.colors.map((m) => JString(m.toString)).toList)),
       JField("multicolored", JBool(c.multicolored))
+    )
+    case d: DevotionFilter => List(
+      JField("colors", JArray(d.types.map((m) => JString(m.toString)).toList)),
+      JField("operation", JString(d.operation.toString)),
+      JField("operand", JInt(d.operand))
     )
     case _: BinaryFilter => Nil // Nothing additional actually needs to be serialized
     case o: OptionsFilter[?, ?] => List(JField("selected", JArray(o.selected.map((e) => JString(e.toString)).toList)))
