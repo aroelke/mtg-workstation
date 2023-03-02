@@ -39,7 +39,7 @@ object ManaType {
   def sorted(types: Iterable[ManaType]) = {
     val counts = types.groupBy(identity).map{ case (c, cs) => c -> cs.size }
     val sorted = (counts - Colorless).keys.toSeq.sorted match {
-      case Seq(a, b) => if (a.colorOrder(b) > 0) Seq(a, b) else Seq(b, a)
+      case Seq(a, b) => if (a.colorOrder(b) < 0) Seq(a, b) else Seq(b, a)
       case s if s.size == 3 =>
         var sorted = s
         while (sorted(0).distanceFrom(sorted(1)) != sorted(1).distanceFrom(sorted(2)))
@@ -53,7 +53,7 @@ object ManaType {
         sorted
       case s => s
     }
-    Seq.fill(counts.get(Colorless).getOrElse(0))(Colorless) ++ sorted.flatMap((c) => Seq.fill(counts(c))(c))
+    Seq.fill(counts.getOrElse(Colorless, 0))(Colorless) ++ sorted.flatMap((c) => Seq.fill(counts(c))(c))
   }
 }
 

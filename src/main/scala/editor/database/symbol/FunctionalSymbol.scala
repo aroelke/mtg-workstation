@@ -13,16 +13,16 @@ package editor.database.symbol
  */
 object FunctionalSymbol extends SymbolParser[FunctionalSymbol] with HasSymbolValues[String, FunctionalSymbol] {
   /** The Chaos symbol used on Planes, which has a special string representation without braces. */
-  val Chaos = new FunctionalSymbol("chaos.png", "CHAOS") { override val toString = "CHAOS" }
+  val Chaos = new FunctionalSymbol("chaos", "CHAOS") { override val toString = "CHAOS" }
 
   override val values = Map(
     Chaos.toString -> Chaos,
     "PW" -> Chaos,
-    "P" -> new FunctionalSymbol("phyrexia.png", "P"),
-    "T" -> new FunctionalSymbol("tap.png", "T"),
-    "TAP" -> new FunctionalSymbol("tap.png", "T"),
-    "Q" -> new FunctionalSymbol("untap.png", "Q"),
-    "E" -> new FunctionalSymbol("energy.png", "E")
+    "P" -> new FunctionalSymbol("phyrexia", "P"),
+    "T" -> new FunctionalSymbol("tap", "T"),
+    "TAP" -> new FunctionalSymbol("tap", "T"),
+    "Q" -> new FunctionalSymbol("untap", "Q"),
+    "E" -> new FunctionalSymbol("energy", "E")
   )
 
   override def parse(s: String) = values.get(s.toUpperCase)

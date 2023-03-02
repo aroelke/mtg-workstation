@@ -11,6 +11,7 @@ import editor.database.symbol.ManaSymbolInstances.ColorSymbol
 import editor.gui.generic.ComponentUtils
 import editor.gui.settings.SettingsDialog
 import editor.unicode._
+import editor.util.extensions._
 
 import java.awt.BorderLayout
 import java.awt.Dimension
@@ -126,7 +127,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
         case MainDeck => editor.lists(EditorFrame.MainDeck)
         case AllLists => editor.allExtras
         case _ => editor.lists(cmdrBox.getSelectedItem.toString)
-    }), Option.when(!editor.extras.isEmpty && sideCheck.exists(_.isSelected))(sideCombo.map((c) => editor.lists(c.getItemAt(c.getSelectedIndex))).getOrElse(Deck())))
+    }), Option.when(!editor.extras.isEmpty && sideCheck.exists(_.isSelected))(sideCombo.map((c) => editor.lists(c.getCurrentItem)).getOrElse(Deck())))
   }
   sideCheck.foreach(_.addActionListener(listener))
   sideCombo.foreach(_.addActionListener(listener))

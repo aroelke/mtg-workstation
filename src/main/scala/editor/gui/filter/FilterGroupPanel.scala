@@ -1,11 +1,12 @@
 package editor.gui.filter
 
-import _root_.editor.filter.Filter
-import _root_.editor.filter.FilterGroup
-import _root_.editor.filter.leaf.FilterLeaf
-import _root_.editor.gui.generic.ChangeTitleListener
-import _root_.editor.gui.settings.SettingsDialog
-import _root_.editor.unicode.{_, given}
+import editor.filter.Filter
+import editor.filter.FilterGroup
+import editor.filter.leaf.FilterLeaf
+import editor.gui.generic.ChangeTitleListener
+import editor.gui.settings.SettingsDialog
+import editor.unicode.{_, given}
+import editor.util.extensions._
 
 import java.awt.BorderLayout
 import java.awt.FlowLayout
@@ -21,7 +22,7 @@ import javax.swing.JMenuItem
 import javax.swing.JPanel
 import javax.swing.JPopupMenu
 import javax.swing.JSeparator
-import _root_.editor.util.PopupMenuListenerFactory
+import editor.util.PopupMenuListenerFactory
 
 /**
  * Convenience constructors for [[FilterGroupPanel]].
@@ -250,7 +251,7 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     }
   }
 
-  override def filter = FilterGroup(children.map(_.filter), modeBox.getItemAt(modeBox.getSelectedIndex), border.getTitle)
+  override def filter = FilterGroup(children.map(_.filter), modeBox.getCurrentItem, border.getTitle)
 
   override def setContents(filter: Filter) = {
     clear()

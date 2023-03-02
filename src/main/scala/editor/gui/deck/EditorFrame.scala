@@ -36,6 +36,7 @@ import editor.util.MouseListenerFactory
 import editor.util.PopupMenuListenerFactory
 import editor.util.StringUtils
 import editor.util.UndoableAction
+import editor.util.extensions._
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.axis.CategoryAxis
@@ -55,13 +56,20 @@ import java.awt.Color
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.GridBagConstraints
+import java.awt.Paint
+import java.awt.PaintContext
 import java.awt.PopupMenu
 import java.awt.Rectangle
+import java.awt.RenderingHints
 import java.awt.ScrollPane
 import java.awt.Toolkit
+import java.awt.Transparency
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.awt.event.MouseEvent
+import java.awt.geom.AffineTransform
+import java.awt.geom.Rectangle2D
+import java.awt.image.ColorModel
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -764,7 +772,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   private val switchCategoryBox = JComboBox(switchCategoryModel)
   switchCategoryBox.setEnabled(false)
   switchCategoryBox.addActionListener(_ => if (switchCategoryBox.isPopupVisible) {
-    getCategoryPanel(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex)).foreach((c) => {
+    getCategoryPanel(switchCategoryBox.getCurrentItem).foreach((c) => {
       c.scrollRectToVisible(Rectangle(c.getSize()))
       c.flash()
     })
@@ -816,9 +824,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
 
   /* MANA ANALYSIS TAB */
   private enum ManaCurveSection(override val toString: String) {
-    case ByNothing extends ManaCurveSection("Nothing")
-    case ByColor   extends ManaCurveSection("Color")
-    case ByType    extends ManaCurveSection("Card Type")    
+    case ByNothing    extends ManaCurveSection("Nothing")
+    case ByColorGroup extends ManaCurveSection("Color Group")
+    case ByColors     extends ManaCurveSection("Color(s)")
+    case ByType       extends ManaCurveSection("Card Type")    
   }
   private enum LandAnalysisChoice(override val toString: String) {
     case Played      extends LandAnalysisChoice("Expected Lands Played")
@@ -1684,7 +1693,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       switchCategoryBox.setEnabled(false)
     else {
       switchCategoryBox.setEnabled(true)
-      deck.current.categories.map(_.categorization).toSeq.sorted(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex)(deck.current)).foreach((c) => {
+      deck.current.categories.map(_.categorization).toSeq.sorted(sortCategoriesBox.getCurrentItem(deck.current)).foreach((c) => {
         categoriesContainer.add(getCategoryPanel(c.name).get)
         switchCategoryModel.addElement(c.name)
       })
@@ -1695,7 +1704,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     if (deck.current.categories.isEmpty)
       analyzeCategoryBox.setSelected(false)
     else {
-      val selectedForAnalysis = analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex)
+      val selectedForAnalysis = analyzeCategoryCombo.getCurrentItem
       analyzeCategoryCombo.removeAllItems()
       deck.current.categories.foreach((c) => analyzeCategoryCombo.addItem(c.categorization.name))
       analyzeCategoryCombo.setMaximumSize(analyzeCategoryCombo.getPreferredSize())
@@ -1737,49 +1746,77 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
 
     manaCurve.clear()
     landDrops.clear()
-    (sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
-      case ByNothing => Seq(SettingsDialog.settings.editor.manaAnalysis.none)
-      case ByColor   => SettingsDialog.settings.editor.manaAnalysis.colorColors
-      case ByType    => SettingsDialog.settings.editor.manaAnalysis.typeColors
-    }).zipWithIndex.foreach{ case (color, i) => manaCurveRenderer.setSeriesPaint(i, color) }
-    val analyte = if (analyzeCategoryBox.isSelected) deck.current.categories(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex)).list else deck.current
+    val colorSets = ListMap((1 to ManaType.colors.size).flatMap(ManaType.colors.combinations(_).map((c) => ManaType.sorted(c).map(_.toString) -> c.toSet)):_*)
+    val sections = sectionsBox.getCurrentItem match {
+      case ByNothing    => Seq(Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getCurrentItem else "Main Deck"))
+      case ByColorGroup => Seq(Seq("Colorless")) ++ ManaType.colors.map((m) => Seq(m.toString)) ++ Seq(Seq("Multicolored"))
+      case ByColors     => Seq(Seq("Colorless")) ++ colorSets.keys
+      case ByType       => Seq(Seq("Creature"), Seq("Artifact"), Seq("Enchantment"), Seq("Planeswalker"), Seq("Instant"), Seq("Sorcery")); // Land is omitted because we don't count them here
+    }
+    val analyte = if (analyzeCategoryBox.isSelected) deck.current.categories(analyzeCategoryCombo.getCurrentItem).list else deck.current
     val analyteLands = analyte.collect{ case e if SettingsDialog.settings.editor.isLand(e.card) => e.count }.sum
     if (analyte.total - analyteLands > 0) {
-      var sections = sectionsBox.getItemAt(sectionsBox.getSelectedIndex()) match {
-        case ByNothing => Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex) else "Main Deck")
-        case ByColor   => Seq("Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored")
-        case ByType    => Seq("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"); // Land is omitted because we don't count them here
-      }
-      var sectionManaValues = sections.map((s) => s -> analyte
-          .filter((e) => !SettingsDialog.settings.editor.isLand(e.card))
-          .filter((e) => sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
-            case ByNothing => true
-            case ByColor => s match {
-              case "Colorless"    => e.card.colors.size == 0
-              case "White"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.White)
-              case "Blue"         => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Blue)
-              case "Black"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Black)
-              case "Red"          => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Red)
-              case "Green"        => e.card.colors.size == 1 && e.card.colors.contains(ManaType.Green)
-              case "Multicolored" => e.card.colors.size > 1
-              case _ => true
-            }
-            case ByType => e.card.types.exists(_.equalsIgnoreCase(s)) && !sections.slice(0, sections.indexOf(s)).exists(s => e.card.types.exists(_.equalsIgnoreCase(s)))
-          })
-          .flatMap((e) => Seq.tabulate(e.count)(_ => SettingsDialog.settings.editor.getManaValue(e.card)))
-          .toSeq.sorted
-          .map(math.ceil)
-      ).toMap
+      var sectionManaValues = sections.zipWithIndex.map{ case (s, i) => s -> analyte
+        .filter((e) => !SettingsDialog.settings.editor.isLand(e.card))
+        .filter((e) => sectionsBox.getCurrentItem match {
+          case ByNothing => true
+          case ByColorGroup => s match {
+            case Seq("Colorless") => e.card.colors.isEmpty
+            case Seq(color) if e.card.colors.size == 1 => ManaType.parse(color.toLowerCase).filter(e.card.colors.contains).isDefined
+            case Seq("Multicolored") => e.card.colors.size > 1
+            case _ => false
+          }
+          case ByColors => s match {
+            case Seq("Colorless") => e.card.colors.isEmpty
+            case _ => e.card.colors == colorSets(s)
+          }
+          case ByType => e.card.typeLine.containsIgnoreCase(s(0)) && !sections.slice(0, i).exists((s) => e.card.typeLine.containsIgnoreCase(s(0)))
+        })
+        .flatMap((e) => Seq.fill(e.count)(SettingsDialog.settings.editor.getManaValue(e.card)))
+        .toSeq.sorted
+        .map(math.ceil)
+      }.toMap
       val minMV = math.ceil(manaValue.head).toInt
       val maxMV = math.ceil(manaValue.last).toInt
-      for (i <- minMV to maxMV) {
-        sections.foreach((s) => manaCurve.addValue(sectionManaValues(s).count(_ == i), s, i.toString))
+      sections.filter(!sectionManaValues(_).isEmpty).zipWithIndex.foreach{ case (s, i) =>
+        val paint = s match {
+          case Nil => SettingsDialog.settings.editor.manaAnalysis.none
+          case Seq(c) => SettingsDialog.settings.editor.manaAnalysis.getOrElse(c)
+          case _ => new Paint {
+            override def createContext(cm: ColorModel, deviceBounds: Rectangle, userBounds: Rectangle2D, xform: AffineTransform, hints: RenderingHints) = new PaintContext {
+              val bounds = (1 to s.size - 1).map((i) => (x: Int) => -1*(x - (deviceBounds.x + deviceBounds.width*i/s.size)) + (deviceBounds.y + deviceBounds.height*i/s.size)).toIndexedSeq
+
+              override def getColorModel = Option(cm).getOrElse(ColorModel.getRGBdefault)
+
+              override def getRaster(x: Int, y: Int, w: Int, h: Int) = {
+                val raster = getColorModel.createCompatibleWritableRaster(w, h)
+                for (j <- 0 until h) {
+                  for (i <- 0 until w) {
+                    if (deviceBounds.contains(x + i, y + j)) {
+                      val k = bounds.indexWhere((b) => b(x + i) > y + j)
+                      val color = SettingsDialog.settings.editor.manaAnalysis(if (k >= 0) s(k) else s.last)
+                      raster.setPixel(i, j, Array(color.getRed, color.getGreen, color.getBlue, color.getAlpha))
+                    }
+                  }
+                }
+                raster
+              }
+
+              override def dispose = {}
+            }
+
+            override def getTransparency = Transparency.OPAQUE;
+          }
+        }
+        manaCurveRenderer.setSeriesPaint(i, paint)
+        for (j <- minMV to maxMV)
+          manaCurve.addValue(sectionManaValues(s).count(_ == j), s.mkString("-"), j.toString)
       }
 
       if (minMV >= 0) {
         if (maxMV < 0)
           throw IllegalStateException("min mana value but no max mana value")
-        val choice = landsBox.getItemAt(landsBox.getSelectedIndex)
+        val choice = landsBox.getCurrentItem
         landAxis.setLabel(choice.toString)
         for (i <- minMV to maxMV) {
           val v = choice match {

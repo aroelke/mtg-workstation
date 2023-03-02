@@ -18,7 +18,7 @@ import editor.util.Containment._
 final case class ManaCostFilter(faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = AnyOf, cost: ManaCost = ManaCost()) extends FilterLeaf {
   override def attribute = CardAttribute.ManaCost
   override val unified = false
-  override def testFace(c: Card) = contain match {
+  override protected def testFace(c: Card) = contain match {
     case AnyOf      => AnyOf(c.manaCost, cost)
     case NoneOf     => NoneOf(c.manaCost, cost)
     case AllOf      => c.manaCost.isSuperset(cost)

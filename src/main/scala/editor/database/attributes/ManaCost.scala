@@ -1,7 +1,6 @@
 package editor.database.attributes
 
 import editor.database.symbol.ManaSymbol
-import editor.gui.generic.ComponentUtils
 
 import scala.util.matching._
 
@@ -9,7 +8,7 @@ object ManaCost {
   val Pattern = raw"\{([cwubrgCWUBRG\/phPH\dsSxXyYzZ]+)\}".r
 
   def parse(s: String) = {
-    val symbols = Pattern.findAllMatchIn(s).map(_.group(1)).flatMap(ManaSymbol.parse).toSeq
+    val symbols = Pattern.findAllMatchIn(s).map(_.group(1)).flatMap(ManaSymbol.parse).toIndexedSeq
     val remainder = symbols.foldLeft(s.toUpperCase)((r, t) => r.replaceFirst(Regex.quote(t.toString.toUpperCase), ""))
     Option.when(remainder.isEmpty)(ManaCost(symbols))
   }
@@ -24,7 +23,7 @@ object ManaCost {
  * 
  * @author Alec Roelke
  */
-case class ManaCost(private val cost: Seq[ManaSymbol] = Seq.empty) extends Seq[ManaSymbol] with Ordered[ManaCost] {
+case class ManaCost(private val cost: IndexedSeq[ManaSymbol] = IndexedSeq.empty) extends IndexedSeq[ManaSymbol] with Ordered[ManaCost] {
   /** Total color intensity of the mana cost. @see [[ManaSymbol.colorIntensity]] */
   lazy val intensity = ManaType.values.map((t) => t -> cost.map(_.colorIntensity(t)).sum).filter{ case (_, c) => c > 0 }.toMap.withDefaultValue(0.0)
 
@@ -56,6 +55,26 @@ case class ManaCost(private val cost: Seq[ManaSymbol] = Seq.empty) extends Seq[M
    */
   def isSuperset(other: ManaCost) = other.isSubset(this)
 
+  /**
+   * Calculate the devotion to a set of colors this mana cost contributes. A player's devotion to a
+   * set of colors is the number of mana symbols of any color in that set among the mana costs of
+   * permanents they control. This has an extended definition for colorless as well that works
+   * specifically with the colorless mana type (NOT generic symbols) for potential future
+   * compatibility.
+   * 
+   * @param types set of mana types to calculate devotion for
+   * @return the devotion to the set of mana types this mana cost contributes
+   */
+  def devotionTo(types: Set[ManaType]): Int = count((s) => types.map(s.colorIntensity).sum > 0)
+
+  /**
+   * Convenience method for calculating the devotion to a single mana type that this mana cost contributes.
+   * 
+   * @param mana type of mana to calculate devotion for
+   * @return the devotion to the mana type this mana cost contributes
+   */
+  def devotionTo(mana: ManaType): Int = devotionTo(Set(mana))
+
   override def apply(i: Int) = cost(i)
   override def iterator = cost.iterator
   override def length = cost.length
@@ -80,9 +99,6 @@ case class ManaCost(private val cost: Seq[ManaSymbol] = Seq.empty) extends Seq[M
       diff
     }
   }
-
-  /** String containing HTML code to display this mana cost in HTML documents. */
-//  lazy val toHTMLString = cost.map((s) => s"""<img src="${getClass.getResource(s"/images/icons/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>""").mkString
 
   override lazy val toString = map(_.toString).mkString
 }

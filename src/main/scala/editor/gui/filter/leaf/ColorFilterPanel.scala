@@ -1,4 +1,4 @@
-package editor.gui.filter.editor
+package editor.gui.filter.leaf
 
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.ManaType
@@ -10,12 +10,14 @@ import editor.gui.filter.FilterSelectorPanel
 import editor.gui.generic.ComboBoxPanel
 import editor.gui.generic.ComponentUtils
 import editor.util.Containment
+import editor.gui.ManaSetPanel
 
 import javax.swing.Box
 import javax.swing.BoxLayout
 import javax.swing.JCheckBox
 import javax.swing.JLabel
 import scala.collection.immutable.ListMap
+import editor.gui.SymbolButton
 
 /**
  * Convenience constructors for creating [[ColorFilterPanel]]s.
@@ -43,8 +45,6 @@ object ColorFilterPanel {
  * @author Alec Roelke
  */
 class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[ColorFilter] {
-  private val IconHeight = 13
-
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
   // Containment options
@@ -52,30 +52,32 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
   add(contain)
 
   // Check box for filtering for colorless
-  private val colorless = JCheckBox()
+  private val colorless = SymbolButton(ManaType.Colorless)
 
   // Check boxes for selecting colors
-  val colorBoxes = ListMap(ManaType.colors.map(_ -> JCheckBox()):_*)
-  colorBoxes.foreach{ case (color, box) =>
-    add(box)
-    add(JLabel(ColorSymbol(color).scaled(IconHeight)))
-    box.addActionListener(_ => if (box.isSelected) colorless.setSelected(false))
-  }
+  val colorBoxes = ManaSetPanel()
+  add(colorBoxes)
+  colorBoxes.addActionListener((e) => e.getSource match {
+    case b: JCheckBox =>
+      if (b.isSelected)
+        colorless.setSelected(false)
+      else if (colorBoxes.selected.isEmpty)
+        colorless.setSelected(true)
+  })
+
   add(Box.createHorizontalStrut(4))
   add(ComponentUtils.createHorizontalSeparator(4, contain.getPreferredSize.height))
 
   // Check box for multicolored cards
-  private val multi = JCheckBox()
+  private val multi = SymbolButton(StaticSymbol("M"))
   add(multi)
-  add(JLabel(StaticSymbol("M").scaled(IconHeight)))
   multi.addActionListener(_ => if (multi.isSelected) colorless.setSelected(false))
 
   // Actually add the colorless box here
   colorless.setSelected(true)
   add(colorless)
-  add(JLabel(ColorSymbol(ManaType.Colorless).scaled(IconHeight)))
   colorless.addActionListener(_ => if (colorless.isSelected) {
-    colorBoxes.foreach{ case (_, box) => box.setSelected(false) }
+    colorBoxes.selected = Set.empty
     multi.setSelected(false)
   })
 
@@ -83,12 +85,12 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
 
   protected override var attribute = CardAttribute.Colors
 
-  override def filter = attribute.filter.copy(faces = selector.faces, contain = contain.getSelectedItem, colors = colorBoxes.collect{ case (c, b) if b.isSelected => c }.toSet, multicolored = multi.isSelected)
+  override def filter = attribute.filter.copy(faces = selector.faces, contain = contain.getSelectedItem, colors = colorBoxes.selected, multicolored = multi.isSelected)
 
   override def setFields(filter: ColorFilter) = {
     attribute = filter.attribute
     contain.setSelectedItem(filter.contain)
-    filter.colors.foreach(colorBoxes(_).setSelected(true))
+    colorBoxes.selected = filter.colors
     multi.setSelected(filter.multicolored)
     colorless.setSelected(!filter.multicolored && filter.colors.isEmpty)
   }

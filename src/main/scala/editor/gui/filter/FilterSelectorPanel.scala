@@ -1,17 +1,17 @@
 package editor.gui.filter
 
-import _root_.editor.database.attributes.CardAttribute
-import _root_.editor.database.attributes.Expansion
-import _root_.editor.database.attributes.Rarity
-import _root_.editor.database.card.Card
-import _root_.editor.filter.FaceSearchOptions
-import _root_.editor.filter.leaf._
-import _root_.editor.gui.ElementAttribute
-import _root_.editor.gui.filter.editor.FilterEditorPanel
-import _root_.editor.gui.filter.editor._
-import _root_.editor.gui.generic.ComboBoxPanel
-import _root_.editor.unicode.{_, given}
-import _root_.editor.util.MouseListenerFactory
+import editor.database.attributes.CardAttribute
+import editor.database.attributes.Expansion
+import editor.database.attributes.Rarity
+import editor.database.card.Card
+import editor.filter.FaceSearchOptions
+import editor.filter.leaf._
+import editor.gui.ElementAttribute
+import editor.gui.filter.leaf.FilterEditorPanel
+import editor.gui.filter.leaf._
+import editor.gui.generic.ComboBoxPanel
+import editor.unicode.{_, given}
+import editor.util.MouseListenerFactory
 
 import javax.swing.Box
 import javax.swing.BoxLayout

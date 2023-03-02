@@ -1,31 +1,31 @@
 package editor.gui
 
-import _root_.editor.collection.Categorization
-import _root_.editor.collection.mutable.Deck
-import _root_.editor.database.attributes.CantBeFiltered
-import _root_.editor.database.attributes.CantCompare
-import _root_.editor.database.attributes.CardAttribute
-import _root_.editor.database.attributes.CombatStat
-import _root_.editor.database.attributes.Expansion
-import _root_.editor.database.attributes.HasMultiOptionsFilter
-import _root_.editor.database.attributes.HasOptions
-import _root_.editor.database.attributes.HasSingletonOptionsFilter
-import _root_.editor.database.attributes.Loyalty
-import _root_.editor.database.attributes.ManaCost
-import _root_.editor.database.attributes.ManaType
-import _root_.editor.database.attributes.Rarity
-import _root_.editor.database.attributes.TypeLine
-import _root_.editor.database.card.Card
-import _root_.editor.database.card.CardLayout
-import _root_.editor.database.symbol.ManaSymbolInstances.ColorSymbol
-import _root_.editor.filter.leaf._
-import _root_.editor.gui.deck.EditorFrame
-import _root_.editor.gui.deck.InclusionCellEditor
-import _root_.editor.gui.filter.FilterSelectorPanel
-import _root_.editor.gui.filter.editor._
-import _root_.editor.gui.generic.ComponentUtils
-import _root_.editor.gui.generic.SpinnerCellEditor
-import _root_.editor.unicode._
+import editor.collection.Categorization
+import editor.collection.mutable.Deck
+import editor.database.attributes.CantBeFiltered
+import editor.database.attributes.CantCompare
+import editor.database.attributes.CardAttribute
+import editor.database.attributes.CombatStat
+import editor.database.attributes.Expansion
+import editor.database.attributes.HasMultiOptionsFilter
+import editor.database.attributes.HasOptions
+import editor.database.attributes.HasSingletonOptionsFilter
+import editor.database.attributes.Loyalty
+import editor.database.attributes.ManaCost
+import editor.database.attributes.ManaType
+import editor.database.attributes.Rarity
+import editor.database.attributes.TypeLine
+import editor.database.card.Card
+import editor.database.card.CardLayout
+import editor.database.symbol.ManaSymbolInstances.ColorSymbol
+import editor.filter.leaf._
+import editor.gui.deck.EditorFrame
+import editor.gui.deck.InclusionCellEditor
+import editor.gui.filter.FilterSelectorPanel
+import editor.gui.filter.leaf._
+import editor.gui.generic.ComponentUtils
+import editor.gui.generic.SpinnerCellEditor
+import editor.unicode._
 
 import java.awt.Color
 import java.awt.Graphics
@@ -128,7 +128,7 @@ sealed trait ColorElement { this: ElementAttribute[Set[ManaType], ColorFilter] =
     panel
   }
   override def tooltip(value: Set[ManaType]) = ManaType.sorted(value).map((t) => {
-    s"""<img src="${getClass.getResource(s"/images/icons/${ColorSymbol(t).name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
+    s"""<img src="${getClass.getResource(s"/images/symbols/${ColorSymbol(t).name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
   }).mkString
 }
 
@@ -266,9 +266,18 @@ object ElementAttribute {
     }
     override def tooltip(value: Seq[ManaCost]) = {
       value.map(_.map((s) => {
-        s"""<img src="${getClass.getResource(s"/images/icons/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
+        s"""<img src="${getClass.getResource(s"/images/symbols/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
       }).mkString).mkString(Card.FaceSeparator)
     }
+  }
+
+  /**
+   * Element for filtering card devotion contribution.
+   * @see [[CardAttribute.Devotion]]
+   */
+  case object DevotionElement extends ElementAttribute[Seq[(Set[ManaType]) => Int], DevotionFilter] with CantBeRendered[Seq[(Set[ManaType]) => Int]] with CantBeEdited {
+    override def attribute = CardAttribute.Devotion
+    override def filter(selector: FilterSelectorPanel) = DevotionFilterPanel(selector)
   }
 
   /**
@@ -479,7 +488,7 @@ object ElementAttribute {
   }
 
   /** Array of GUI element attributes. */
-  val values: IndexedSeq[ElementAttribute[?, ?]] = IndexedSeq(NameElement, RuleTextElement, PrintedTextElement, ManaCostElement, RealManaValueElement, EffManaValueElement, ColorsElement, ColorIdentityElement, TypeLineElement, PrintedTypesElement, CardTypeElement, SubtypeElement, SupertypeElement, PowerElement, ToughnessElement, LoyaltyElement, LayoutElement, ExpansionElement, BlockElement, RarityElement, ArtistElement, CardNumberElement, LegalInElement, TagsElement, AnyCardElement, NoCardElement, CategoriesElement, CountElement, DateAddedElement)
+  val values: IndexedSeq[ElementAttribute[?, ?]] = IndexedSeq(NameElement, RuleTextElement, PrintedTextElement, ManaCostElement, RealManaValueElement, EffManaValueElement, ColorsElement, ColorIdentityElement, DevotionElement, TypeLineElement, PrintedTypesElement, CardTypeElement, SubtypeElement, SupertypeElement, PowerElement, ToughnessElement, LoyaltyElement, LayoutElement, ExpansionElement, BlockElement, RarityElement, ArtistElement, CardNumberElement, LegalInElement, TagsElement, AnyCardElement, NoCardElement, CategoriesElement, CountElement, DateAddedElement)
 
   /** Array of GUI element attributes that can create filters. */
   val filterableValues = values.filter(!_.attribute.isInstanceOf[CantBeFiltered])

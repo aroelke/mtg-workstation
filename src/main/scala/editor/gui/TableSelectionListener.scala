@@ -1,7 +1,7 @@
 package editor.gui
 
-import _root_.editor.collection.CardList
-import _root_.editor.gui.display.CardTable
+import editor.collection.CardList
+import editor.gui.display.CardTable
 
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener

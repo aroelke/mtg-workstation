@@ -240,30 +240,49 @@ case class ManaAnalysisSettings(
 
   line: Color = Color.BLACK
 ) {
+  private lazy val colormap = Map(
+    "none" -> none, "nothing" -> none,
+
+    "colorless" -> colorless, "c" -> colorless,
+    "white"     -> white,     "w" -> white,
+    "blue"      -> blue,      "u" -> blue,
+    "black"     -> black,     "b" -> black,
+    "red"       -> red,       "r" -> red,
+    "green"     -> green,     "g" -> green,
+    "multicolored" -> multi, "multi" -> multi, "m" -> multi,
+
+    "creature"     -> creature,
+    "artifact"     -> artifact,
+    "enchantment"  -> enchantment,
+    "planeswalker" -> planeswalker,
+    "instant"      -> instant,
+    "sorcery"      -> sorcery
+  )
+
   /**
    * Get the color associated with a histogram bar section by name.
    * 
    * @param key name of the section
    * @return the color of the section
    */
-  def apply(key: String) = key.toLowerCase match {
-    case "none" | "nothing" => none
+  def apply(key: String) = colormap(key.toLowerCase)
 
-    case "colorless" | "c" => colorless
-    case "white"     | "w" => white
-    case "blue"      | "u" => blue
-    case "black"     | "b" => black
-    case "red"       | "r" => red
-    case "green"     | "g" => green
-    case "multicolored" | "multi" | "m" => multi
+  /**
+   * Get the color associated with a histogram bar section by name.
+   * 
+   * @param key name of the section
+   * @return the color of the section, or None if there isn't one
+   */
+  def get(key: String) = colormap.get(key.toLowerCase)
 
-    case "creature"     => creature
-    case "artifact"     => artifact
-    case "enchantment"  => enchantment
-    case "planeswalker" => planeswalker
-    case "instant"      => instant
-    case "sorcery"      => sorcery
-  }
+  /**
+   * Get the color associated with a histogram bar section by name, or a default color if there isn't one.
+   * 
+   * @param key name of the section
+   * @param default color to use if there is no section by that name
+   * @return the color of the section, or the default value if there isn't one
+   */
+  def getOrElse(key: String, default: => Color = none) = colormap.getOrElse(key.toLowerCase, default)
 
   /** List of bar colors when dividing by color */
   val colorColors = Seq(colorless, white, blue, black, red, green, multi)

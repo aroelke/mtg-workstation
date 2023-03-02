@@ -1,6 +1,6 @@
 package editor.gui.filter
 
-import _root_.editor.filter.Filter
+import editor.filter.Filter
 
 import javax.swing.JPanel
 import javax.swing.event.ChangeEvent
