@@ -935,6 +935,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   private val testCards = testData.map(_.values(0)).sum
   private val testProducers = testData.map(_.values(1)).sum
   private val fractions = (0 until testData.size).map((i) => IndexedSeq(testData(i).values(0).toDouble/testCards.toDouble, testData(i).values(1).toDouble/testProducers.toDouble)).toIndexedSeq
+  val ratios = IndexedSeq.tabulate(testData(0).values.size)((i) => math.sqrt((i + 1).toDouble/testData(0).values.size))
 
   private val pieGraphPanel = new JPanel {
     setBackground(Color.WHITE)
@@ -944,7 +945,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       case g2: Graphics2D =>
         g2.addRenderingHints(Map(RenderingHints.KEY_ANTIALIASING -> RenderingHints.VALUE_ANTIALIAS_ON).asJava)
 
-        val radii = IndexedSeq(math.min(getWidth, getHeight)/4, math.min(getWidth, getHeight)*3/8)
+        val radius = math.min(getWidth, getHeight)*3/8
+        val radii = ratios.map(_*radius)
 
         for (i <- (0 until testData(0).values.size).reverse) {
           var start: Double = 90
