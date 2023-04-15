@@ -123,6 +123,7 @@ import scala.collection.immutable.ListMap
 import scala.util.Using
 
 import collection.JavaConverters._
+import java.awt.geom.Arc2D
 
 object EditorFrame {
   val MainDeck = 0
@@ -921,9 +922,23 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   /* CARD ANALYSIS TAB */
   private val cardAnalysisPanel = JPanel(BorderLayout())
 
+  private case class AnalysisData(label: String, color: Color, values: IndexedSeq[Int])
+
+  private val testColorless = AnalysisData("Colorless", SettingsDialog.settings.editor.manaAnalysis("colorless"), IndexedSeq(2, 3))
+  private val testWhite = AnalysisData("White", SettingsDialog.settings.editor.manaAnalysis("white"), IndexedSeq(3, 1))
+  private val testBlue = AnalysisData("Blue", SettingsDialog.settings.editor.manaAnalysis("blue"), IndexedSeq(10, 4))
+  private val testBlack = AnalysisData("Black", SettingsDialog.settings.editor.manaAnalysis("black"), IndexedSeq(20, 6))
+  private val testRed = AnalysisData("Red", SettingsDialog.settings.editor.manaAnalysis("red"), IndexedSeq(5, 2))
+  private val testGreen = AnalysisData("Green", SettingsDialog.settings.editor.manaAnalysis("green"), IndexedSeq(30, 10))
+
+  private val testData = IndexedSeq(testColorless, testWhite, testBlue, testBlack, testRed, testGreen)
+  private val testCards = testData.map(_.values(0)).sum
+  private val testProducers = testData.map(_.values(1)).sum
+  private val fractions = (0 until testData.size).map((i) => (testData(i).values(0).toDouble/testCards.toDouble, testData(i).values(1).toDouble/testProducers.toDouble))
+
   private val pieGraphPanel = new JPanel {
     setBackground(Color.WHITE)
-    setBorder(BorderFactory.createEtchedBorder())
+    setBorder(BorderFactory.createEtchedBorder)
 
     override def paintComponent(g: Graphics) = g match {
       case g2: Graphics2D =>
@@ -932,9 +947,22 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         val innerRadius = math.min(getWidth, getHeight)/4
         val outerRadius = innerRadius*3/2
 
-        g2.setColor(Color.BLACK)
-        g2.drawOval(getWidth/2 - innerRadius, getHeight/2 - innerRadius, innerRadius*2, innerRadius*2)
-        g2.drawOval(getWidth/2 - outerRadius, getHeight/2 - outerRadius, outerRadius*2, outerRadius*2)
+        var innerStart: Double = 90
+        var outerStart: Double = 90
+        for (i <- 0 until testData.size) {
+          val inner = Arc2D.Double(getWidth/2 - innerRadius, getHeight/2 - innerRadius, innerRadius*2, innerRadius*2, innerStart, -360*fractions(i)(0), Arc2D.PIE)
+          val outer = Arc2D.Double(getWidth/2 - outerRadius, getHeight/2 - outerRadius, outerRadius*2, outerRadius*2, outerStart, -360*fractions(i)(1), Arc2D.PIE)
+          g2.setColor(testData(i).color)
+          g2.fill(outer)
+          g2.setColor(Color.BLACK)
+          g2.draw(outer)
+          g2.setColor(testData(i).color)
+          g2.fill(inner)
+          g2.setColor(Color.BLACK)
+          g2.draw(inner)
+          innerStart += inner.extent
+          outerStart += outer.extent
+        }
       case _ =>
     }
   }
