@@ -55,6 +55,8 @@ import java.awt.CardLayout
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.FlowLayout
+import java.awt.Graphics
+import java.awt.Graphics2D
 import java.awt.GridBagConstraints
 import java.awt.Paint
 import java.awt.PaintContext
@@ -119,6 +121,8 @@ import javax.swing.event.PopupMenuListener
 import javax.swing.table.AbstractTableModel
 import scala.collection.immutable.ListMap
 import scala.util.Using
+
+import collection.JavaConverters._
 
 object EditorFrame {
   val MainDeck = 0
@@ -620,6 +624,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     case MainTable    extends EditorTab("Cards")
     case Categories   extends EditorTab("Categories")
     case ManaAnalysis extends EditorTab("Mana Analysis")
+    case CardAnalysis extends EditorTab("Card Analysis")
     case SampleHand   extends EditorTab("Sample Hand")
     case Notes        extends EditorTab("Notes")
     case Changelog    extends EditorTab("Change Log")
@@ -912,6 +917,30 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   manaAnalysisPanel.add(analysisConfigPanel, BorderLayout.SOUTH)
 
   listTabs.addTab(ManaAnalysis.title, manaAnalysisPanel)
+
+  /* CARD ANALYSIS TAB */
+  private val cardAnalysisPanel = JPanel(BorderLayout())
+
+  private val pieGraphPanel = new JPanel {
+    setBackground(Color.WHITE)
+    setBorder(BorderFactory.createEtchedBorder())
+
+    override def paintComponent(g: Graphics) = g match {
+      case g2: Graphics2D =>
+        g2.addRenderingHints(Map(RenderingHints.KEY_ANTIALIASING -> RenderingHints.VALUE_ANTIALIAS_ON).asJava)
+
+        val innerRadius = math.min(getWidth, getHeight)/4
+        val outerRadius = innerRadius*3/2
+
+        g2.setColor(Color.BLACK)
+        g2.drawOval(getWidth/2 - innerRadius, getHeight/2 - innerRadius, innerRadius*2, innerRadius*2)
+        g2.drawOval(getWidth/2 - outerRadius, getHeight/2 - outerRadius, outerRadius*2, outerRadius*2)
+      case _ =>
+    }
+  }
+  cardAnalysisPanel.add(pieGraphPanel, BorderLayout.CENTER)
+
+  listTabs.addTab(CardAnalysis.title, cardAnalysisPanel)
 
   /* SAMPLE HAND TAB */
   private val handPanel = JPanel(BorderLayout())
