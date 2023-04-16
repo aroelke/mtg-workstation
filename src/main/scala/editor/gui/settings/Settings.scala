@@ -237,6 +237,7 @@ case class ManaAnalysisSettings(
   planeswalker: Color = Color(215, 181, 215),
   instant: Color = Color(193, 215, 233),
   sorcery: Color = Color(228, 153, 119),
+  tribal: Color = Color(163, 192, 149),
 
   line: Color = Color.BLACK
 ) {
@@ -256,7 +257,8 @@ case class ManaAnalysisSettings(
     "enchantment"  -> enchantment,
     "planeswalker" -> planeswalker,
     "instant"      -> instant,
-    "sorcery"      -> sorcery
+    "sorcery"      -> sorcery,
+    "tribal"       -> tribal
   )
 
   /**
