@@ -1751,7 +1751,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       case ByNothing    => Seq(Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getCurrentItem else "Main Deck"))
       case ByColorGroup => Seq(Seq("Colorless")) ++ ManaType.colors.map((m) => Seq(m.toString)) ++ Seq(Seq("Multicolored"))
       case ByColors     => Seq(Seq("Colorless")) ++ colorSets.keys
-      case ByType       => Seq("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery", "Tribal").map(Seq(_)); // Land is omitted because we don't count them here
+      case ByType       => Seq("Battle", "Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery", "Tribal").map(Seq(_)); // Land is omitted because we don't count them here
     }
     val analyte = if (analyzeCategoryBox.isSelected) deck.current.categories(analyzeCategoryCombo.getCurrentItem).list else deck.current
     val analyteLands = analyte.collect{ case e if SettingsDialog.settings.editor.isLand(e.card) => e.count }.sum
