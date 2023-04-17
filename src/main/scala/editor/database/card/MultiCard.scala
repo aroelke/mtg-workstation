@@ -22,9 +22,6 @@ abstract class MultiCard(layout: CardLayout, override val faces: IndexedSeq[Card
 
   override lazy val name = faces.map(_.name).mkString(Card.FaceSeparator)
   override def manaCost = throw UnsupportedOperationException("only individual faces have mana costs")
-  override def minManaValue = faces.map(_.manaValue).min
-  override def maxManaValue = faces.map(_.manaValue).max
-  override def avgManaValue = faces.map(_.manaValue).sum/faces.size
   override lazy val colors = faces.flatMap(_.colors).toSet
   override lazy val colorIdentity = faces.flatMap(_.colorIdentity).toSet
   override lazy val typeLine = faces.map(_.typeLine).reduce(_ ++ _)

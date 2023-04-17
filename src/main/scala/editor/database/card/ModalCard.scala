@@ -16,6 +16,9 @@ class ModalCard(front: Card, back: Card) extends MultiCard(MODAL_DFC, IndexedSeq
   if (front.layout != MODAL_DFC || back.layout != MODAL_DFC)
     IllegalArgumentException("can't join non-modal-double-faced cards into modal double-faced cards")
 
-  override lazy val manaValue = front.manaValue
+  override def manaValue = front.manaValue
+  override def minManaValue = faces.map(_.manaValue).min
+  override def maxManaValue = faces.map(_.manaValue).max
+  override def avgManaValue = faces.map(_.manaValue).sum/faces.size
   override lazy val imageNames = front.imageNames ++ back.imageNames
 }

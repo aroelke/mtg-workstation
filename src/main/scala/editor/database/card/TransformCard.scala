@@ -21,6 +21,9 @@ class TransformCard(front: Card, back: Card) extends MultiCard(TRANSFORM, Indexe
     throw IllegalArgumentException("can't join non-transforming cards into transforming cards")
 
   override def manaValue = front.manaValue
+  override def minManaValue = manaValue
+  override def maxManaValue = manaValue
+  override def avgManaValue = manaValue
   override lazy val manaCost = front.manaCost
   override lazy val imageNames = front.imageNames ++ back.imageNames
 }
