@@ -22,6 +22,9 @@ class SplitCard(faces: Seq[Card]) extends MultiCard(faces(0).layout, faces.toInd
     case ADVENTURE => faces(0).manaValue
     case _ => throw IllegalStateException(s"$layout isn't a split layout")
   }
+  override def minManaValue = faces.map(_.manaValue).min
+  override def maxManaValue = faces.map(_.manaValue).max
+  override def avgManaValue = faces.map(_.manaValue).sum/faces.size
   override def imageNames = faces(0).imageNames
   override def multiverseid = faces(0).multiverseid
   override def scryfallid = faces(0).scryfallid
