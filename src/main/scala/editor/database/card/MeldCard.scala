@@ -24,9 +24,12 @@ class MeldCard(front: Card, other: Card, back: Card) extends MultiCard(MELD, Ind
   if (front.layout != MELD || other.layout != MELD || back.layout != MELD)
     throw IllegalArgumentException("can't join non-meld cards into meld cards")
   
-  override lazy val manaCost = front.manaCost
+  override def manaCost = front.manaCost
 
   override def manaValue = front.manaValue
+  override def minManaValue = faces.map(_.manaValue).min
+  override def maxManaValue = faces.map(_.manaValue).max
+  override def avgManaValue = faces.map(_.manaValue).sum/faces.size
   override lazy val imageNames = front.imageNames ++ back.imageNames
 
   override def formatDocument(document: StyledDocument, printed: Boolean, f: Int) = {

@@ -20,6 +20,9 @@ class FlipCard(top: Card, bottom: Card) extends MultiCard(FLIP, IndexedSeq(top, 
   
   override def manaCost = top.manaCost
   override def manaValue = top.manaValue
+  override def minManaValue = manaValue
+  override def maxManaValue = manaValue
+  override def avgManaValue = manaValue
   override def imageNames = top.imageNames ++ bottom.imageNames
   override def scryfallid = top.scryfallid
 }
