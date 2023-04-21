@@ -959,6 +959,24 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
             start += arc.extent
           }
         }
+
+        val width = testData.map((d) => g2.getFontMetrics.stringWidth(d.label)).max
+        val height = g2.getFontMetrics.getHeight
+        val textHeight = g2.getFontMetrics.getAscent - g2.getFontMetrics.getDescent
+        val llx = getWidth - width - textHeight - 5
+        val lly = testData.size*height
+        val dx = llx - getWidth/2
+        val dy = lly - getHeight/2
+        if (math.sqrt(dx*dx + dy*dy) > radius) {
+          for (i <- 0 until testData.size) {
+            val y = i*height
+            g2.setColor(testData(i).color)
+            g2.fillRect(getWidth - width - textHeight - 5, y - textHeight, textHeight, textHeight)
+            g2.setColor(Color.BLACK)
+            g2.drawRect(getWidth - width - textHeight - 5, y - textHeight, textHeight, textHeight)
+            g2.drawString(testData(i).label, getWidth - width, y)
+          }
+        }
       case _ =>
     }
   }
