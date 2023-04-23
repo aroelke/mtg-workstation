@@ -12,6 +12,7 @@ import editor.gui.deck.CategoryEditorPanel
 import editor.gui.display.CardTable
 import editor.gui.display.CategoryList
 import editor.gui.generic.ComponentUtils
+import editor.gui.generic.DrawingPanel
 import editor.gui.generic.ScrollablePanel
 import editor.gui.generic.VerticalButtonList
 import editor.serialization
@@ -589,15 +590,12 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     panel.setForeground(label.getForeground())
     panel.setBackground(label.getBackground())
     panel.add(label, BorderLayout.CENTER)
-    val color = new JPanel {
-      override def paintComponent(g: Graphics): Unit = {
-        super.paintComponent(g)
-        g.setColor(sectionChoosers(value).getColor)
-        g.fillRect(1, 1, getWidth - 3, getHeight - 3)
-        g.setColor(Color.BLACK)
-        g.drawRect(1, 1, getWidth - 3, getHeight - 3)
-      }
-    }
+    val color = DrawingPanel((g, p) => {
+      g.setColor(sectionChoosers(value).getColor)
+      g.fillRect(1, 1, p.getWidth - 3, p.getHeight - 3)
+      g.setColor(Color.BLACK)
+      g.drawRect(1, 1, p.getWidth - 3, p.getHeight - 3)
+    })
     color.setPreferredSize(Dimension(label.getPreferredSize.height, label.getPreferredSize.height))
     color.setForeground(label.getForeground)
     color.setBackground(label.getBackground)

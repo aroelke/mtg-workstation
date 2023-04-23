@@ -124,6 +124,7 @@ import scala.util.Using
 
 import collection.JavaConverters._
 import java.awt.geom.Arc2D
+import editor.gui.generic.DrawingPanel
 
 object EditorFrame {
   val MainDeck = 0
@@ -937,49 +938,44 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   private val fractions = (0 until testData.size).map((i) => IndexedSeq(testData(i).values(0).toDouble/testCards.toDouble, testData(i).values(1).toDouble/testProducers.toDouble)).toIndexedSeq
   val ratios = IndexedSeq.tabulate(testData(0).values.size)((i) => math.sqrt((i + 1).toDouble/testData(0).values.size))
 
-  private val pieGraphPanel = new JPanel {
-    setBackground(Color.WHITE)
-    setBorder(BorderFactory.createEtchedBorder)
+  private val pieGraphPanel = DrawingPanel[Graphics2D]((g, p) => {
+    g.addRenderingHints(Map(RenderingHints.KEY_ANTIALIASING -> RenderingHints.VALUE_ANTIALIAS_ON).asJava)
 
-    override def paintComponent(g: Graphics) = g match {
-      case g2: Graphics2D =>
-        g2.addRenderingHints(Map(RenderingHints.KEY_ANTIALIASING -> RenderingHints.VALUE_ANTIALIAS_ON).asJava)
+    val radius = math.min(p.getWidth, p.getHeight)*3/8
+    val radii = ratios.map(_*radius)
 
-        val radius = math.min(getWidth, getHeight)*3/8
-        val radii = ratios.map(_*radius)
-
-        for (i <- (0 until testData(0).values.size).reverse) {
-          var start: Double = 90
-          for (j <- 0 until testData.size) {
-            val arc = Arc2D.Double(getWidth/2 - radii(i), getHeight/2 - radii(i), radii(i)*2, radii(i)*2, start, -360*fractions(j)(i), Arc2D.PIE)
-            g2.setColor(testData(j).color)
-            g2.fill(arc)
-            g2.setColor(Color.BLACK)
-            g2.draw(arc)
-            start += arc.extent
-          }
-        }
-
-        val width = testData.map((d) => g2.getFontMetrics.stringWidth(d.label)).max
-        val height = g2.getFontMetrics.getHeight
-        val textHeight = g2.getFontMetrics.getAscent - g2.getFontMetrics.getDescent
-        val llx = getWidth - width - textHeight - 5
-        val lly = testData.size*height
-        val dx = llx - getWidth/2
-        val dy = lly - getHeight/2
-        if (math.sqrt(dx*dx + dy*dy) > radius) {
-          for (i <- 0 until testData.size) {
-            val y = i*height
-            g2.setColor(testData(i).color)
-            g2.fillRect(getWidth - width - textHeight - 5, y - textHeight, textHeight, textHeight)
-            g2.setColor(Color.BLACK)
-            g2.drawRect(getWidth - width - textHeight - 5, y - textHeight, textHeight, textHeight)
-            g2.drawString(testData(i).label, getWidth - width, y)
-          }
-        }
-      case _ =>
+    for (i <- (0 until testData(0).values.size).reverse) {
+      var start: Double = 90
+      for (j <- 0 until testData.size) {
+        val arc = Arc2D.Double(p.getWidth/2 - radii(i), p.getHeight/2 - radii(i), radii(i)*2, radii(i)*2, start, -360*fractions(j)(i), Arc2D.PIE)
+        g.setColor(testData(j).color)
+        g.fill(arc)
+        g.setColor(Color.BLACK)
+        g.draw(arc)
+        start += arc.extent
+      }
     }
-  }
+
+    val width = testData.map((d) => g.getFontMetrics.stringWidth(d.label)).max
+    val height = g.getFontMetrics.getHeight
+    val textHeight = g.getFontMetrics.getAscent - g.getFontMetrics.getDescent
+    val llx = p.getWidth - width - textHeight - 5
+    val lly = testData.size*height
+    val dx = llx - p.getWidth/2
+    val dy = lly - p.getHeight/2
+    if (math.sqrt(dx*dx + dy*dy) > radius) {
+      for (i <- 0 until testData.size) {
+        val y = i*height
+        g.setColor(testData(i).color)
+        g.fillRect(p.getWidth - width - textHeight - 5, y - textHeight, textHeight, textHeight)
+        g.setColor(Color.BLACK)
+        g.drawRect(p.getWidth - width - textHeight - 5, y - textHeight, textHeight, textHeight)
+        g.drawString(testData(i).label, p.getWidth - width, y)
+      }
+    }
+  })
+  pieGraphPanel.setBackground(Color.WHITE)
+  pieGraphPanel.setBorder(BorderFactory.createEtchedBorder)
   cardAnalysisPanel.add(pieGraphPanel, BorderLayout.CENTER)
 
   listTabs.addTab(CardAnalysis.title, cardAnalysisPanel)

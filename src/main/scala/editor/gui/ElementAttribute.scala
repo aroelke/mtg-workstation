@@ -24,6 +24,7 @@ import editor.gui.deck.InclusionCellEditor
 import editor.gui.filter.FilterSelectorPanel
 import editor.gui.filter.leaf._
 import editor.gui.generic.ComponentUtils
+import editor.gui.generic.DrawingPanel
 import editor.gui.generic.SpinnerCellEditor
 import editor.unicode._
 
@@ -452,20 +453,16 @@ object ElementAttribute {
     override def filter(selector: FilterSelectorPanel) = throw UnsupportedOperationException("can't filter by category")
     override def render(value: Set[Categorization]) = {
       val categories = value.toSeq.sortBy(_.name)
-      val panel = new JPanel {
-        override def paintComponent(g: Graphics) = {
-          super.paintComponent(g)
-          for (i <- 0 until categories.size) {
-            val x = i*(getHeight + 1) + 1
+      DrawingPanel((g, p) => {
+        for (i <- 0 until categories.size) {
+            val x = i*(p.getHeight + 1) + 1
             val y = 1
             g.setColor(categories(i).color)
-            g.fillRect(x, y, getHeight - 3, getHeight - 3)
+            g.fillRect(x, y, p.getHeight - 3, p.getHeight - 3)
             g.setColor(Color.BLACK)
-            g.drawRect(x, y, getHeight - 3, getHeight - 3)
+            g.drawRect(x, y, p.getHeight - 3, p.getHeight - 3)
           }
-        }
-      }
-      panel
+      })
     }
     override def tooltip(value: Set[Categorization]) = s"""Categories:${value.map((c) => s"<br>$Bullet ${c.name}").toSeq.sorted.mkString}"""
     override def cellEditor(editor: Option[EditorFrame]) = editor.map(InclusionCellEditor(_))
