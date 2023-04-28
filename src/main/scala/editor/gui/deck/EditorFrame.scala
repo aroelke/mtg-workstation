@@ -947,12 +947,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     for (i <- (0 until testData(0).values.size).reverse) {
       var start: Double = 90
       for (j <- 0 until testData.size) {
-        val arc = Arc2D.Double(p.getWidth/2 - radii(i), p.getHeight/2 - radii(i), radii(i)*2, radii(i)*2, start, -360*fractions(j)(i), Arc2D.PIE)
-        g.setColor(testData(j).color)
-        g.fill(arc)
-        g.setColor(Color.BLACK)
-        g.draw(arc)
-        start += arc.extent
+        if (testData(j).values(i) > 0) {
+          val arc = Arc2D.Double(p.getWidth/2 - radii(i), p.getHeight/2 - radii(i), radii(i)*2, radii(i)*2, start, -360*fractions(j)(i), Arc2D.PIE)
+          g.setColor(testData(j).color)
+          g.fill(arc)
+          g.setColor(Color.BLACK)
+          g.draw(arc)
+          start += arc.extent
+        }
       }
     }
 
