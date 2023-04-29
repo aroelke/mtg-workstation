@@ -43,18 +43,10 @@ case class DataTable[E, R, C](data: IndexedSeq[IndexedSeq[E]], rowLabels: Indexe
    * @param col label of the column
    * @return the element with the corresponding row and column label, or None if there isn't one (i.e. either the row or column doesn't exist)
    */
-  def get(row: R, col: C) = (rowIndices.get(row), colIndices.get(col)) match {
+  def get(row: R)(col: C) = (rowIndices.get(row), colIndices.get(col)) match {
     case (Some(r), Some(c)) => Some(data(r)(c))
     case _ => None
   }
-
-  /**
-   * Get a row by index.
-   * 
-   * @param index row index
-   * @return the data in the row with the given index
-   */
-  def apply(index: Int) = data(index)
 
   /**
    * Get a row by label.
@@ -71,7 +63,7 @@ case class DataTable[E, R, C](data: IndexedSeq[IndexedSeq[E]], rowLabels: Indexe
    * @param col label of the column containing the element
    * @return the element in the row and column corresponding to the labels
    */
-  def apply(row: R, col: C) = data(rowIndices(row))(colIndices(col))
+  def apply(row: R)(col: C) = data(rowIndices(row))(colIndices(col))
 
   /**
    * Create a new table whose data is the result of an operation on this table's data.
@@ -101,6 +93,7 @@ case class DataTable[E, R, C](data: IndexedSeq[IndexedSeq[E]], rowLabels: Indexe
 
   def transpose = DataTable(data.transpose, columnLabels, rowLabels)
 
+  override def apply(index: Int) = data(index)
   override def iterator = data.iterator
   override def length = data.size
 }
