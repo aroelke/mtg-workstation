@@ -1,5 +1,6 @@
 package editor.gui.deck
 
+import editor.analysis.DataTable
 import editor.collection.CardList
 import editor.collection.CardListEntry
 import editor.collection.Categorization
@@ -23,6 +24,7 @@ import editor.gui.display.CardTableModel
 import editor.gui.generic.CardMenuItems
 import editor.gui.generic.ChangeTitleListener
 import editor.gui.generic.ComponentUtils
+import editor.gui.generic.DrawingPanel
 import editor.gui.generic.EditablePanel
 import editor.gui.generic.ScrollablePanel
 import editor.gui.generic.TableMouseAdapter
@@ -49,7 +51,6 @@ import org.jfree.chart.renderer.category.LineAndShapeRenderer
 import org.jfree.chart.renderer.category.StackedBarRenderer
 import org.jfree.chart.renderer.category.StandardBarPainter
 import org.jfree.data.category.DefaultCategoryDataset
-import editor.analysis.DataTable
 
 import java.awt.BorderLayout
 import java.awt.CardLayout
@@ -71,6 +72,7 @@ import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.awt.event.MouseEvent
 import java.awt.geom.AffineTransform
+import java.awt.geom.Arc2D
 import java.awt.geom.Rectangle2D
 import java.awt.image.ColorModel
 import java.io.File
@@ -124,8 +126,6 @@ import scala.collection.immutable.ListMap
 import scala.util.Using
 
 import collection.JavaConverters._
-import java.awt.geom.Arc2D
-import editor.gui.generic.DrawingPanel
 
 object EditorFrame {
   val MainDeck = 0
