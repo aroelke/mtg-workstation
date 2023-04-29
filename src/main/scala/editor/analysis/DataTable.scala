@@ -16,7 +16,7 @@ import scala.annotation.targetName
  * 
  * @note an instance of this class only operates on rows; to operate on columns, it can be transposed
  */
-case class DataTable[E, R, C](data: IndexedSeq[IndexedSeq[E]], rowLabels: IndexedSeq[R], columnLabels: IndexedSeq[C]) extends Iterable[Iterable[E]] {
+case class DataTable[E, R, C](data: IndexedSeq[IndexedSeq[E]], rowLabels: IndexedSeq[R], columnLabels: IndexedSeq[C]) extends IndexedSeq[IndexedSeq[E]] {
   require(data.size == rowLabels.size)
   data.foreach((c) => require(c.size == columnLabels.size))
 
@@ -102,4 +102,5 @@ case class DataTable[E, R, C](data: IndexedSeq[IndexedSeq[E]], rowLabels: Indexe
   def transpose = DataTable(data.transpose, columnLabels, rowLabels)
 
   override def iterator = data.iterator
+  override def length = data.size
 }
