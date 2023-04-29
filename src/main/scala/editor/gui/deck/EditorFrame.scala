@@ -49,6 +49,7 @@ import org.jfree.chart.renderer.category.LineAndShapeRenderer
 import org.jfree.chart.renderer.category.StackedBarRenderer
 import org.jfree.chart.renderer.category.StandardBarPainter
 import org.jfree.data.category.DefaultCategoryDataset
+import editor.analysis.DataTable
 
 import java.awt.BorderLayout
 import java.awt.CardLayout
@@ -923,20 +924,18 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   /* CARD ANALYSIS TAB */
   private val cardAnalysisPanel = JPanel(BorderLayout())
 
-  private case class AnalysisData(label: String, color: Color, values: IndexedSeq[Int])
-
-  private val testColorless = AnalysisData("Colorless", SettingsDialog.settings.editor.manaAnalysis("colorless"), IndexedSeq(2, 3))
-  private val testWhite = AnalysisData("White", SettingsDialog.settings.editor.manaAnalysis("white"), IndexedSeq(3, 1))
-  private val testBlue = AnalysisData("Blue", SettingsDialog.settings.editor.manaAnalysis("blue"), IndexedSeq(10, 4))
-  private val testBlack = AnalysisData("Black", SettingsDialog.settings.editor.manaAnalysis("black"), IndexedSeq(20, 6))
-  private val testRed = AnalysisData("Red", SettingsDialog.settings.editor.manaAnalysis("red"), IndexedSeq(5, 2))
-  private val testGreen = AnalysisData("Green", SettingsDialog.settings.editor.manaAnalysis("green"), IndexedSeq(30, 10))
-
-  private val testData = IndexedSeq(testColorless, testWhite, testBlue, testBlack, testRed, testGreen)
-  private val testCards = testData.map(_.values(0)).sum
-  private val testProducers = testData.map(_.values(1)).sum
-  private val fractions = (0 until testData.size).map((i) => IndexedSeq(testData(i).values(0).toDouble/testCards.toDouble, testData(i).values(1).toDouble/testProducers.toDouble)).toIndexedSeq
-  val ratios = IndexedSeq.tabulate(testData(0).values.size)((i) => math.sqrt((i + 1).toDouble/testData(0).values.size))
+  private case class ColoredString(string: String) { val color = SettingsDialog.settings.editor.manaAnalysis(string) }
+  private val testTable = DataTable(
+    IndexedSeq(
+      IndexedSeq(2, 3, 10, 20, 5, 30),
+      IndexedSeq(3, 1, 4, 6, 2, 10)
+    ),
+    IndexedSeq("Mana Costs", "Mana Production"),
+    IndexedSeq(ColoredString("Colorless"), ColoredString("White"), ColoredString("Blue"), ColoredString("Black"), ColoredString("Red"), ColoredString("Green")))
+  private val testCards = testTable("Mana Costs").sum
+  private val testProducers = testTable("Mana Production").sum
+  private val fractions = (testTable.data zip Seq(testCards, testProducers)).map{ case (row, sum) => row.map(_.toDouble/sum) }
+  val ratios = IndexedSeq.tabulate(testTable.rows)((i) => math.sqrt((i + 1).toDouble/testTable.rows))
 
   private val pieGraphPanel = DrawingPanel[Graphics2D]((g, p) => {
     g.addRenderingHints(Map(RenderingHints.KEY_ANTIALIASING -> RenderingHints.VALUE_ANTIALIAS_ON).asJava)
@@ -944,12 +943,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     val radius = math.min(p.getWidth, p.getHeight)*3/8
     val radii = ratios.map(_*radius)
 
-    for (i <- (0 until testData(0).values.size).reverse) {
+    for (i <- (0 until testTable.rows).reverse) {
       var start: Double = 90
-      for (j <- 0 until testData.size) {
-        if (testData(j).values(i) > 0) {
-          val arc = Arc2D.Double(p.getWidth/2 - radii(i), p.getHeight/2 - radii(i), radii(i)*2, radii(i)*2, start, -360*fractions(j)(i), Arc2D.PIE)
-          g.setColor(testData(j).color)
+      for (j <- 0 until testTable.columns) {
+        if (testTable(i)(j) > 0) {
+          val arc = Arc2D.Double(p.getWidth/2 - radii(i), p.getHeight/2 - radii(i), radii(i)*2, radii(i)*2, start, -360*fractions(i)(j), Arc2D.PIE)
+          g.setColor(testTable.columnLabels(j).color)
           g.fill(arc)
           g.setColor(Color.BLACK)
           g.draw(arc)
@@ -958,21 +957,21 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       }
     }
 
-    val width = testData.map((d) => g.getFontMetrics.stringWidth(d.label)).max
+    val width = testTable.columnLabels.map((d) => g.getFontMetrics.stringWidth(d.string)).max
     val height = g.getFontMetrics.getHeight
     val textHeight = g.getFontMetrics.getAscent - g.getFontMetrics.getDescent
     val llx = p.getWidth - width - textHeight - 5
-    val lly = testData.size*height
+    val lly = testTable.columns*height
     val dx = llx - p.getWidth/2
     val dy = lly - p.getHeight/2
     if (math.sqrt(dx*dx + dy*dy) > radius) {
-      for (i <- 0 until testData.size) {
+      for (i <- 0 until testTable.columns) {
         val y = i*height
-        g.setColor(testData(i).color)
+        g.setColor(testTable.columnLabels(i).color)
         g.fillRect(p.getWidth - width - textHeight - 5, y - textHeight, textHeight, textHeight)
         g.setColor(Color.BLACK)
         g.drawRect(p.getWidth - width - textHeight - 5, y - textHeight, textHeight, textHeight)
-        g.drawString(testData(i).label, p.getWidth - width, y)
+        g.drawString(testTable.columnLabels(i).string, p.getWidth - width, y)
       }
     }
   })
