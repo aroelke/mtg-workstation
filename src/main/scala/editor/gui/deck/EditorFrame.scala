@@ -126,6 +126,7 @@ import scala.collection.immutable.ListMap
 import scala.util.Using
 
 import collection.JavaConverters._
+import java.awt.geom.Ellipse2D
 
 object EditorFrame {
   val MainDeck = 0
@@ -938,7 +939,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   val ratios = IndexedSeq.tabulate(testTable.rows)((i) => math.sqrt((i + 1).toDouble/testTable.rows))
 
   private val pieGraphPanel = DrawingPanel[Graphics2D]((g, p) => {
-    g.addRenderingHints(Map(RenderingHints.KEY_ANTIALIASING -> RenderingHints.VALUE_ANTIALIAS_ON).asJava)
+    g.addRenderingHints(Map(
+      RenderingHints.KEY_ANTIALIASING -> RenderingHints.VALUE_ANTIALIAS_ON,
+      RenderingHints.KEY_FRACTIONALMETRICS -> RenderingHints.VALUE_FRACTIONALMETRICS_ON
+    ).asJava)
 
     val radius = math.min(p.getWidth, p.getHeight)*3/8
     val radii = ratios.map(_*radius)
@@ -957,21 +961,35 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       }
     }
 
-    val width = testTable.columnLabels.map((d) => g.getFontMetrics.stringWidth(d.string)).max
+    val width = (testTable.columnLabels.map(_.string) ++ (if (testTable.rows > 1) testTable.rowLabels else Seq.empty)).map(g.getFontMetrics.stringWidth).max
     val height = g.getFontMetrics.getHeight
     val textHeight = g.getFontMetrics.getAscent - g.getFontMetrics.getDescent
     val llx = p.getWidth - width - textHeight - 5
-    val lly = testTable.columns*height
+    val lly = testTable.columns*(height + (if (testTable.rows > 1) testTable.rows else 0))
     val dx = llx - p.getWidth/2
     val dy = lly - p.getHeight/2
     if (math.sqrt(dx*dx + dy*dy) > radius) {
       for (i <- 0 until testTable.columns) {
         val y = i*height
+        val rectangle = Rectangle2D.Double(p.getWidth - width - textHeight - 5, y - textHeight, textHeight, textHeight)
         g.setColor(testTable.columnLabels(i).color)
-        g.fillRect(p.getWidth - width - textHeight - 5, y - textHeight, textHeight, textHeight)
+        g.fill(rectangle)
         g.setColor(Color.BLACK)
-        g.drawRect(p.getWidth - width - textHeight - 5, y - textHeight, textHeight, textHeight)
-        g.drawString(testTable.columnLabels(i).string, p.getWidth - width, y)
+        g.draw(rectangle)
+        g.drawString(testTable.columnLabels(i).string, (p.getWidth - width).toInt, y)
+      }
+      if (testTable.rows > 1) {
+        val diameters = (1 to testTable.rows).map(_*textHeight/testTable.rows.toDouble)
+        for (i <- 0 until testTable.rows) {
+          val y = (i + testTable.columns)*height
+          g.setColor(Color.BLACK)
+          g.drawString(testTable.rowLabels(i), (p.getWidth - width).toInt, y)
+          for (ii <- (0 until testTable.rows).reverse) {
+            val circle = Ellipse2D.Double(p.getWidth - width - textHeight/2 - diameters(ii)/2 - 5, y - textHeight/2 - diameters(ii)/2, diameters(ii), diameters(ii))
+            g.setColor(if (ii == i) Color.BLACK else p.getBackground)
+            g.fill(circle)
+          }
+        }
       }
     }
   })
