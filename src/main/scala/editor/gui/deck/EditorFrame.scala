@@ -927,17 +927,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   private val cardAnalysisPanel = JPanel(BorderLayout())
 
   private case class ColoredString(string: String) { val color = SettingsDialog.settings.editor.manaAnalysis(string) }
-  private val testTable = DataTable(
-    IndexedSeq(
-      IndexedSeq(2, 3, 10, 20, 5, 30),
-      IndexedSeq(3, 1, 4, 6, 2, 10)
-    ),
-    IndexedSeq("Mana Costs", "Mana Production"),
-    IndexedSeq(ColoredString("Colorless"), ColoredString("White"), ColoredString("Blue"), ColoredString("Black"), ColoredString("Red"), ColoredString("Green")))
-  private val testCards = testTable("Mana Costs").sum
-  private val testProducers = testTable("Mana Production").sum
-  private val fractions = (testTable.data zip Seq(testCards, testProducers)).map{ case (row, sum) => row.map(_.toDouble/sum) }
-  val ratios = IndexedSeq.tabulate(testTable.rows)((i) => math.sqrt((i + 1).toDouble/testTable.rows))
+  private var pieData = DataTable.empty[Int, String, ColoredString]
+  private var fractions = IndexedSeq.empty[IndexedSeq[Double]]
+  private var ratios = IndexedSeq.empty[Double]
 
   private val pieGraphPanel = DrawingPanel[Graphics2D]((g, p) => {
     g.addRenderingHints(Map(
@@ -948,12 +940,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     val radius = math.min(p.getWidth, p.getHeight)*3/8
     val radii = ratios.map(_*radius)
 
-    for (i <- (0 until testTable.rows).reverse) {
+    for (i <- (0 until pieData.rows).reverse) {
       var start: Double = 90
-      for (j <- 0 until testTable.columns) {
-        if (testTable(i)(j) > 0) {
+      for (j <- 0 until pieData.columns) {
+        if (pieData(i)(j) > 0) {
           val arc = Arc2D.Double(p.getWidth/2 - radii(i), p.getHeight/2 - radii(i), radii(i)*2, radii(i)*2, start, -360*fractions(i)(j), Arc2D.PIE)
-          g.setColor(testTable.columnLabels(j).color)
+          g.setColor(pieData.columnLabels(j).color)
           g.fill(arc)
           g.setColor(Color.BLACK)
           g.draw(arc)
@@ -962,32 +954,36 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       }
     }
 
-    val width = (testTable.columnLabels.map(_.string) ++ (if (testTable.rows > 1) testTable.rowLabels else Seq.empty)).map(g.getFont.createGlyphVector(g.getFontRenderContext, _).getOutline.getBounds2D.getWidth).max
+    val width = if (pieData.isEmpty) {
+      0
+    } else {
+      (pieData.columnLabels.map(_.string) ++ (if (pieData.rows > 1) pieData.rowLabels else Seq.empty)).map(g.getFont.createGlyphVector(g.getFontRenderContext, _).getOutline.getBounds2D.getWidth).max
+    }
     val height = g.getFontMetrics.getHeight
     val textHeight = g.getFontMetrics.getAscent - g.getFontMetrics.getDescent
     val thickness = p.getBorder.getBorderInsets(p).right
     val textInsets = Insets(0, 5, 0, thickness + 5)
     val x = p.getWidth - width - textHeight - textInsets.left - textInsets.right
-    val lly = height*(testTable.columns + (if (testTable.rows > 1) testTable.rows else 0))
+    val lly = height*(pieData.columns + (if (pieData.rows > 1) pieData.rows else 0))
     val dx = x - p.getWidth/2
     val dy = lly - p.getHeight/2
     if (math.sqrt(dx*dx + dy*dy) > radius) {
-      for (i <- 0 until testTable.columns) {
+      for (i <- 0 until pieData.columns) {
         val y = (i + 1)*height
         val rectangle = Rectangle2D.Double(x, y - textHeight, textHeight, textHeight)
-        g.setColor(testTable.columnLabels(i).color)
+        g.setColor(pieData.columnLabels(i).color)
         g.fill(rectangle)
         g.setColor(Color.BLACK)
         g.draw(rectangle)
-        g.drawString(testTable.columnLabels(i).string, (x + textHeight + textInsets.left).toInt, y)
+        g.drawString(pieData.columnLabels(i).string, (x + textHeight + textInsets.left).toInt, y)
       }
-      if (testTable.rows > 1) {
-        val diameters = (1 to testTable.rows).map(_*textHeight/testTable.rows.toDouble)
-        for (i <- 0 until testTable.rows) {
-          val y = (i + testTable.columns + 1)*height
+      if (pieData.rows > 1) {
+        val diameters = (1 to pieData.rows).map(_*textHeight/pieData.rows.toDouble)
+        for (i <- 0 until pieData.rows) {
+          val y = (i + pieData.columns + 1)*height
           g.setColor(Color.BLACK)
-          g.drawString(testTable.rowLabels(i), (x + textHeight + textInsets.left).toInt, y)
-          for (ii <- (0 until testTable.rows).reverse) {
+          g.drawString(pieData.rowLabels(i), (x + textHeight + textInsets.left).toInt, y)
+          for (ii <- (0 until pieData.rows).reverse) {
             val circle = Ellipse2D.Double(x + (textHeight - diameters(ii))/2, y - textHeight/2 - diameters(ii)/2, diameters(ii), diameters(ii))
             g.setColor(if (ii == i) Color.BLACK else p.getBackground)
             g.fill(circle)
@@ -1813,11 +1809,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   /** Update the card statistics to reflect the cards in the deck. */
   @throws[IllegalStateException]("if there are cards but no upper bound on mana values")
   def updateStats() = {
+    // Update summary at the bottom of the frame
     val lands = deck.current.collect{ case e if SettingsDialog.settings.editor.isLand(e.card) => e.count }.sum
     countLabel.setText(s"Total cards: ${deck.current.total}")
     landLabel.setText(s"Lands: $lands")
     nonlandLabel.setText(s"Nonlands: ${(deck.current.total - lands)}")
 
+    // Update the mana analysis bar graph
     val manaValue = deck.current
         .filterNot(_.card.types.exists(_.equalsIgnoreCase("land")))
         .flatMap((e) => Seq.tabulate(e.count)(_ => SettingsDialog.settings.editor.getManaValue(e.card)))
@@ -1929,6 +1927,19 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         }
       }
     }
+
+    // Update the card analysis pie chart
+    val initialPie = DataTable(ListMap("ManaCosts" -> ManaType.values.map(_ match {
+      case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty)).map(_.count).sum
+      case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum
+    }).toIndexedSeq), ManaType.values.map((t) => ColoredString(t.toString)).toIndexedSeq)
+    val transposedPie = initialPie.transpose
+    val filteredPie = transposedPie.filter(_.exists(_ > 0))
+    val restoredPie = filteredPie.transpose
+    pieData = restoredPie
+    val totals = pieData.map(_.sum)
+    fractions = (pieData zip totals).map{ case (row, sum) => row.map(_.toDouble/sum) }
+    ratios = IndexedSeq.tabulate(pieData.rows)((i) => math.sqrt((i + 1).toDouble/pieData.rows))
   }
 
   /**
