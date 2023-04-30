@@ -1929,14 +1929,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     }
 
     // Update the card analysis pie chart
-    val initialPie = DataTable(ListMap("ManaCosts" -> ManaType.values.map(_ match {
+    val pieData = DataTable(ListMap("ManaCosts" -> ManaType.values.map(_ match {
       case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty)).map(_.count).sum
       case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum
-    }).toIndexedSeq), ManaType.values.map((t) => ColoredString(t.toString)).toIndexedSeq)
-    val transposedPie = initialPie.transpose
-    val filteredPie = transposedPie.filter(_.exists(_ > 0))
-    val restoredPie = filteredPie.transpose
-    pieData = restoredPie
+    }).toIndexedSeq), ManaType.values.map((t) => ColoredString(t.toString)).toIndexedSeq).transpose.filter(_.exists(_ > 0)).transpose
     val totals = pieData.map(_.sum)
     fractions = (pieData zip totals).map{ case (row, sum) => row.map(_.toDouble/sum) }
     ratios = IndexedSeq.tabulate(pieData.rows)((i) => math.sqrt((i + 1).toDouble/pieData.rows))
