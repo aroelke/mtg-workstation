@@ -1,6 +1,45 @@
 package editor.analysis
 
 import scala.annotation.targetName
+import scala.collection.immutable.ListMap
+
+/**
+ * Helper object for creating [[DataTable]]s.
+ * @author Alec Roelke
+ */
+object DataTable {
+  /**
+   * Convenience constructor for creating a [[DataTable]].
+   * 
+   * @param data data in the table
+   * @param rowLabels table row labels
+   * @param columnLabels table column labels
+   * @tparam E type of data in the table
+   * @tparam R type of data for labeling rows
+   * @tparam C type of data for labeling columns
+   * @return a new [[DataTable]] with the given data, row labels, and column labels
+   */
+  def apply[E, R, C](data: IndexedSeq[IndexedSeq[E]], rowLabels: IndexedSeq[R], columnLabels: IndexedSeq[C]): DataTable[E, R, C] = new DataTable(data, rowLabels, columnLabels)
+
+  /**
+   * Create a [[DataTable]] using a more user-friendly mapping of row labels onto data rows.
+   * 
+   * @param labeled mapping of row labels onto data rows
+   * @param columnLabels table column labels
+   * @tparam E type of data in the table
+   * @tparam R type of data for labeling rows
+   * @tparam C type of data for labeling columns
+   * @return a new [[DataTable]] with the given data, using the map keys as row labels, and the given column labels
+   */
+  def apply[E, R, C](labeled: ListMap[R, IndexedSeq[E]], columnLabels: IndexedSeq[C]): DataTable[E, R, C] = DataTable(
+    labeled.map{ case (_, row) => row }.toIndexedSeq,
+    labeled.map{ case (label, _) => label }.toIndexedSeq,
+    columnLabels
+  )
+
+  /** @return an empty [[DataTable]] with the given data and label types. */
+  def empty[E, R, C] = DataTable(IndexedSeq.empty[IndexedSeq[E]], IndexedSeq.empty[R], IndexedSeq.empty[C])
+}
 
 /**
  * Two-dimensional array of data with row and column labels.
@@ -14,9 +53,9 @@ import scala.annotation.targetName
  * @tparam R type of data in the row header
  * @tparam C type of data in the column header
  * 
- * @note an instance of this class only operates on rows; to operate on columns, it can be transposed
+ * @note an instance of this class only does dimension operations on rows; to operate on columns, transpose it first
  */
-case class DataTable[E, R, C](data: IndexedSeq[IndexedSeq[E]], rowLabels: IndexedSeq[R], columnLabels: IndexedSeq[C]) extends IndexedSeq[IndexedSeq[E]] {
+class DataTable[E, R, C](data: IndexedSeq[IndexedSeq[E]], val rowLabels: IndexedSeq[R], val columnLabels: IndexedSeq[C]) extends IndexedSeq[IndexedSeq[E]] {
   require(data.size == rowLabels.size)
   data.foreach((c) => require(c.size == columnLabels.size))
 
@@ -64,6 +103,11 @@ case class DataTable[E, R, C](data: IndexedSeq[IndexedSeq[E]], rowLabels: Indexe
    * @return the element in the row and column corresponding to the labels
    */
   def apply(row: R)(col: C) = data(rowIndices(row))(colIndices(col))
+
+  override def filter(pred: (IndexedSeq[E]) => Boolean): DataTable[E, R, C] = {
+    val allowed = data.zipWithIndex.collect{ case (d, i) if pred(d) => i }
+    if (allowed.isEmpty) DataTable.empty else DataTable(allowed.map(data), allowed.map(rowLabels), columnLabels)
+  }
 
   /**
    * Create a new table whose data is the result of an operation on this table's data.
