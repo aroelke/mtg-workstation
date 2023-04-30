@@ -127,6 +127,7 @@ import scala.util.Using
 
 import collection.JavaConverters._
 import java.awt.geom.Ellipse2D
+import java.awt.Insets
 
 object EditorFrame {
   val MainDeck = 0
@@ -961,31 +962,33 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       }
     }
 
-    val width = (testTable.columnLabels.map(_.string) ++ (if (testTable.rows > 1) testTable.rowLabels else Seq.empty)).map(g.getFontMetrics.stringWidth).max
+    val width = (testTable.columnLabels.map(_.string) ++ (if (testTable.rows > 1) testTable.rowLabels else Seq.empty)).map(g.getFont.createGlyphVector(g.getFontRenderContext, _).getOutline.getBounds2D.getWidth).max
     val height = g.getFontMetrics.getHeight
     val textHeight = g.getFontMetrics.getAscent - g.getFontMetrics.getDescent
-    val llx = p.getWidth - width - textHeight - 5
-    val lly = testTable.columns*(height + (if (testTable.rows > 1) testTable.rows else 0))
-    val dx = llx - p.getWidth/2
+    val thickness = p.getBorder.getBorderInsets(p).right
+    val textInsets = Insets(0, 5, 0, thickness + 5)
+    val x = p.getWidth - width - textHeight - textInsets.left - textInsets.right
+    val lly = height*(testTable.columns + (if (testTable.rows > 1) testTable.rows else 0))
+    val dx = x - p.getWidth/2
     val dy = lly - p.getHeight/2
     if (math.sqrt(dx*dx + dy*dy) > radius) {
       for (i <- 0 until testTable.columns) {
-        val y = i*height
-        val rectangle = Rectangle2D.Double(p.getWidth - width - textHeight - 5, y - textHeight, textHeight, textHeight)
+        val y = (i + 1)*height
+        val rectangle = Rectangle2D.Double(x, y - textHeight, textHeight, textHeight)
         g.setColor(testTable.columnLabels(i).color)
         g.fill(rectangle)
         g.setColor(Color.BLACK)
         g.draw(rectangle)
-        g.drawString(testTable.columnLabels(i).string, (p.getWidth - width).toInt, y)
+        g.drawString(testTable.columnLabels(i).string, (x + textHeight + textInsets.left).toInt, y)
       }
       if (testTable.rows > 1) {
         val diameters = (1 to testTable.rows).map(_*textHeight/testTable.rows.toDouble)
         for (i <- 0 until testTable.rows) {
-          val y = (i + testTable.columns)*height
+          val y = (i + testTable.columns + 1)*height
           g.setColor(Color.BLACK)
-          g.drawString(testTable.rowLabels(i), (p.getWidth - width).toInt, y)
+          g.drawString(testTable.rowLabels(i), (x + textHeight + textInsets.left).toInt, y)
           for (ii <- (0 until testTable.rows).reverse) {
-            val circle = Ellipse2D.Double(p.getWidth - width - textHeight/2 - diameters(ii)/2 - 5, y - textHeight/2 - diameters(ii)/2, diameters(ii), diameters(ii))
+            val circle = Ellipse2D.Double(x + (textHeight - diameters(ii))/2, y - textHeight/2 - diameters(ii)/2, diameters(ii), diameters(ii))
             g.setColor(if (ii == i) Color.BLACK else p.getBackground)
             g.fill(circle)
           }
