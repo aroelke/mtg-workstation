@@ -379,9 +379,9 @@ object CardAttribute {
   }
 
   /** Type(s) of mana a card might be able to produce */
-  case object ProducesMana extends CardAttribute[Set[ManaType], Nothing]("Produces Mana", "Types of mana a card can produce")
-      with CantBeFiltered
-      with ComparesColors {
+  case object ProducesMana extends CardAttribute[Set[ManaType], ColorFilter]("Produces Mana", "Types of mana a card can produce")
+      with ComparesColors
+      with HasColorFilter(_.produces) {
     override def apply(e: CardListEntry) = e.card.produces
   }
 

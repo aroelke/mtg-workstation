@@ -37,6 +37,7 @@ import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.table.TableCellEditor
+import scala.collection.immutable.ListSet
 import scala.reflect.ClassTag
 
 /**
@@ -120,8 +121,8 @@ sealed trait NumberElement { this: ElementAttribute[?, NumberFilter] =>
  * An [[ElementAttribute]] that creates [[ColorFilter]]s and renders [[ManaType]] sets as a row of mana type icons.
  * @author Alec Roelke
  */
-sealed trait ColorElement { this: ElementAttribute[Set[ManaType], ColorFilter] =>
-  override def filter(selector: FilterSelectorPanel) = ColorFilterPanel(attribute.filter, selector)
+sealed trait ColorElement(available: Seq[ManaType]) { this: ElementAttribute[Set[ManaType], ColorFilter] =>
+  override def filter(selector: FilterSelectorPanel) = ColorFilterPanel(attribute.filter, available, selector)
   override def render(value: Set[ManaType]) = {
     val panel = JPanel()
     panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))
@@ -303,12 +304,12 @@ object ElementAttribute {
   }
 
   /** Element filtering by and rendering card colors across all faces. */
-  case object ColorsElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement with CantBeEdited {
+  case object ColorsElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement(ManaType.colors) with CantBeEdited {
     override def attribute = CardAttribute.Colors
   }
 
   /** Element for filtering by and rendering color identity. */
-  case object ColorIdentityElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement with CantBeEdited {
+  case object ColorIdentityElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement(ManaType.colors) with CantBeEdited {
     override def attribute = CardAttribute.ColorIdentity
   }
 
@@ -428,18 +429,8 @@ object ElementAttribute {
   }
 
   /** Element for filtering by and rendering potential mana type production. */
-  case object ProducesManaElement extends ElementAttribute[Set[ManaType], Nothing] with CantBeEdited {
+  case object ProducesManaElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement(ManaType.values) with CantBeEdited {
     override def attribute = CardAttribute.ProducesMana
-    override def filter(selector: FilterSelectorPanel) = throw UnsupportedOperationException("can't filter by mana production")
-    override def render(value: Set[ManaType]) = {
-      val panel = JPanel()
-      panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))
-      ManaType.sorted(value).foreach((t) => panel.add(JLabel(ColorSymbol(t).scaled(ComponentUtils.TextSize))))
-      panel
-    }
-    override def tooltip(value: Set[ManaType]) = ManaType.sorted(value).map((t) => {
-      s"""<img src="${getClass.getResource(s"/images/symbols/${ColorSymbol(t).name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
-    }).mkString
   }
 
   /** Element for filtering by and rendering user-defined tags. Tags are sorted alphabetically for rendering. */
