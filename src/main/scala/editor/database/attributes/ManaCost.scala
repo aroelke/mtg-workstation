@@ -5,10 +5,20 @@ import editor.database.symbol.ManaSymbol
 import scala.util.matching._
 
 object ManaCost {
-  val Pattern = raw"\{([cwubrgCWUBRG\/phPH\dsSxXyYzZ]+)\}".r
+  private val pattern = raw"\{([cwubrgCWUBRG\/phPH\dsSxXyYzZ]+)\}".r
 
+  /** Regular expression that can be used to extract a mana cost from a string, along with [[parse]]. */
+  val Pattern = raw"(?:${pattern.regex})+".r
+
+  /**
+   * Parse a string for a mana cost.  The string should consist of one or more string representations of [[ManaSymbol]]s, each of which
+   * is surrounded by braces, with no spacing in between.
+   * 
+   * @param s string to parse
+   * @return The [[ManaCost]] parsed from the string, or None if it couldn't be parsed
+   */
   def parse(s: String) = {
-    val symbols = Pattern.findAllMatchIn(s).map(_.group(1)).flatMap(ManaSymbol.parse).toIndexedSeq
+    val symbols = pattern.findAllMatchIn(s).map(_.group(1)).flatMap(ManaSymbol.parse).toIndexedSeq
     val remainder = symbols.foldLeft(s.toUpperCase)((r, t) => r.replaceFirst(Regex.quote(t.toString.toUpperCase), ""))
     Option.when(remainder.isEmpty)(ManaCost(symbols))
   }
