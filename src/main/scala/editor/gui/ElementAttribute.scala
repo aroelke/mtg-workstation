@@ -427,6 +427,21 @@ object ElementAttribute {
     override def filter(selector: FilterSelectorPanel) = LegalityFilterPanel(attribute.filter, selector)
   }
 
+  /** Element for filtering by and rendering potential mana type production. */
+  case object ProducesManaElement extends ElementAttribute[Set[ManaType], Nothing] with CantBeEdited {
+    override def attribute = CardAttribute.ProducesMana
+    override def filter(selector: FilterSelectorPanel) = throw UnsupportedOperationException("can't filter by mana production")
+    override def render(value: Set[ManaType]) = {
+      val panel = JPanel()
+      panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))
+      ManaType.sorted(value).foreach((t) => panel.add(JLabel(ColorSymbol(t).scaled(ComponentUtils.TextSize))))
+      panel
+    }
+    override def tooltip(value: Set[ManaType]) = ManaType.sorted(value).map((t) => {
+      s"""<img src="${getClass.getResource(s"/images/symbols/${ColorSymbol(t).name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
+    }).mkString
+  }
+
   /** Element for filtering by and rendering user-defined tags. Tags are sorted alphabetically for rendering. */
   case object TagsElement extends ElementAttribute[Set[String], MultiOptionsFilter[String]]
       with MultiOptionsElement[String, MultiOptionsFilter[String]]
@@ -485,7 +500,7 @@ object ElementAttribute {
   }
 
   /** Array of GUI element attributes. */
-  val values: IndexedSeq[ElementAttribute[?, ?]] = IndexedSeq(NameElement, RuleTextElement, PrintedTextElement, ManaCostElement, RealManaValueElement, EffManaValueElement, ColorsElement, ColorIdentityElement, DevotionElement, TypeLineElement, PrintedTypesElement, CardTypeElement, SubtypeElement, SupertypeElement, PowerElement, ToughnessElement, LoyaltyElement, LayoutElement, ExpansionElement, BlockElement, RarityElement, ArtistElement, CardNumberElement, LegalInElement, TagsElement, AnyCardElement, NoCardElement, CategoriesElement, CountElement, DateAddedElement)
+  val values: IndexedSeq[ElementAttribute[?, ?]] = IndexedSeq(NameElement, RuleTextElement, PrintedTextElement, ManaCostElement, RealManaValueElement, EffManaValueElement, ColorsElement, ColorIdentityElement, DevotionElement, TypeLineElement, PrintedTypesElement, CardTypeElement, SubtypeElement, SupertypeElement, PowerElement, ToughnessElement, LoyaltyElement, LayoutElement, ExpansionElement, BlockElement, RarityElement, ArtistElement, CardNumberElement, LegalInElement, ProducesManaElement, TagsElement, AnyCardElement, NoCardElement, CategoriesElement, CountElement, DateAddedElement)
 
   /** Array of GUI element attributes that can create filters. */
   val filterableValues = values.filter(!_.attribute.isInstanceOf[CantBeFiltered])

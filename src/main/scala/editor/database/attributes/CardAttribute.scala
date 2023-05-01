@@ -378,6 +378,13 @@ object CardAttribute {
     override def filter = LegalityFilter()
   }
 
+  /** Type(s) of mana a card might be able to produce */
+  case object ProducesMana extends CardAttribute[Set[ManaType], Nothing]("Produces Mana", "Types of mana a card can produce")
+      with CantBeFiltered
+      with ComparesColors {
+    override def apply(e: CardListEntry) = e.card.produces
+  }
+
   /** User-assigned tags. */
   case object Tags extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Tags", "Tags you have created and assigned")
       with ComparesCollator[Set[String]](_.toSeq.sorted.mkString)
@@ -461,7 +468,7 @@ object CardAttribute {
       with CantCompare[Unit]
 
   /** Array of all card attributes. */
-  val values: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(Name, RulesText, FlavorText, PrintedText, ManaCost, RealManaValue, EffManaValue, Colors, ColorIdentity, Devotion, TypeLine, PrintedTypes, CardType, Subtype, Supertype, Power, Toughness, Loyalty, Layout, Expansion, Block, Rarity, Artist, CardNumber, LegalIn, Tags, Categories, Count, DateAdded, AnyCard, NoCard, Group)
+  val values: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(Name, RulesText, FlavorText, PrintedText, ManaCost, RealManaValue, EffManaValue, Colors, ColorIdentity, Devotion, TypeLine, PrintedTypes, CardType, Subtype, Supertype, Power, Toughness, Loyalty, Layout, Expansion, Block, Rarity, Artist, CardNumber, LegalIn, ProducesMana, Tags, Categories, Count, DateAdded, AnyCard, NoCard, Group)
 
   /** Array of all card attributes that can be displayed in a GUI. */
   lazy val displayableValues = values.filter(!_.isInstanceOf[CantCompare[?]])
