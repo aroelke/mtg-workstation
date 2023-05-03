@@ -394,6 +394,9 @@ object CardAttribute {
       with ComparesColors
       with HasColorFilter(_.produces) {
     override def apply(e: CardListEntry) = e.card.produces
+
+    /** Set of filters that filter cards by each mana type, for convenience. */
+    lazy val ofType = ManaType.values.map((t) => t -> filter.copy(colors = Set(t))).toMap
   }
 
   /** User-assigned tags. */

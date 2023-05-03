@@ -128,6 +128,7 @@ import scala.util.Using
 import collection.JavaConverters._
 import java.awt.geom.Ellipse2D
 import java.awt.Insets
+import editor.database.attributes.CardAttribute
 
 object EditorFrame {
   val MainDeck = 0
@@ -1929,10 +1930,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     }
 
     // Update the card analysis pie chart
-    val pieData = DataTable(ListMap("ManaCosts" -> ManaType.values.map(_ match {
-      case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty)).map(_.count).sum
-      case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum
-    }).toIndexedSeq), ManaType.values.map((t) => ColoredString(t.toString)).toIndexedSeq).transpose.filter(_.exists(_ > 0)).transpose
+    pieData = DataTable(ListMap(
+      "Mana Costs" -> ManaType.values.map(_ match {
+        case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty)).map(_.count).sum
+        case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum
+      }).toIndexedSeq,
+      "Produces" -> ManaType.values.map((t) => deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum).toIndexedSeq
+    ), ManaType.values.map((t) => ColoredString(t.toString)).toIndexedSeq).filter(_.exists(_ > 0)).transpose.filter(_.exists(_ > 0)).transpose
     val totals = pieData.map(_.sum)
     fractions = (pieData zip totals).map{ case (row, sum) => row.map(_.toDouble/sum) }
     ratios = IndexedSeq.tabulate(pieData.rows)((i) => math.sqrt((i + 1).toDouble/pieData.rows))
