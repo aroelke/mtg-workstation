@@ -14,6 +14,8 @@ import editor.util.Comparison
 import editor.util.Containment
 import org.json4s._
 import org.json4s.native._
+import editor.database.attributes.HasTextFilter
+import editor.database.attributes.HasNumberFilter
 
 /**
  * JSON serializer/deserializer for [[Filter]]s using their methods for converting to/from JSON objects.
@@ -25,9 +27,7 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
     val selected = (v \ "selected").extract[Option[Set[String]]]
     val contain = (v \ "contains").extract[Option[String]].flatMap(Containment.parse)
     (v \ "type").extract[CardAttribute[?, ?]] match {
-      case CardAttribute.Name => CardAttribute.Name.filter.copy(faces = faces)
-      case CardAttribute.RulesText => CardAttribute.RulesText.filter.copy(faces = faces)
-      case CardAttribute.FlavorText => CardAttribute.FlavorText.filter.copy(faces = faces)
+      case text: HasTextFilter => text.filter.copy(faces = faces)
       case CardAttribute.ManaCost => CardAttribute.ManaCost.filter.copy(faces = faces)
       case CardAttribute.RealManaValue => CardAttribute.RealManaValue.filter
       case CardAttribute.EffManaValue => CardAttribute.EffManaValue.filter.copy(faces = faces)
@@ -38,7 +38,6 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
         case x => throw MatchError(x)
       }, operation = Comparison.valueOf((v \ "operation").extract[String].apply(0)), operand = (v \ "operand").extract[Int])
       case CardAttribute.TypeLine => CardAttribute.TypeLine.filter.copy(faces = faces)
-      case CardAttribute.PrintedTypes => CardAttribute.PrintedTypes.filter.copy(faces = faces)
       case CardAttribute.CardType => CardAttribute.CardType.filter.copy(selected = selected.get)
       case CardAttribute.Subtype => CardAttribute.Subtype.filter.copy(selected = selected.get)
       case CardAttribute.Supertype => CardAttribute.Supertype.filter.copy(selected = selected.get)
@@ -49,7 +48,6 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
       case CardAttribute.Expansion => CardAttribute.Expansion.filter.copy(selected = selected.get.map((v) => Expansion.expansions.find(_.name == v).getOrElse(throw MatchError(v))).toSet)
       case CardAttribute.Block => CardAttribute.Block.filter.copy(selected = selected.get)
       case CardAttribute.Rarity => CardAttribute.Rarity.filter.copy(selected = selected.get.map((v) => Rarity.parse(v).getOrElse(Rarity.Unknown)))
-      case CardAttribute.Artist => CardAttribute.Artist.filter.copy(faces = faces)
       case CardAttribute.CardNumber => CardAttribute.CardNumber.filter.copy(faces = faces)
       case CardAttribute.LegalIn => CardAttribute.LegalIn.filter.copy(selected = selected.get, restricted = (v \ "restricted").extract[Boolean])
       case CardAttribute.ProducesMana => CardAttribute.ProducesMana.filter
