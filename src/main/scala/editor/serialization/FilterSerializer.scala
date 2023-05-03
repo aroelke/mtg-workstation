@@ -16,6 +16,7 @@ import org.json4s._
 import org.json4s.native._
 import editor.database.attributes.HasTextFilter
 import editor.database.attributes.HasNumberFilter
+import editor.database.attributes.HasColorFilter
 
 /**
  * JSON serializer/deserializer for [[Filter]]s using their methods for converting to/from JSON objects.
@@ -29,9 +30,8 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
     (v \ "type").extract[CardAttribute[?, ?]] match {
       case text: HasTextFilter => text.filter.copy(faces = faces)
       case number: HasNumberFilter => number.filter.copy(faces = faces)
+      case color: HasColorFilter => color.filter
       case CardAttribute.ManaCost => CardAttribute.ManaCost.filter.copy(faces = faces)
-      case CardAttribute.Colors => CardAttribute.Colors.filter
-      case CardAttribute.ColorIdentity => CardAttribute.ColorIdentity.filter
       case CardAttribute.Devotion => CardAttribute.Devotion.filter.copy(faces = faces, types = (v \ "colors") match {
         case JArray(colors) => colors.map((s) => ManaType.parse(s.extract[String]).get).toSet
         case x => throw MatchError(x)
@@ -45,7 +45,6 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
       case CardAttribute.Block => CardAttribute.Block.filter.copy(selected = selected.get)
       case CardAttribute.Rarity => CardAttribute.Rarity.filter.copy(selected = selected.get.map((v) => Rarity.parse(v).getOrElse(Rarity.Unknown)))
       case CardAttribute.LegalIn => CardAttribute.LegalIn.filter.copy(selected = selected.get, restricted = (v \ "restricted").extract[Boolean])
-      case CardAttribute.ProducesMana => CardAttribute.ProducesMana.filter
       case CardAttribute.Tags => CardAttribute.Tags.filter.copy(selected = selected.get)
       case CardAttribute.AnyCard => CardAttribute.AnyCard.filter
       case CardAttribute.NoCard => CardAttribute.NoCard.filter
