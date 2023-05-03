@@ -52,6 +52,7 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
       case CardAttribute.Artist => CardAttribute.Artist.filter.copy(faces = faces)
       case CardAttribute.CardNumber => CardAttribute.CardNumber.filter.copy(faces = faces)
       case CardAttribute.LegalIn => CardAttribute.LegalIn.filter.copy(selected = selected.get, restricted = (v \ "restricted").extract[Boolean])
+      case CardAttribute.ProducesMana => CardAttribute.ProducesMana.filter
       case CardAttribute.Tags => CardAttribute.Tags.filter.copy(selected = selected.get)
       case CardAttribute.AnyCard => CardAttribute.AnyCard.filter
       case CardAttribute.NoCard => CardAttribute.NoCard.filter
