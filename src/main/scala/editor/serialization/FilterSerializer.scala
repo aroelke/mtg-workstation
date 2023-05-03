@@ -28,9 +28,8 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
     val contain = (v \ "contains").extract[Option[String]].flatMap(Containment.parse)
     (v \ "type").extract[CardAttribute[?, ?]] match {
       case text: HasTextFilter => text.filter.copy(faces = faces)
+      case number: HasNumberFilter => number.filter.copy(faces = faces)
       case CardAttribute.ManaCost => CardAttribute.ManaCost.filter.copy(faces = faces)
-      case CardAttribute.RealManaValue => CardAttribute.RealManaValue.filter
-      case CardAttribute.EffManaValue => CardAttribute.EffManaValue.filter.copy(faces = faces)
       case CardAttribute.Colors => CardAttribute.Colors.filter
       case CardAttribute.ColorIdentity => CardAttribute.ColorIdentity.filter
       case CardAttribute.Devotion => CardAttribute.Devotion.filter.copy(faces = faces, types = (v \ "colors") match {
@@ -41,14 +40,10 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
       case CardAttribute.CardType => CardAttribute.CardType.filter.copy(selected = selected.get)
       case CardAttribute.Subtype => CardAttribute.Subtype.filter.copy(selected = selected.get)
       case CardAttribute.Supertype => CardAttribute.Supertype.filter.copy(selected = selected.get)
-      case CardAttribute.Power => CardAttribute.Power.filter.copy(faces = faces)
-      case CardAttribute.Toughness => CardAttribute.Toughness.filter.copy(faces = faces)
-      case CardAttribute.Loyalty => CardAttribute.Loyalty.filter.copy(faces = faces)
       case CardAttribute.Layout => CardAttribute.Layout.filter.copy(selected = selected.get.map((v) => CardLayout.valueOf(v.replace(' ', '_').toUpperCase)))
       case CardAttribute.Expansion => CardAttribute.Expansion.filter.copy(selected = selected.get.map((v) => Expansion.expansions.find(_.name == v).getOrElse(throw MatchError(v))).toSet)
       case CardAttribute.Block => CardAttribute.Block.filter.copy(selected = selected.get)
       case CardAttribute.Rarity => CardAttribute.Rarity.filter.copy(selected = selected.get.map((v) => Rarity.parse(v).getOrElse(Rarity.Unknown)))
-      case CardAttribute.CardNumber => CardAttribute.CardNumber.filter.copy(faces = faces)
       case CardAttribute.LegalIn => CardAttribute.LegalIn.filter.copy(selected = selected.get, restricted = (v \ "restricted").extract[Boolean])
       case CardAttribute.ProducesMana => CardAttribute.ProducesMana.filter
       case CardAttribute.Tags => CardAttribute.Tags.filter.copy(selected = selected.get)
