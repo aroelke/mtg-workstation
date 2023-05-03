@@ -30,17 +30,28 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
     val selected = (v \ "selected").extract[Option[Set[String]]]
     val contain = (v \ "contains").extract[Option[String]].flatMap(Containment.parse)
     (v \ "type").extract[CardAttribute[?, ?]] match {
-      case text: HasTextFilter => text.filter.copy(faces = faces)
-      case number: HasNumberFilter => number.filter.copy(faces = faces)
-      case color: HasColorFilter => color.filter
-      case single: HasSingletonOptionsFilter[_] => single.filter.copy(selected = selected.map(_.flatMap(single.parse)).get)
-      case multi: HasMultiOptionsFilter[_] => multi.filter.copy(selected = selected.map(_.flatMap(multi.parse)).get)
-      case CardAttribute.ManaCost => CardAttribute.ManaCost.filter.copy(faces = faces)
+      case text: HasTextFilter => text.filter.copy(faces = faces, contain = contain.get, regex = (v \ "regex").extract[Boolean], text = (v \ "pattern").extract[String])
+      case number: HasNumberFilter =>
+        val filter = number.filter
+        filter.copy(
+          faces = faces,
+          operation = Comparison.valueOf((v \ "operation").extract[String].apply(0)), operand = (v \ "operand").extract[Double],
+          varies = filter.variable.isDefined && (v \ "varies").extract[Boolean]
+        )
+      case color: HasColorFilter =>
+        val colors = (v \ "colors") match {
+          case JArray(colors) => colors.map((s) => ManaType.parse(s.extract[String]).get).toSet
+          case x => throw MatchError(x)
+        }
+        color.filter.copy(contain = contain.get, colors = colors, multicolored = (v \ "multicolored").extract[Boolean])
+      case single: HasSingletonOptionsFilter[_] => single.filter.copy(selected = selected.map(_.flatMap(single.parse)).get, contain = contain.get)
+      case multi: HasMultiOptionsFilter[_] => multi.filter.copy(selected = selected.map(_.flatMap(multi.parse)).get, contain = contain.get)
+      case CardAttribute.ManaCost => CardAttribute.ManaCost.filter.copy(faces = faces, contain = contain.get, cost = ManaCost.parse((v \ "cost").extract[String]).get)
       case CardAttribute.Devotion => CardAttribute.Devotion.filter.copy(faces = faces, types = (v \ "colors") match {
         case JArray(colors) => colors.map((s) => ManaType.parse(s.extract[String]).get).toSet
         case x => throw MatchError(x)
       }, operation = Comparison.valueOf((v \ "operation").extract[String].apply(0)), operand = (v \ "operand").extract[Int])
-      case CardAttribute.TypeLine => CardAttribute.TypeLine.filter.copy(faces = faces)
+      case CardAttribute.TypeLine => CardAttribute.TypeLine.filter.copy(faces = faces, contain = contain.get, line = (v \ "pattern").extract[String])
       case CardAttribute.LegalIn => CardAttribute.LegalIn.filter.copy(selected = selected.get, restricted = (v \ "restricted").extract[Boolean])
       case CardAttribute.AnyCard => CardAttribute.AnyCard.filter
       case CardAttribute.NoCard => CardAttribute.NoCard.filter
@@ -50,20 +61,6 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
         (v \ "comment").extract[Option[String]].getOrElse("")
       )
       case x => throw IllegalArgumentException(s"$x is not a filterable attribute")
-    } match {
-      case t: TextFilter => t.copy(contain = contain.get, regex = (v \ "regex").extract[Boolean], text = (v \ "pattern").extract[String])
-      case t: TypeLineFilter => t.copy(contain = contain.get, line = (v \ "pattern").extract[String])
-      case m: ManaCostFilter => m.copy(contain = contain.get, cost = ManaCost.parse((v \ "cost").extract[String]).get)
-      case c: ColorFilter =>
-        val colors = (v \ "colors") match {
-          case JArray(colors) => colors.map((s) => ManaType.parse(s.extract[String]).get).toSet
-          case x => throw MatchError(x)
-        }
-        c.copy(contain = contain.get, colors = colors, multicolored = (v \ "multicolored").extract[Boolean])
-      case n: NumberFilter => n.copy(operation = Comparison.valueOf((v \ "operation").extract[String].apply(0)), operand = (v \ "operand").extract[Double], varies = n.variable.isDefined && (v \ "varies").extract[Boolean])
-      case s: SingletonOptionsFilter[?] => s.copy(contain = contain.get)
-      case m: MultiOptionsFilter[?] => m.copy(contain = contain.get)
-      case f => f
     }},
   { case filter: Filter => JObject(List(JField("type", JString(filter.attribute.toString))) ++ (filter match {
     case l: FilterLeaf => List(JField("faces", JString(l.faces.toString)))
