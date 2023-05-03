@@ -18,6 +18,7 @@ import editor.database.attributes.HasTextFilter
 import editor.database.attributes.HasNumberFilter
 import editor.database.attributes.HasColorFilter
 import editor.database.attributes.HasSingletonOptionsFilter
+import editor.database.attributes.HasMultiOptionsFilter
 
 /**
  * JSON serializer/deserializer for [[Filter]]s using their methods for converting to/from JSON objects.
@@ -33,17 +34,14 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
       case number: HasNumberFilter => number.filter.copy(faces = faces)
       case color: HasColorFilter => color.filter
       case single: HasSingletonOptionsFilter[_] => single.filter.copy(selected = selected.map(_.flatMap(single.parse)).get)
+      case multi: HasMultiOptionsFilter[_] => multi.filter.copy(selected = selected.map(_.flatMap(multi.parse)).get)
       case CardAttribute.ManaCost => CardAttribute.ManaCost.filter.copy(faces = faces)
       case CardAttribute.Devotion => CardAttribute.Devotion.filter.copy(faces = faces, types = (v \ "colors") match {
         case JArray(colors) => colors.map((s) => ManaType.parse(s.extract[String]).get).toSet
         case x => throw MatchError(x)
       }, operation = Comparison.valueOf((v \ "operation").extract[String].apply(0)), operand = (v \ "operand").extract[Int])
       case CardAttribute.TypeLine => CardAttribute.TypeLine.filter.copy(faces = faces)
-      case CardAttribute.CardType => CardAttribute.CardType.filter.copy(selected = selected.get)
-      case CardAttribute.Subtype => CardAttribute.Subtype.filter.copy(selected = selected.get)
-      case CardAttribute.Supertype => CardAttribute.Supertype.filter.copy(selected = selected.get)
       case CardAttribute.LegalIn => CardAttribute.LegalIn.filter.copy(selected = selected.get, restricted = (v \ "restricted").extract[Boolean])
-      case CardAttribute.Tags => CardAttribute.Tags.filter.copy(selected = selected.get)
       case CardAttribute.AnyCard => CardAttribute.AnyCard.filter
       case CardAttribute.NoCard => CardAttribute.NoCard.filter
       case CardAttribute.Group => FilterGroup(
