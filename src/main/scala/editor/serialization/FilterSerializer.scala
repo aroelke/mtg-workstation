@@ -2,6 +2,11 @@ package editor.serialization
 
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.Expansion
+import editor.database.attributes.HasColorFilter
+import editor.database.attributes.HasMultiOptionsFilter
+import editor.database.attributes.HasNumberFilter
+import editor.database.attributes.HasSingletonOptionsFilter
+import editor.database.attributes.HasTextFilter
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
@@ -14,11 +19,6 @@ import editor.util.Comparison
 import editor.util.Containment
 import org.json4s._
 import org.json4s.native._
-import editor.database.attributes.HasTextFilter
-import editor.database.attributes.HasNumberFilter
-import editor.database.attributes.HasColorFilter
-import editor.database.attributes.HasSingletonOptionsFilter
-import editor.database.attributes.HasMultiOptionsFilter
 
 /**
  * JSON serializer/deserializer for [[Filter]]s using their methods for converting to/from JSON objects.
