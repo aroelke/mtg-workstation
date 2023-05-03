@@ -17,6 +17,7 @@ import org.json4s.native._
 import editor.database.attributes.HasTextFilter
 import editor.database.attributes.HasNumberFilter
 import editor.database.attributes.HasColorFilter
+import editor.database.attributes.HasSingletonOptionsFilter
 
 /**
  * JSON serializer/deserializer for [[Filter]]s using their methods for converting to/from JSON objects.
@@ -31,6 +32,7 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
       case text: HasTextFilter => text.filter.copy(faces = faces)
       case number: HasNumberFilter => number.filter.copy(faces = faces)
       case color: HasColorFilter => color.filter
+      case single: HasSingletonOptionsFilter[_] => single.filter.copy(selected = selected.map(_.flatMap(single.parse)).get)
       case CardAttribute.ManaCost => CardAttribute.ManaCost.filter.copy(faces = faces)
       case CardAttribute.Devotion => CardAttribute.Devotion.filter.copy(faces = faces, types = (v \ "colors") match {
         case JArray(colors) => colors.map((s) => ManaType.parse(s.extract[String]).get).toSet
@@ -40,10 +42,6 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
       case CardAttribute.CardType => CardAttribute.CardType.filter.copy(selected = selected.get)
       case CardAttribute.Subtype => CardAttribute.Subtype.filter.copy(selected = selected.get)
       case CardAttribute.Supertype => CardAttribute.Supertype.filter.copy(selected = selected.get)
-      case CardAttribute.Layout => CardAttribute.Layout.filter.copy(selected = selected.get.map((v) => CardLayout.valueOf(v.replace(' ', '_').toUpperCase)))
-      case CardAttribute.Expansion => CardAttribute.Expansion.filter.copy(selected = selected.get.map((v) => Expansion.expansions.find(_.name == v).getOrElse(throw MatchError(v))).toSet)
-      case CardAttribute.Block => CardAttribute.Block.filter.copy(selected = selected.get)
-      case CardAttribute.Rarity => CardAttribute.Rarity.filter.copy(selected = selected.get.map((v) => Rarity.parse(v).getOrElse(Rarity.Unknown)))
       case CardAttribute.LegalIn => CardAttribute.LegalIn.filter.copy(selected = selected.get, restricted = (v \ "restricted").extract[Boolean])
       case CardAttribute.Tags => CardAttribute.Tags.filter.copy(selected = selected.get)
       case CardAttribute.AnyCard => CardAttribute.AnyCard.filter
