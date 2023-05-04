@@ -845,8 +845,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     case Drawn       extends LandAnalysisChoice("Expected Lands Drawn")
     case Probability extends LandAnalysisChoice("Probability of Drawing Lands")
   }
-  import ManaCurveSection._
-  import LandAnalysisChoice._
   private val manaAnalysisPanel = JPanel(BorderLayout())
 
   // Data set and axis creation
@@ -883,7 +881,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   manaAnalysisPanel.add(manaCurvePanel, BorderLayout.CENTER)
 
   // Analysis settings panel (how to divide bar graph and what land analysis to show)
-  private val analysisConfigPanel = JPanel(BorderLayout())
+  private val manaAnalysisConfigPanel = JPanel(BorderLayout())
 
   private val categoryAnalysisPanel = Box(BoxLayout.X_AXIS)
   categoryAnalysisPanel.setBorder(BorderFactory.createTitledBorder("Mana Analysis"))
@@ -906,7 +904,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   analyzeCategoryCombo.addActionListener(_ => if (analyzeCategoryCombo.getItemCount > 0) updateStats())
   categoryAnalysisPanel.add(analyzeCategoryCombo)
   categoryAnalysisPanel.add(Box.createHorizontalGlue)
-  analysisConfigPanel.add(categoryAnalysisPanel, BorderLayout.NORTH)
+  manaAnalysisConfigPanel.add(categoryAnalysisPanel, BorderLayout.NORTH)
 
   private val landAnalysisPanel = Box(BoxLayout.X_AXIS)
   landAnalysisPanel.setBorder(BorderFactory.createTitledBorder("Land Analysis"))
@@ -918,17 +916,31 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   landsBox.addActionListener(_ => updateStats())
   landAnalysisPanel.add(landsBox)
   landAnalysisPanel.add(Box.createHorizontalGlue)
-  analysisConfigPanel.add(landAnalysisPanel, BorderLayout.SOUTH)
+  manaAnalysisConfigPanel.add(landAnalysisPanel, BorderLayout.SOUTH)
 
-  manaAnalysisPanel.add(analysisConfigPanel, BorderLayout.SOUTH)
+  manaAnalysisPanel.add(manaAnalysisConfigPanel, BorderLayout.SOUTH)
 
   listTabs.addTab(ManaAnalysis.title, manaAnalysisPanel)
 
   /* CARD ANALYSIS TAB */
+  private trait RowLabel {
+    def name: String
+    def color: Color
+  }
+  private case class StringLabel(name: String) extends RowLabel { override def color = SettingsDialog.settings.editor.manaAnalysis(name) }
+  private case class CategoryLabel(name: String) extends RowLabel { override def color = categories(name).color }
+
+  private enum CardAnalysisType(name: String) {
+    override def toString = name
+
+    case Colors extends CardAnalysisType("Colors")
+    case CardTypes extends CardAnalysisType("Card Types")
+    case Categories extends CardAnalysisType("Categories")
+  }
+
   private val cardAnalysisPanel = JPanel(BorderLayout())
 
-  private case class ColoredString(string: String) { val color = SettingsDialog.settings.editor.manaAnalysis(string) }
-  private var pieData = DataTable.empty[Int, String, ColoredString]
+  private var pieData = DataTable.empty[Int, String, RowLabel]
   private var fractions = IndexedSeq.empty[IndexedSeq[Double]]
   private var ratios = IndexedSeq.empty[Double]
 
@@ -958,7 +970,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     val width = if (pieData.isEmpty) {
       0
     } else {
-      (pieData.columnLabels.map(_.string) ++ (if (pieData.rows > 1) pieData.rowLabels else Seq.empty)).map(g.getFont.createGlyphVector(g.getFontRenderContext, _).getOutline.getBounds2D.getWidth).max
+      (pieData.columnLabels.map(_.name) ++ (if (pieData.rows > 1) pieData.rowLabels else Seq.empty)).map(g.getFont.createGlyphVector(g.getFontRenderContext, _).getOutline.getBounds2D.getWidth).max
     }
     val height = g.getFontMetrics.getHeight
     val textHeight = g.getFontMetrics.getAscent - g.getFontMetrics.getDescent
@@ -976,7 +988,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         g.fill(rectangle)
         g.setColor(Color.BLACK)
         g.draw(rectangle)
-        g.drawString(pieData.columnLabels(i).string, (x + textHeight + textInsets.left).toInt, y)
+        g.drawString(pieData.columnLabels(i).name, (x + textHeight + textInsets.left).toInt, y)
       }
       if (pieData.rows > 1) {
         val diameters = (1 to pieData.rows).map(_*textHeight/pieData.rows.toDouble)
@@ -995,7 +1007,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   })
   pieGraphPanel.setBackground(Color.WHITE)
   pieGraphPanel.setBorder(BorderFactory.createEtchedBorder)
+  pieGraphPanel.setPreferredSize(Dimension(Int.MaxValue, Int.MaxValue))
   cardAnalysisPanel.add(pieGraphPanel, BorderLayout.CENTER)
+
+  private val cardAnalysisConfigPanel = JPanel(FlowLayout(FlowLayout.CENTER))
+  cardAnalysisConfigPanel.add(JLabel("Show:"))
+  private val cardAnalysisTypeBox = JComboBox(CardAnalysisType.values)
+  cardAnalysisConfigPanel.add(cardAnalysisTypeBox)
+  cardAnalysisPanel.add(cardAnalysisConfigPanel, BorderLayout.SOUTH)
 
   listTabs.addTab(CardAnalysis.title, cardAnalysisPanel)
 
@@ -1836,10 +1855,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     landDrops.clear()
     val colorSets = ListMap((1 to ManaType.colors.size).flatMap(ManaType.colors.combinations(_).map((c) => ManaType.sorted(c).map(_.toString) -> c.toSet)):_*)
     val sections = sectionsBox.getCurrentItem match {
-      case ByNothing    => Seq(Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getCurrentItem else "Main Deck"))
-      case ByColorGroup => Seq(Seq("Colorless")) ++ ManaType.colors.map((m) => Seq(m.toString)) ++ Seq(Seq("Multicolored"))
-      case ByColors     => Seq(Seq("Colorless")) ++ colorSets.keys
-      case ByType       => Seq("Battle", "Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery", "Tribal").map(Seq(_)); // Land is omitted because we don't count them here
+      case ManaCurveSection.ByNothing    => Seq(Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getCurrentItem else "Main Deck"))
+      case ManaCurveSection.ByColorGroup => Seq(Seq("Colorless")) ++ ManaType.colors.map((m) => Seq(m.toString)) ++ Seq(Seq("Multicolored"))
+      case ManaCurveSection.ByColors     => Seq(Seq("Colorless")) ++ colorSets.keys
+      case ManaCurveSection.ByType       => Seq("Battle", "Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery", "Tribal").map(Seq(_)); // Land is omitted because we don't count them here
     }
     val analyte = if (analyzeCategoryBox.isSelected) deck.current.categories(analyzeCategoryCombo.getCurrentItem).list else deck.current
     val analyteLands = analyte.collect{ case e if SettingsDialog.settings.editor.isLand(e.card) => e.count }.sum
@@ -1847,18 +1866,18 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       var sectionManaValues = sections.zipWithIndex.map{ case (s, i) => s -> analyte
         .filter((e) => !SettingsDialog.settings.editor.isLand(e.card))
         .filter((e) => sectionsBox.getCurrentItem match {
-          case ByNothing => true
-          case ByColorGroup => s match {
+          case ManaCurveSection.ByNothing => true
+          case ManaCurveSection.ByColorGroup => s match {
             case Seq("Colorless") => e.card.colors.isEmpty
             case Seq(color) if e.card.colors.size == 1 => ManaType.parse(color.toLowerCase).filter(e.card.colors.contains).isDefined
             case Seq("Multicolored") => e.card.colors.size > 1
             case _ => false
           }
-          case ByColors => s match {
+          case ManaCurveSection.ByColors => s match {
             case Seq("Colorless") => e.card.colors.isEmpty
             case _ => e.card.colors == colorSets(s)
           }
-          case ByType => e.card.typeLine.containsIgnoreCase(s(0)) && !sections.slice(0, i).exists((s) => e.card.typeLine.containsIgnoreCase(s(0)))
+          case ManaCurveSection.ByType => e.card.typeLine.containsIgnoreCase(s(0)) && !sections.slice(0, i).exists((s) => e.card.typeLine.containsIgnoreCase(s(0)))
         })
         .flatMap((e) => Seq.fill(e.count)(SettingsDialog.settings.editor.getManaValue(e.card)))
         .toSeq.sorted
@@ -1908,7 +1927,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         landAxis.setLabel(choice.toString)
         for (i <- minMV to maxMV) {
           val v = choice match {
-            case Played =>
+            case LandAnalysisChoice.Played =>
               var e = 0.0
               var q = 0.0
               for (j <- 0 until math.min(i, lands)) {
@@ -1917,8 +1936,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
                 e += j*p
               }
               e + i*(1 - q)
-            case Drawn => (lands.toDouble/deck.current.total.toDouble)*math.min(handCalculations.handSize + i - 1, deck.current.total)
-            case Probability =>
+            case LandAnalysisChoice.Drawn => (lands.toDouble/deck.current.total.toDouble)*math.min(handCalculations.handSize + i - 1, deck.current.total)
+            case LandAnalysisChoice.Probability =>
               var q = 0.0
               for (j <- 0 until i)
                 q += stats.hypergeometric(j, math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
@@ -1936,7 +1955,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum
       }).toIndexedSeq,
       "Produces" -> ManaType.values.map((t) => deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum).toIndexedSeq
-    ), ManaType.values.map((t) => ColoredString(t.toString)).toIndexedSeq).filter(_.exists(_ > 0)).transpose.filter(_.exists(_ > 0)).transpose
+    ), ManaType.values.map((t) => StringLabel(t.toString)).toIndexedSeq).filter(_.exists(_ > 0)).transpose.filter(_.exists(_ > 0)).transpose
     val totals = pieData.map(_.sum)
     fractions = (pieData zip totals).map{ case (row, sum) => row.map(_.toDouble/sum) }
     ratios = IndexedSeq.tabulate(pieData.rows)((i) => math.sqrt((i + 1).toDouble/pieData.rows))
