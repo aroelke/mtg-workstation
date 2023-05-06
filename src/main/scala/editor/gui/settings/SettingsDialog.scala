@@ -493,7 +493,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   private val sections = Array(
     "Nothing",
     "Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored",
-    "Creature", "Artifact", "Enchantment", "Planeswalker", "Battle", "Instant", "Sorcery", "Tribal"
+    "Creature", "Artifact", "Enchantment", "Planeswalker", "Battle", "Instant", "Sorcery", "Land", "Tribal"
   )
   private val sectionChoosers = sections.map(_ -> JColorChooser()).toMap
   for ((_, chooser) <- sectionChoosers) {
@@ -553,6 +553,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     typesDataset.addValue(1, "Battle", "3")
     typesDataset.addValue(2, "Instant", "4")
     typesDataset.addValue(2, "Sorcery", "4")
+    typesDataset.addValue(1, "Land", "2")
     typesDataset.addValue(1, "Tribal", "4")
     val typesRenderer = StackedBarRenderer()
     typesRenderer.setBarPainter(StandardBarPainter())
@@ -566,7 +567,8 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     sectionChoosers("Battle").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(4, sectionChoosers("Battle").getColor))
     sectionChoosers("Instant").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(5, sectionChoosers("Instant").getColor))
     sectionChoosers("Sorcery").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(6, sectionChoosers("Sorcery").getColor))
-    sectionChoosers("Tribal").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(7, sectionChoosers("Tribal").getColor))
+    sectionChoosers("Land").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(7, sectionChoosers("Land").getColor))
+    sectionChoosers("Tribal").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(8, sectionChoosers("Tribal").getColor))
     val typesX = CategoryAxis()
     val typesY = NumberAxis()
     val typesPlot = CategoryPlot(typesDataset, typesX, typesY, typesRenderer)

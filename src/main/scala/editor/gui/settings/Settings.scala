@@ -215,8 +215,11 @@ case class LegalitySettings(searchForCommander: Boolean = true, main: Boolean = 
  * @param artifact color of histogram bar sections for artifact cards
  * @param enchantment color of histogram bar sections for enchantment cards
  * @param planeswalker color of histogram bar sections for planeswalker cards
+ * @param battle color of the histogram bar sections for battle cards
  * @param instant color of histogram bar sections for instant cards
  * @param sorcery color of histogram bar sections for sorcery cards
+ * @param land color of the histogram bar sections for land cards
+ * @param tribal color of the histogram bar sections for tribal cards
  * 
  * @author Alec Roelke
  */
@@ -238,6 +241,7 @@ case class ManaAnalysisSettings(
   battle: Color = Color(255, 198, 114),
   instant: Color = Color(193, 215, 233),
   sorcery: Color = Color(228, 153, 119),
+  land: Color = Color(153, 120, 55),
   tribal: Color = Color(163, 192, 149),
 
   line: Color = Color.BLACK
@@ -260,6 +264,7 @@ case class ManaAnalysisSettings(
     "battle"       -> battle,
     "instant"      -> instant,
     "sorcery"      -> sorcery,
+    "land"         -> land,
     "tribal"       -> tribal
   )
 
@@ -292,7 +297,7 @@ case class ManaAnalysisSettings(
   val colorColors = Seq(colorless, white, blue, black, red, green, multi)
   
   /** List of bar colors when dividing by card type */
-  val typeColors = Seq(creature, artifact, enchantment, planeswalker, instant, sorcery)
+  val typeColors = Seq(creature, artifact, enchantment, planeswalker, battle, instant, sorcery, land, tribal)
 }
 
 /**
