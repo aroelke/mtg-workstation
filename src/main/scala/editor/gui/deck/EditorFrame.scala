@@ -1967,7 +1967,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         }.filter{ case (_, n) => n > 0 }.toIndexedSeq
         DataTable(IndexedSeq(data.map{ case (_, n) => n }), IndexedSeq("Card Type"), data.map{ case (t, _) => StringLabel(t) })
       case CardAnalysisType.Categories =>
-        val sorted = categories.toIndexedSeq.sorted(sortCategoriesBox.getCurrentItem(deck.current))
+        val sorted = categories.toIndexedSeq.sortBy(_.color.getRGB)
         DataTable(IndexedSeq(sorted.map((c) => deck.current.filter((e) => c(e.card)).map(_.count).sum)), IndexedSeq("Category"), sorted.map(CategoryLabel(_)))
     }
 
