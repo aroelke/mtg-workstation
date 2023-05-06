@@ -1961,7 +1961,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         }).toIndexedSeq,
         "Produces" -> ManaType.values.map((t) => deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum).toIndexedSeq
       ), ManaType.values.map((t) => StringLabel(t.toString)).toIndexedSeq).filter(_.exists(_ > 0)).transpose.filter(_.exists(_ > 0)).transpose
-      case CardAnalysisType.CardTypes => DataTable.empty
+      case CardAnalysisType.CardTypes =>
+        val data = CardAttribute.CardType.options.collect{
+          case t if SettingsDialog.settings.editor.manaAnalysis.get(t).isDefined => t -> deck.current.filter(_.card.types.contains(t)).map(_.count).sum
+        }.filter{ case (_, n) => n > 0 }.toIndexedSeq
+        DataTable(IndexedSeq(data.map{ case (_, n) => n }), IndexedSeq("Card Type"), data.map{ case (t, _) => StringLabel(t) })
       case CardAnalysisType.Categories =>
         val sorted = categories.toIndexedSeq.sorted(sortCategoriesBox.getCurrentItem(deck.current))
         DataTable(IndexedSeq(sorted.map((c) => deck.current.filter((e) => c(e.card)).map(_.count).sum)), IndexedSeq("Category"), sorted.map(CategoryLabel(_)))
