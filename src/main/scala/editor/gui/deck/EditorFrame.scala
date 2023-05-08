@@ -953,14 +953,19 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       RenderingHints.KEY_FRACTIONALMETRICS -> RenderingHints.VALUE_FRACTIONALMETRICS_ON
     ).asJava)
 
-    val radius = math.min(p.getWidth, p.getHeight)*3/8
-    val radii = ratios.map(_*radius)
+    val width = if (pieData.isEmpty) {
+      0
+    } else {
+      (pieData.columnLabels.map(_.name) ++ (if (pieData.rows > 1) pieData.rowLabels else Seq.empty)).map(g.getFont.createGlyphVector(g.getFontRenderContext, _).getOutline.getBounds2D.getWidth).max
+    }
 
+    val radius = math.min(p.getWidth - width, p.getHeight)*3/8
+    val radii = ratios.map(_*radius)
     for (i <- (0 until pieData.rows).reverse) {
       var start: Double = 90
       for (j <- 0 until pieData.columns) {
         if (pieData(i)(j) > 0) {
-          val arc = Arc2D.Double(p.getWidth/2 - radii(i), p.getHeight/2 - radii(i), radii(i)*2, radii(i)*2, start, -360*fractions(i)(j), Arc2D.PIE)
+          val arc = Arc2D.Double((p.getWidth - width)/2 - radii(i), p.getHeight/2 - radii(i), radii(i)*2, radii(i)*2, start, -360*fractions(i)(j), Arc2D.PIE)
           g.setColor(pieData.columnLabels(j).color)
           g.fill(arc)
           g.setColor(Color.BLACK)
@@ -970,40 +975,31 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       }
     }
 
-    val width = if (pieData.isEmpty) {
-      0
-    } else {
-      (pieData.columnLabels.map(_.name) ++ (if (pieData.rows > 1) pieData.rowLabels else Seq.empty)).map(g.getFont.createGlyphVector(g.getFontRenderContext, _).getOutline.getBounds2D.getWidth).max
-    }
-    val height = g.getFontMetrics.getHeight
+    val lineHeight = g.getFontMetrics.getHeight
+    val height = lineHeight*(pieData.columns + (if (pieData.rows > 1) pieData.rows else 0))
     val textHeight = g.getFontMetrics.getAscent - g.getFontMetrics.getDescent
     val thickness = p.getBorder.getBorderInsets(p).right
     val textInsets = Insets(0, 5, 0, thickness + 5)
     val x = p.getWidth - width - textHeight - textInsets.left - textInsets.right
-    val lly = height*(pieData.columns + (if (pieData.rows > 1) pieData.rows else 0))
-    val dx = x - p.getWidth/2
-    val dy = lly - p.getHeight/2
-    if (math.sqrt(dx*dx + dy*dy) > radius) {
-      for (i <- 0 until pieData.columns) {
-        val y = (i + 1)*height
-        val rectangle = Rectangle2D.Double(x, y - textHeight, textHeight, textHeight)
-        g.setColor(pieData.columnLabels(i).color)
-        g.fill(rectangle)
+    for (i <- 0 until pieData.columns) {
+      val y = (p.getHeight - height)/2 + (i + 1)*lineHeight
+      val rectangle = Rectangle2D.Double(x, y - textHeight, textHeight, textHeight)
+      g.setColor(pieData.columnLabels(i).color)
+      g.fill(rectangle)
+      g.setColor(Color.BLACK)
+      g.draw(rectangle)
+      g.drawString(pieData.columnLabels(i).name, (x + textHeight + textInsets.left).toInt, y)
+    }
+    if (pieData.rows > 1) {
+      val diameters = (1 to pieData.rows).map(_*textHeight/pieData.rows.toDouble)
+      for (i <- 0 until pieData.rows) {
+        val y = (p.getHeight - height)/2 + (i + pieData.columns + 1)*lineHeight
         g.setColor(Color.BLACK)
-        g.draw(rectangle)
-        g.drawString(pieData.columnLabels(i).name, (x + textHeight + textInsets.left).toInt, y)
-      }
-      if (pieData.rows > 1) {
-        val diameters = (1 to pieData.rows).map(_*textHeight/pieData.rows.toDouble)
-        for (i <- 0 until pieData.rows) {
-          val y = (i + pieData.columns + 1)*height
-          g.setColor(Color.BLACK)
-          g.drawString(pieData.rowLabels(i), (x + textHeight + textInsets.left).toInt, y)
-          for (ii <- (0 until pieData.rows).reverse) {
-            val circle = Ellipse2D.Double(x + (textHeight - diameters(ii))/2, y - textHeight/2 - diameters(ii)/2, diameters(ii), diameters(ii))
-            g.setColor(if (ii == i) Color.BLACK else p.getBackground)
-            g.fill(circle)
-          }
+        g.drawString(pieData.rowLabels(i), (x + textHeight + textInsets.left).toInt, y)
+        for (ii <- (0 until pieData.rows).reverse) {
+          val circle = Ellipse2D.Double(x + (textHeight - diameters(ii))/2, y - textHeight/2 - diameters(ii)/2, diameters(ii), diameters(ii))
+          g.setColor(if (ii == i) Color.BLACK else p.getBackground)
+          g.fill(circle)
         }
       }
     }
