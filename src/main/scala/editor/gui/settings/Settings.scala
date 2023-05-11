@@ -220,6 +220,8 @@ case class LegalitySettings(searchForCommander: Boolean = true, main: Boolean = 
  * @param sorcery color of histogram bar sections for sorcery cards
  * @param land color of the histogram bar sections for land cards
  * @param tribal color of the histogram bar sections for tribal cards
+ * @param line color of the line showing land probabilities
+ * @param produceConsumed only show mana production for types of mana in costs in mana analysis
  * 
  * @author Alec Roelke
  */
@@ -244,7 +246,9 @@ case class ManaAnalysisSettings(
   land: Color = Color(153, 120, 55),
   tribal: Color = Color(163, 192, 149),
 
-  line: Color = Color.BLACK
+  line: Color = Color.BLACK,
+
+  produceConsumed: Boolean = false
 ) {
   private lazy val colormap = Map(
     "none" -> none, "nothing" -> none,

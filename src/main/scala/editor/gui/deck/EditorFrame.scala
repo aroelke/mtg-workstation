@@ -1949,14 +1949,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     }
 
     // Update the card analysis pie chart
-    pieData = cardAnalysisTypeBox.getCurrentItem match {
+    pieData = (cardAnalysisTypeBox.getCurrentItem match {
       case CardAnalysisType.Colors => DataTable(ListMap(
         "Mana Costs" -> ManaType.values.map(_ match {
           case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty)).map(_.count).sum
           case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum
         }).toIndexedSeq,
         "Produces" -> ManaType.values.map((t) => deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum).toIndexedSeq
-      ), ManaType.values.map((t) => StringLabel(t.toString)).toIndexedSeq).filter(_.exists(_ > 0)).transpose.filter(_.exists(_ > 0)).transpose
+      ), ManaType.values.map((t) => StringLabel(t.toString)).toIndexedSeq)
       case CardAnalysisType.CardTypes =>
         val data = CardAttribute.CardType.options.collect{
           case t if SettingsDialog.settings.editor.manaAnalysis.get(t).isDefined => t -> deck.current.filter(_.card.types.contains(t)).map(_.count).sum
@@ -1965,7 +1965,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       case CardAnalysisType.Categories =>
         val sorted = categories.toIndexedSeq.sortBy(_.color.getRGB)
         DataTable(IndexedSeq(sorted.map((c) => deck.current.filter((e) => c(e.card)).map(_.count).sum)), IndexedSeq("Category"), sorted.map(CategoryLabel(_)))
-    }
+    }).filter(_.exists(_ > 0)).transpose.filter((c) => if (SettingsDialog.settings.editor.manaAnalysis.produceConsumed) c(0) > 0 else c.exists(_ > 0)).transpose
 
     val totals = pieData.map(_.sum)
     fractions = (pieData zip totals).map{ case (row, sum) => row.map(_.toDouble/sum) }

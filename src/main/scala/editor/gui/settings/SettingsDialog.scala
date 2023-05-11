@@ -117,7 +117,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   editorNode.add(handAppearanceNode)
   private val formatsNode = DefaultMutableTreeNode("Formats")
   editorNode.add(formatsNode)
-  private val manaAnalysisNode = DefaultMutableTreeNode("Mana Analysis")
+  private val manaAnalysisNode = DefaultMutableTreeNode("Analysis")
   editorNode.add(manaAnalysisNode)
   root.add(editorNode)
 
@@ -640,6 +640,13 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   linePanel.setPreferredSize(Dimension(landLineChooser.getPreviewPanel.getPreferredSize.width, landLineChooser.getPreviewPanel.getPreferredSize.height*5/2))
   landLineChooser.setPreviewPanel(linePanel)
 
+  // Mana Production Filtering
+  private val produceConsumedPanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
+  produceConsumedPanel.setBorder(BorderFactory.createTitledBorder("Mana Production"))
+  private val produceConsumedBox = JCheckBox("Only show produced mana for types in mana costs")
+  produceConsumedPanel.add(produceConsumedBox)
+  manaAnalysisPanel.add(produceConsumedPanel)
+
   // Default options for legality panel
   private val legalityDefaultsBox = Box.createHorizontalBox
   legalityDefaultsBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2))
@@ -771,7 +778,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
             list = cmdrListName.getText,
             sideboard = if (sideCheck.isSelected) sideField.getText else ""
           ),
-          manaAnalysis = ManaAnalysisSettings(sectionChoosers.map{ case (s, c) => s -> c.getColor }.toMap).copy(line = landLineChooser.getColor),
+          manaAnalysis = ManaAnalysisSettings(sectionChoosers.map{ case (s, c) => s -> c.getColor }.toMap).copy(line = landLineChooser.getColor, produceConsumed = produceConsumedBox.isSelected),
           columns = editorColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toIndexedSeq.sortBy(_.ordinal),
           stripe = editorStripeColor.getColor,
           manaValue = manaValueBox.getCurrentItem,
@@ -860,6 +867,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     }
     sections.foreach(s => sectionChoosers(s).setColor(settings.editor.manaAnalysis(s)))
     landLineChooser.setColor(settings.editor.manaAnalysis.line)
+    produceConsumedBox.setSelected(settings.editor.manaAnalysis.produceConsumed)
 
     setVisible(true)
   }
