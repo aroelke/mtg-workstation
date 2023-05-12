@@ -90,8 +90,9 @@ case class SingleCard(
   override lazy val isLand = types.exists(_.equalsIgnoreCase("land"))
   override lazy val imageNames = Seq(name.toLowerCase)
 
-  private val specificPattern = raw"add (?:an amount of |\w+ )?((?:(?:, |,? or )?${ManaCost.Pattern.regex})+)".r
-  private val anyPattern = raw".*add (?:\w+|an amount of) mana (?:of any|of any one|in any combinatin of) (color|type).*".r
+  private val specificPattern = raw"adds? (?:an amount of |\w+ |an additional (?:amount of |\w+ )?)?((?:(?:, |,? or )?${ManaCost.Pattern.regex})+)".r
+  private val anyPattern = raw"(?s).*add (?:\w+|an amount of) mana (?:of any|of any one|in any combination of) (type|color).*".r
+
   override lazy val produces = normalizedOracle.head match {
     case anyPattern("color") => ManaType.colors.toSet
     case anyPattern("type")  => ManaType.values.toSet
