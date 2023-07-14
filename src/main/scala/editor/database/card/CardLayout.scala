@@ -30,6 +30,10 @@ enum CardLayout(name: String, val isMultiFaced: Boolean) extends Ordered[CardLay
   case SAGA extends CardLayout("Saga", false)
   /** Single-faced card, usually an enchantment, with multiple text boxes that accumulate based on payment of a cost. */
   case CLASS extends CardLayout("Class", false)
+  /** Single-faced card with the mutate ability. */
+  case MUTATE extends CardLayout("Mutate", false)
+  /** Single-faced card with the prototype ability. */
+  case PROTOTYPE extends CardLayout("Prototype", false)
   /** Special split card with a "main" permanent face and an "adventure" non-permanent face that can later be cast as the permanent. */
   case ADVENTURE extends CardLayout("Adventure", true)
   /** Special double-faced card that can be played as either side, but can't transform after. */
