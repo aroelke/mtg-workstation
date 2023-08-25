@@ -936,7 +936,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   analysisRenderer.setDefaultOutlinePaint(Color.BLACK)
   analysisRenderer.setShadowVisible(false)
   private val analysisTypeAxis = CategoryAxis("Mana Type")
-  private val analysisCountAxis = NumberAxis("Number of Cards")
+  private val analysisCountAxis = NumberAxis("Amount")
 
   // Plot creation
   private val analysisPlot = CategoryPlot()
@@ -1885,13 +1885,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
 
     analysisData.clear()
     for (t <- ManaType.values) {
+      val positiveCosts = deck.current.filter(_.card.faces.exists(_.manaValue > 0)).map(_.count).sum.toDouble
       val consumes = t match {
-        case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty || f.manaCost.colors.contains(ManaType.Colorless))).map(_.count).sum
-        case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum
+        case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty || f.manaCost.colors.contains(ManaType.Colorless))).map(_.count).sum/positiveCosts
+        case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum/positiveCosts
       }
       if (consumes > 0) {
         analysisData.addValue(consumes, "Consumes", t.toString)
-        analysisData.addValue(deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum, "Produces", t.toString)
+        analysisData.addValue(deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum.toDouble/deck.current.filter(_.card.faces.exists(!_.produces.isEmpty)).map(_.count).sum, "Produces", t.toString)
       }
     }
   }
