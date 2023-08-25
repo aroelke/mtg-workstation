@@ -1881,6 +1881,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         }
       }
     }
+
+    analysisData.clear()
+    ManaType.values.foreach((t) => analysisData.addValue(t match {
+      case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty || f.manaCost.colors.contains(ManaType.Colorless))).map(_.count).sum
+      case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum
+    }, "Consumes", t.toString))
   }
 
   /**
