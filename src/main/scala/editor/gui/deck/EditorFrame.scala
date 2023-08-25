@@ -130,6 +130,7 @@ import java.awt.geom.Ellipse2D
 import java.awt.Insets
 import editor.database.attributes.CardAttribute
 import org.jfree.chart.renderer.category.LayeredBarRenderer
+import org.jfree.chart.util.SortOrder
 
 object EditorFrame {
   val MainDeck = 0
@@ -943,7 +944,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   analysisPlot.setRenderer(analysisRenderer)
   analysisPlot.setDomainAxis(analysisTypeAxis)
   analysisPlot.setRangeAxis(analysisCountAxis)
-  analysisPlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD)
+  analysisPlot.setRowRenderingOrder(SortOrder.DESCENDING)
   analysisPlot.setRangeGridlinesVisible(false)
   private val analysisChart = JFreeChart("Card Analysis", JFreeChart.DEFAULT_TITLE_FONT, analysisPlot, true)
   private val analysisPanel = ChartPanel(analysisChart)
@@ -1883,10 +1884,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     }
 
     analysisData.clear()
-    ManaType.values.foreach((t) => analysisData.addValue(t match {
-      case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty || f.manaCost.colors.contains(ManaType.Colorless))).map(_.count).sum
-      case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum
-    }, "Consumes", t.toString))
+    ManaType.values.foreach((t) => {
+      analysisData.addValue(t match {
+        case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty || f.manaCost.colors.contains(ManaType.Colorless))).map(_.count).sum
+        case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum
+      }, "Consumes", t.toString)
+      analysisData.addValue(deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum, "Produces", t.toString)
+    })
   }
 
   /**
