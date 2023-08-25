@@ -129,6 +129,7 @@ import collection.JavaConverters._
 import java.awt.geom.Ellipse2D
 import java.awt.Insets
 import editor.database.attributes.CardAttribute
+import org.jfree.chart.renderer.category.LayeredBarRenderer
 
 object EditorFrame {
   val MainDeck = 0
@@ -924,6 +925,31 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
 
   /* CARD ANALYSIS TAB */
   private val cardAnalysisPanel = JPanel(BorderLayout())
+
+  // Data set and axis creation
+  private val analysisData = DefaultCategoryDataset()
+  private val analysisRenderer = LayeredBarRenderer()
+  analysisRenderer.setBarPainter(StandardBarPainter())
+//  analysisRenderer.setDefaultToolTipGenerator(StandardCategoryToolTipGenerator("{0}: {2}", DecimalFormat()))
+  analysisRenderer.setDrawBarOutline(true)
+  analysisRenderer.setDefaultOutlinePaint(Color.BLACK)
+  analysisRenderer.setShadowVisible(false)
+  private val analysisTypeAxis = CategoryAxis("Mana Type")
+  private val analysisCountAxis = NumberAxis("Number of Cards")
+
+  // Plot creation
+  private val analysisPlot = CategoryPlot()
+  analysisPlot.setDataset(0, analysisData)
+  analysisPlot.setRenderer(analysisRenderer)
+  analysisPlot.setDomainAxis(analysisTypeAxis)
+  analysisPlot.setRangeAxis(analysisCountAxis)
+  analysisPlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD)
+  analysisPlot.setRangeGridlinesVisible(false)
+  private val analysisChart = JFreeChart("Card Analysis", JFreeChart.DEFAULT_TITLE_FONT, analysisPlot, true)
+  private val analysisPanel = ChartPanel(analysisChart)
+  analysisPanel.setPopupMenu(null)
+  cardAnalysisPanel.add(analysisPanel, BorderLayout.CENTER)
+
   listTabs.addTab(CardAnalysis.title, cardAnalysisPanel)
 
   /* SAMPLE HAND TAB */
