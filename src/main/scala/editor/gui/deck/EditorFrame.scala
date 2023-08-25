@@ -923,99 +923,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   listTabs.addTab(ManaAnalysis.title, manaAnalysisPanel)
 
   /* CARD ANALYSIS TAB */
-  private trait RowLabel {
-    def name: String
-    def color: Color
-  }
-  private case class StringLabel(name: String) extends RowLabel { override def color = SettingsDialog.settings.editor.manaAnalysis(name) }
-  private case class CategoryLabel(category: Categorization) extends RowLabel {
-    override def name = category.name
-    override def color = category.color
-  }
-
-  private enum CardAnalysisType(name: String) {
-    override def toString = name
-
-    case Colors extends CardAnalysisType("Colors")
-    case CardTypes extends CardAnalysisType("Card Types")
-    case Categories extends CardAnalysisType("Categories")
-  }
-
   private val cardAnalysisPanel = JPanel(BorderLayout())
-
-  private var pieData = DataTable.empty[Int, String, RowLabel]
-  private var fractions = IndexedSeq.empty[IndexedSeq[Double]]
-  private var ratios = IndexedSeq.empty[Double]
-
-  private val pieGraphPanel = DrawingPanel[Graphics2D]((g, p) => {
-    g.addRenderingHints(Map(
-      RenderingHints.KEY_ANTIALIASING -> RenderingHints.VALUE_ANTIALIAS_ON,
-      RenderingHints.KEY_FRACTIONALMETRICS -> RenderingHints.VALUE_FRACTIONALMETRICS_ON
-    ).asJava)
-
-    val width = if (pieData.isEmpty) {
-      0
-    } else {
-      (pieData.columnLabels.map(_.name) ++ (if (pieData.rows > 1) pieData.rowLabels else Seq.empty)).map(g.getFont.createGlyphVector(g.getFontRenderContext, _).getOutline.getBounds2D.getWidth).max
-    }
-
-    val radius = math.min(p.getWidth - width, p.getHeight)*3/8
-    val radii = ratios.map(_*radius)
-    for (i <- (0 until pieData.rows).reverse) {
-      var start: Double = 90
-      for (j <- 0 until pieData.columns) {
-        if (pieData(i)(j) > 0) {
-          val arc = Arc2D.Double((p.getWidth - width)/2 - radii(i), p.getHeight/2 - radii(i), radii(i)*2, radii(i)*2, start, -360*fractions(i)(j), Arc2D.PIE)
-          g.setColor(pieData.columnLabels(j).color)
-          g.fill(arc)
-          g.setColor(Color.BLACK)
-          g.draw(arc)
-          start += arc.extent
-        }
-      }
-    }
-
-    val lineHeight = g.getFontMetrics.getHeight
-    val height = lineHeight*(pieData.columns + (if (pieData.rows > 1) pieData.rows else 0))
-    val textHeight = g.getFontMetrics.getAscent - g.getFontMetrics.getDescent
-    val thickness = p.getBorder.getBorderInsets(p).right
-    val textInsets = Insets(0, 5, 0, thickness + 5)
-    val x = p.getWidth - width - textHeight - textInsets.left - textInsets.right
-    for (i <- 0 until pieData.columns) {
-      val y = (p.getHeight - height)/2 + (i + 1)*lineHeight
-      val rectangle = Rectangle2D.Double(x, y - textHeight, textHeight, textHeight)
-      g.setColor(pieData.columnLabels(i).color)
-      g.fill(rectangle)
-      g.setColor(Color.BLACK)
-      g.draw(rectangle)
-      g.drawString(pieData.columnLabels(i).name, (x + textHeight + textInsets.left).toInt, y)
-    }
-    if (pieData.rows > 1) {
-      val diameters = (1 to pieData.rows).map(_*textHeight/pieData.rows.toDouble)
-      for (i <- 0 until pieData.rows) {
-        val y = (p.getHeight - height)/2 + (i + pieData.columns + 1)*lineHeight
-        g.setColor(Color.BLACK)
-        g.drawString(pieData.rowLabels(i), (x + textHeight + textInsets.left).toInt, y)
-        for (ii <- (0 until pieData.rows).reverse) {
-          val circle = Ellipse2D.Double(x + (textHeight - diameters(ii))/2, y - textHeight/2 - diameters(ii)/2, diameters(ii), diameters(ii))
-          g.setColor(if (ii == i) Color.BLACK else p.getBackground)
-          g.fill(circle)
-        }
-      }
-    }
-  })
-  pieGraphPanel.setBackground(Color.WHITE)
-  pieGraphPanel.setBorder(BorderFactory.createEtchedBorder)
-  pieGraphPanel.setPreferredSize(Dimension(Int.MaxValue, Int.MaxValue))
-  cardAnalysisPanel.add(pieGraphPanel, BorderLayout.CENTER)
-
-  private val cardAnalysisConfigPanel = JPanel(FlowLayout(FlowLayout.CENTER))
-  cardAnalysisConfigPanel.add(JLabel("Show:"))
-  private val cardAnalysisTypeBox = JComboBox(CardAnalysisType.values)
-  cardAnalysisTypeBox.addActionListener(_ => { updateStats(); pieGraphPanel.repaint() })
-  cardAnalysisConfigPanel.add(cardAnalysisTypeBox)
-  cardAnalysisPanel.add(cardAnalysisConfigPanel, BorderLayout.SOUTH)
-
   listTabs.addTab(CardAnalysis.title, cardAnalysisPanel)
 
   /* SAMPLE HAND TAB */
@@ -1947,29 +1855,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         }
       }
     }
-
-    // Update the card analysis pie chart
-    pieData = (cardAnalysisTypeBox.getCurrentItem match {
-      case CardAnalysisType.Colors => DataTable(ListMap(
-        "Mana Costs" -> ManaType.values.map(_ match {
-          case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty)).map(_.count).sum
-          case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum
-        }).toIndexedSeq,
-        "Produces" -> ManaType.values.map((t) => deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum).toIndexedSeq
-      ), ManaType.values.map((t) => StringLabel(t.toString)).toIndexedSeq)
-      case CardAnalysisType.CardTypes =>
-        val data = CardAttribute.CardType.options.collect{
-          case t if SettingsDialog.settings.editor.manaAnalysis.get(t).isDefined => t -> deck.current.filter(_.card.types.contains(t)).map(_.count).sum
-        }.filter{ case (_, n) => n > 0 }.toIndexedSeq
-        DataTable(IndexedSeq(data.map{ case (_, n) => n }), IndexedSeq("Card Type"), data.map{ case (t, _) => StringLabel(t) })
-      case CardAnalysisType.Categories =>
-        val sorted = categories.toIndexedSeq.sortBy(_.color.getRGB)
-        DataTable(IndexedSeq(sorted.map((c) => deck.current.filter((e) => c(e.card)).map(_.count).sum)), IndexedSeq("Category"), sorted.map(CategoryLabel(_)))
-    }).filter(_.exists(_ > 0)).transpose.filter((c) => if (SettingsDialog.settings.editor.manaAnalysis.produceConsumed) c(0) > 0 else c.exists(_ > 0)).transpose
-
-    val totals = pieData.map(_.sum)
-    fractions = (pieData zip totals).map{ case (row, sum) => row.map(_.toDouble/sum) }
-    ratios = IndexedSeq.tabulate(pieData.rows)((i) => math.sqrt((i + 1).toDouble/pieData.rows))
   }
 
   /**
