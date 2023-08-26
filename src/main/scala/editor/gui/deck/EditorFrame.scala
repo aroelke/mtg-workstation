@@ -930,16 +930,23 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   /* CARD ANALYSIS TAB */
   private val cardAnalysisPanel = JPanel(BorderLayout())
 
-  private class AnalysisRenderer(var colors: IndexedSeq[Color], var rows: Int = 1) extends LayeredBarRenderer {
+  private class AnalysisRenderer(var colors: IndexedSeq[Color], var rows: Int = 1, width: Int = 5) extends LayeredBarRenderer {
+    private def stripedPaint(color1: Color, color2: Color) = LinearGradientPaint(
+      Point2D.Float(0, 0),
+      Point2D.Float(width, width),
+      Array(0.49f, 0.51f),
+      Array(color1, color2),
+      MultipleGradientPaint.CycleMethod.REPEAT
+    )
+
     override def getItemPaint(row: Int, column: Int) = row match {
-      case 0 => if (rows == 1) colors(column) else LinearGradientPaint(
-        Point2D.Float(0, 0),
-        Point2D.Float(10, 10),
-        Array(0.49f, 0.51f),
-        Array(colors(column), colors(column).brighter),
-        MultipleGradientPaint.CycleMethod.REPEAT
-      )
+      case 0 => if (rows == 1) colors(column) else stripedPaint(colors(column), colors(column).brighter)
       case 1 => colors(column)
+    }
+
+    override def getSeriesPaint(series: Int) = series match {
+      case 0 => if (rows == 1) Color.WHITE else stripedPaint(Color.BLACK, Color.WHITE)
+      case 1 => Color.WHITE
     }
 
     // For some reason, AbstractRenderer makes this protected, which Scala doesn't like
