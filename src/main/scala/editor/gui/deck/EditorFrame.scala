@@ -131,6 +131,9 @@ import java.awt.Insets
 import editor.database.attributes.CardAttribute
 import org.jfree.chart.renderer.category.LayeredBarRenderer
 import org.jfree.chart.util.SortOrder
+import java.awt.LinearGradientPaint
+import java.awt.geom.Point2D
+import java.awt.MultipleGradientPaint
 
 object EditorFrame {
   val MainDeck = 0
@@ -927,8 +930,17 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   /* CARD ANALYSIS TAB */
   private val cardAnalysisPanel = JPanel(BorderLayout())
 
-  private class AnalysisRenderer(var colors: IndexedSeq[Paint]) extends LayeredBarRenderer {
-    override def getItemPaint(row: Int, column: Int) = colors(column)
+  private class AnalysisRenderer(var colors: IndexedSeq[Color], var rows: Int = 1) extends LayeredBarRenderer {
+    override def getItemPaint(row: Int, column: Int) = row match {
+      case 0 => if (rows == 1) colors(column) else LinearGradientPaint(
+        Point2D.Float(0, 0),
+        Point2D.Float(10, 10),
+        Array(0.49f, 0.51f),
+        Array(colors(column), colors(column).brighter),
+        MultipleGradientPaint.CycleMethod.REPEAT
+      )
+      case 1 => colors(column)
+    }
 
     // For some reason, AbstractRenderer makes this protected, which Scala doesn't like
     override def clone: Object = super.clone
@@ -1903,6 +1915,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       analysisData.addValue(deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum.toDouble/deck.current.filter(_.card.faces.exists(!_.produces.isEmpty)).map(_.count).sum, "Produces", t.toString)
     }
     analysisRenderer.colors = consumed.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t.toString) }.toIndexedSeq
+    analysisRenderer.rows = 2
   }
 
   /**
