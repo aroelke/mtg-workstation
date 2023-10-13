@@ -928,7 +928,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   listTabs.addTab(ManaAnalysis.title, manaAnalysisPanel)
 
   /* CARD ANALYSIS TAB */
-  private val cardAnalysisPanel = JPanel(BorderLayout())
+  private enum CardAnalysisType(override val toString: String, val xlabel: String, val tooltip: String, val legend: Boolean) {
+    case Mana       extends CardAnalysisType("Mana Production", "Mana Type", "{0} {1}: {2}", true)
+    case Types      extends CardAnalysisType("Card Types", "Card Type", "{1}: {2}", false)
+    case Categories extends CardAnalysisType("Categories", "Category", "{1}: {2}", false)
+  }
 
   private class AnalysisRenderer(var colors: IndexedSeq[Color], var rows: Int = 1, width: Int = 5) extends LayeredBarRenderer {
     private def stripedPaint(color1: Color, color2: Color) = LinearGradientPaint(
@@ -953,11 +957,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     override def clone: Object = super.clone
   }
 
+  private val cardAnalysisPanel = JPanel(BorderLayout())
+
   // Data set and axis creation
   private val analysisData = DefaultCategoryDataset()
   private val analysisRenderer = AnalysisRenderer(ManaType.values.map((t) => SettingsDialog.settings.editor.manaAnalysis(t.toString)).toIndexedSeq)
   analysisRenderer.setBarPainter(StandardBarPainter())
-//  analysisRenderer.setDefaultToolTipGenerator(StandardCategoryToolTipGenerator("{0}: {2}", DecimalFormat()))
+  analysisRenderer.setDefaultToolTipGenerator(StandardCategoryToolTipGenerator(CardAnalysisType.Mana.tooltip, DecimalFormat()))
   analysisRenderer.setDrawBarOutline(true)
   analysisRenderer.setDefaultOutlinePaint(Color.BLACK)
   analysisRenderer.setShadowVisible(false)
@@ -973,9 +979,32 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   analysisPlot.setRowRenderingOrder(SortOrder.DESCENDING)
   analysisPlot.setRangeGridlinesVisible(false)
   private val analysisChart = JFreeChart("Card Analysis", JFreeChart.DEFAULT_TITLE_FONT, analysisPlot, true)
+  private val analysisLegend = analysisChart.getLegend
   private val analysisPanel = ChartPanel(analysisChart)
   analysisPanel.setPopupMenu(null)
   cardAnalysisPanel.add(analysisPanel, BorderLayout.CENTER)
+
+  // Analysis settings panel (what to show on the bar graph)
+  private val cardAnalysisConfigPanel = Box(BoxLayout.X_AXIS)
+  cardAnalysisConfigPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0))
+  cardAnalysisConfigPanel.add(Box.createHorizontalGlue())
+  cardAnalysisConfigPanel.add(JLabel("Analyze:"))
+  cardAnalysisConfigPanel.add(Box.createHorizontalStrut(2))
+  private val cardAnalysesBox = JComboBox(CardAnalysisType.values)
+  cardAnalysesBox.setMaximumSize(cardAnalysesBox.getPreferredSize())
+  cardAnalysesBox.addActionListener(_ => {
+    updateStats()
+    analysisTypeAxis.setLabel(cardAnalysesBox.getCurrentItem.xlabel)
+    analysisRenderer.setDefaultToolTipGenerator(StandardCategoryToolTipGenerator(cardAnalysesBox.getCurrentItem.tooltip, DecimalFormat()))
+    if (cardAnalysesBox.getCurrentItem.legend) {
+      if (analysisChart.getLegend == null)
+        analysisChart.addLegend(analysisLegend)
+    } else
+      analysisChart.removeLegend()
+  })
+  cardAnalysisConfigPanel.add(cardAnalysesBox)
+  cardAnalysisConfigPanel.add(Box.createHorizontalGlue())
+  cardAnalysisPanel.add(cardAnalysisConfigPanel, BorderLayout.SOUTH)
 
   listTabs.addTab(CardAnalysis.title, cardAnalysisPanel)
 
@@ -1910,19 +1939,37 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     }
 
     analysisData.clear()
-    val consumed = ManaType.values.map((t) => {
-      val positiveCosts = deck.current.filter(_.card.faces.exists(_.manaValue > 0)).map(_.count).sum.toDouble
-      t -> (t match {
-        case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty || f.manaCost.colors.contains(ManaType.Colorless))).map(_.count).sum/positiveCosts
-        case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum/positiveCosts
-      })
-    }).filter{ case (_, f) => f > 0 }
-    for ((t, f) <- consumed) {
-      analysisData.addValue(f, "Consumes", t.toString)
-      analysisData.addValue(deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum.toDouble/deck.current.filter(_.card.faces.exists(!_.produces.isEmpty)).map(_.count).sum, "Produces", t.toString)
+    cardAnalysesBox.getCurrentItem match {
+      case CardAnalysisType.Mana => 
+        val consumed = ManaType.values.map((t) => {
+          val positiveCosts = deck.current.filter(_.card.faces.exists(_.manaValue > 0)).map(_.count).sum.toDouble
+          t -> (t match {
+            case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty || f.manaCost.colors.contains(ManaType.Colorless))).map(_.count).sum/positiveCosts
+            case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum/positiveCosts
+          })
+        }).filter{ case (_, f) => f > 0 }
+        for ((t, f) <- consumed) {
+          analysisData.addValue(f, "Consumes", t.toString)
+          analysisData.addValue(deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum.toDouble/deck.current.filter(_.card.faces.exists(!_.produces.isEmpty)).map(_.count).sum, "Produces", t.toString)
+        }
+        analysisRenderer.colors = consumed.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t.toString) }.toIndexedSeq
+        analysisRenderer.rows = 2
+      case CardAnalysisType.Types =>
+        val data = CardAttribute.CardType.options.collect{
+          case t if SettingsDialog.settings.editor.manaAnalysis.get(t).isDefined => t -> deck.current.filter(_.card.types.contains(t)).map(_.count).sum
+        }.filter{ case (_, n) => n > 0 }.toSeq
+        for ((t, n) <- data)
+          analysisData.addValue(n, "Card Type", t)
+        analysisRenderer.colors = data.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t) }.toIndexedSeq
+        analysisRenderer.rows = 1
+      case CardAnalysisType.Categories =>
+        val sorted = categories.toIndexedSeq.sortBy(_.color.getRGB)
+        val data = sorted.map((c) => c -> deck.current.filter((e) => c(e.card)).map(_.count).sum)
+        for ((c, n) <- data)
+          analysisData.addValue(n, "Category", c.name)
+        analysisRenderer.colors = data.map{ case (c, _) => c.color }
+        analysisRenderer.rows = 1
     }
-    analysisRenderer.colors = consumed.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t.toString) }.toIndexedSeq
-    analysisRenderer.rows = 2
   }
 
   /**
