@@ -1877,6 +1877,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
           }
         }
         manaCurveRenderer.setSeriesPaint(i, paint)
+        manaCurveRenderer.setSeriesVisibleInLegend(i, s.size <= 1 || s.exists(x => sectionManaValues(Seq(x)).sum == 0))
         for (j <- minMV to maxMV)
           manaCurve.addValue(sectionManaValues(s).count(_ == j), s.mkString("-"), j.toString)
       }
