@@ -79,6 +79,6 @@ package object stats {
     if (hand - (total - count) > n)
       0.0
     else
-      (BigDecimal((count choose n)*((total - count) choose (hand - n)))/BigDecimal((total choose hand))).toDouble
+      (BigDecimal((count choose n)*((total - count) choose (hand - n)))/BigDecimal(total choose hand)).toDouble
   }
 }
