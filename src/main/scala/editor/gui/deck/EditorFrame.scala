@@ -1916,22 +1916,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         val choice = landsBox.getCurrentItem
         landAxis.setLabel(choice.toString)
         for (i <- minMV to maxMV) {
+          def landProbablity(desired: Int) = stats.hypergeometric(desired, math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
+
           val v = choice match {
             case LandAnalysisChoice.Played =>
-              var e = 0.0
-              var q = 0.0
-              for (j <- 0 until math.min(i, lands)) {
-                val p = stats.hypergeometric(j, math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
-                q += p
-                e += j*p
-              }
-              e + i*(1 - q)
+              val probabilities = Seq.tabulate(math.min(i, lands))(landProbablity)
+              probabilities.zipWithIndex.map{ case (p, j) => p*j }.sum + i*(1 - probabilities.sum)
             case LandAnalysisChoice.Drawn => (lands.toDouble/deck.current.total.toDouble)*math.min(handCalculations.handSize + i - 1, deck.current.total)
-            case LandAnalysisChoice.Probability =>
-              var q = 0.0
-              for (j <- 0 until i)
-                q += stats.hypergeometric(j, math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
-              1 - q
+            case LandAnalysisChoice.Probability => 1 - Seq.tabulate(i)(landProbablity).sum
           }
           landDrops.addValue(v, choice.toString, i.toString)
         }
