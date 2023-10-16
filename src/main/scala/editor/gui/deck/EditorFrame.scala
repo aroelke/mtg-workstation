@@ -935,7 +935,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   }
   private val cardAnalysesBox = JComboBox(CardAnalysisType.values)
 
-  private class AnalysisRenderer(var colors: IndexedSeq[Color], var rows: Int = 1, width: Int = 5) extends LayeredBarRenderer {
+  private class AnalysisRenderer(var colors: IndexedSeq[Color], width: Int = 5) extends LayeredBarRenderer {
     private def stripedPaint(color1: Color, color2: Color) = LinearGradientPaint(
       Point2D.Float(0, 0),
       Point2D.Float(width, width),
@@ -1945,7 +1945,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
           analysisData.addValue(deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum.toDouble/deck.current.filter(_.card.faces.exists(!_.produces.isEmpty)).map(_.count).sum, "Produces", t.toString)
         }
         analysisRenderer.colors = consumed.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t.toString) }.toIndexedSeq
-        analysisRenderer.rows = 2
       case CardAnalysisType.Types =>
         val data = CardAttribute.CardType.options.collect{
           case t if SettingsDialog.settings.editor.manaAnalysis.get(t).isDefined => t -> deck.current.filter(_.card.types.contains(t)).map(_.count).sum
@@ -1953,14 +1952,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         for ((t, n) <- data)
           analysisData.addValue(n, "Card Type", t)
         analysisRenderer.colors = data.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t) }.toIndexedSeq
-        analysisRenderer.rows = 1
       case CardAnalysisType.Categories =>
         val sorted = categories.toIndexedSeq.sortBy(_.color.getRGB)
         val data = sorted.map((c) => c -> deck.current.filter((e) => c(e.card)).map(_.count).sum)
         for ((c, n) <- data)
           analysisData.addValue(n, "Category", c.name)
         analysisRenderer.colors = data.map{ case (c, _) => c.color }
-        analysisRenderer.rows = 1
     }
   }
 
