@@ -933,6 +933,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     case Types      extends CardAnalysisType("Card Types", "Card Type", "{1}: {2}", false)
     case Categories extends CardAnalysisType("Categories", "Category", "{1}: {2}", false)
   }
+  private val cardAnalysesBox = JComboBox(CardAnalysisType.values)
 
   private class AnalysisRenderer(var colors: IndexedSeq[Color], var rows: Int = 1, width: Int = 5) extends LayeredBarRenderer {
     private def stripedPaint(color1: Color, color2: Color) = LinearGradientPaint(
@@ -943,14 +944,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       MultipleGradientPaint.CycleMethod.REPEAT
     )
 
-    override def getItemPaint(row: Int, column: Int) = row match {
-      case 0 => if (rows == 1) colors(column) else stripedPaint(colors(column), colors(column).brighter)
-      case 1 => colors(column)
+    override def getItemPaint(row: Int, column: Int) = cardAnalysesBox.getCurrentItem match {
+      case CardAnalysisType.Mana => if (row == 0) stripedPaint(colors(column), colors(column).brighter) else colors(column)
+      case _ => colors(column)
     }
 
-    override def getSeriesPaint(series: Int) = series match {
-      case 0 => if (rows == 1) Color.WHITE else stripedPaint(Color.BLACK, Color.WHITE)
-      case 1 => Color.WHITE
+    override def getSeriesPaint(series: Int) = cardAnalysesBox.getCurrentItem match {
+      case CardAnalysisType.Mana => if (series == 0) stripedPaint(Color.BLACK, Color.WHITE) else Color.WHITE
+      case _ => Color.WHITE
     }
 
     // For some reason, AbstractRenderer makes this protected, which Scala doesn't like
@@ -990,7 +991,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   cardAnalysisConfigPanel.add(Box.createHorizontalGlue())
   cardAnalysisConfigPanel.add(JLabel("Analyze:"))
   cardAnalysisConfigPanel.add(Box.createHorizontalStrut(2))
-  private val cardAnalysesBox = JComboBox(CardAnalysisType.values)
   cardAnalysesBox.setMaximumSize(cardAnalysesBox.getPreferredSize())
   cardAnalysesBox.addActionListener(_ => {
     updateStats()
