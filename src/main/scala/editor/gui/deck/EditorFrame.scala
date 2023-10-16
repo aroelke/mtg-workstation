@@ -1949,7 +1949,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
           })
         }).filter{ case (_, f) => f > 0 }
         for ((t, f) <- consumed) {
-          analysisData.addValue(f, "Consumes", t.toString)
+          analysisData.addValue(f, "Costs", t.toString)
           analysisData.addValue(deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum.toDouble/deck.current.filter(_.card.faces.exists(!_.produces.isEmpty)).map(_.count).sum, "Produces", t.toString)
         }
         analysisRenderer.colors = consumed.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t.toString) }.toIndexedSeq
