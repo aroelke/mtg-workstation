@@ -268,7 +268,7 @@ object ElementAttribute {
     }
     override def tooltip(value: Seq[ManaCost]) = {
       value.map(_.map((s) => {
-        s"""<img src="${getClass.getResource(s"/images/symbols/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
+        s"""<img src="${getClass.getResource(s"/images/symbols/${s.name}.png")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
       }).mkString).mkString(Card.FaceSeparator)
     }
   }
