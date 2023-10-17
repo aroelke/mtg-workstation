@@ -1974,7 +1974,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
             devotionData.addValue(0, 0, t.toString)
             devotionRenderer.setSeriesPaint(0, Color(0, 0, 0, 0))
           } else {
-            for (i <- 1 to maxIntensity) {
+            for (i <- maxIntensity to 1 by -1) {
               val count = deck.current.count(_.card.faces.exists(_.manaCost.intensity(t).toInt == i))
               devotionData.addValue(count/positiveCosts, i, t.toString)
               devotionRenderer.setSeriesPaint(i, Color(0, 0, 0, 0))
