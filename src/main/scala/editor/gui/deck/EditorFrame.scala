@@ -946,12 +946,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     )
 
     override def getItemPaint(row: Int, column: Int) = cardAnalysesBox.getCurrentItem match {
-      case CardAnalysisType.Mana => if (row == 0) stripedPaint(colors(column), colors(column).brighter) else colors(column)
+      case CardAnalysisType.Mana => if (row == 1) stripedPaint(colors(column), if (colors(column).darker == Color.BLACK) colors(column).brighter else colors(column).darker) else colors(column)
       case _ => colors(column)
     }
 
     override def getSeriesPaint(series: Int) = cardAnalysesBox.getCurrentItem match {
-      case CardAnalysisType.Mana => if (series == 0) stripedPaint(Color.BLACK, Color.WHITE) else Color.WHITE
+      case CardAnalysisType.Mana => if (series == 1) stripedPaint(Color.BLACK, Color.WHITE) else Color.WHITE
       case _ => Color.WHITE
     }
 
