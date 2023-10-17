@@ -3,6 +3,7 @@ package editor.database.attributes
 import editor.database.symbol.ManaSymbol
 
 import scala.util.matching._
+import editor.database.symbol.ManaSymbolInstances
 
 object ManaCost {
   private val pattern = raw"\{([cwubrgCWUBRG\/phPH\dsSxXyYzZ]+)\}".r
@@ -75,7 +76,12 @@ case class ManaCost(private val cost: IndexedSeq[ManaSymbol] = IndexedSeq.empty)
    * @param types set of mana types to calculate devotion for
    * @return the devotion to the set of mana types this mana cost contributes
    */
-  def devotionTo(types: Set[ManaType]): Int = count((s) => types.map(s.colorIntensity).sum > 0)
+  def devotionTo(types: Set[ManaType]): Int = count((s) => {
+    if (s == ManaSymbolInstances.ColorSymbol(ManaType.Colorless))
+      types.contains(ManaType.Colorless)
+    else
+      (types - ManaType.Colorless).map(s.colorIntensity).sum > 0
+  })
 
   /**
    * Convenience method for calculating the devotion to a single mana type that this mana cost contributes.
