@@ -134,6 +134,7 @@ import org.jfree.chart.util.SortOrder
 import java.awt.LinearGradientPaint
 import java.awt.geom.Point2D
 import java.awt.MultipleGradientPaint
+import org.jfree.chart.renderer.category.CategoryItemRendererState
 
 object EditorFrame {
   val MainDeck = 0
@@ -971,13 +972,32 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   private val analysisTypeAxis = CategoryAxis("Mana Type")
   private val analysisCountAxis = NumberAxis("Amount")
 
+  private val devotionData = DefaultCategoryDataset()
+  private val devotionRenderer = new StackedBarRenderer() {
+    protected override def calculateBarWidth(plot: CategoryPlot, dataArea: Rectangle2D, rendererIndex: Int, state: CategoryItemRendererState) = {
+      super.calculateBarWidth(plot, dataArea, rendererIndex, state)
+      state.setBarWidth(state.getBarWidth*0.6)
+    }
+
+    // For some reason, AbstractRenderer makes this protected, which Scala doesn't like
+    override def clone: Object = super.clone
+  }
+  devotionRenderer.setBarPainter(StandardBarPainter())
+  devotionRenderer.setDefaultToolTipGenerator(StandardCategoryToolTipGenerator("{0} {1} {2}", DecimalFormat()))
+  devotionRenderer.setDrawBarOutline(true)
+  devotionRenderer.setDefaultOutlinePaint(Color.BLACK)
+  devotionRenderer.setShadowVisible(false)
+  devotionRenderer.setDefaultSeriesVisibleInLegend(false)
+
   // Plot creation
   private val analysisPlot = CategoryPlot()
   analysisPlot.setDataset(0, analysisData)
-  analysisPlot.setRenderer(analysisRenderer)
+  analysisPlot.setDataset(1, devotionData)
+  analysisPlot.setRenderers(Array(analysisRenderer, devotionRenderer))
   analysisPlot.setDomainAxis(analysisTypeAxis)
   analysisPlot.setRangeAxis(analysisCountAxis)
   analysisPlot.setRowRenderingOrder(SortOrder.DESCENDING)
+  analysisPlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD)
   analysisPlot.setRangeGridlinesVisible(false)
   private val analysisChart = JFreeChart("Card Analysis", JFreeChart.DEFAULT_TITLE_FONT, analysisPlot, true)
   private val analysisLegend = analysisChart.getLegend
@@ -1932,10 +1952,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     }
 
     analysisData.clear()
+    devotionData.clear()
     cardAnalysesBox.getCurrentItem match {
-      case CardAnalysisType.Mana => 
+      case CardAnalysisType.Mana =>
+        val positiveCosts = deck.current.filter(_.card.faces.exists(_.manaValue > 0)).map(_.count).sum.toDouble
         val consumed = ManaType.values.map((t) => {
-          val positiveCosts = deck.current.filter(_.card.faces.exists(_.manaValue > 0)).map(_.count).sum.toDouble
           t -> (t match {
             case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty || f.manaCost.colors.contains(ManaType.Colorless))).map(_.count).sum/positiveCosts
             case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum/positiveCosts
@@ -1946,6 +1967,20 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
           analysisData.addValue(deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum.toDouble/deck.current.filter(_.card.faces.exists(!_.produces.isEmpty)).map(_.count).sum, "Produces", t.toString)
         }
         analysisRenderer.colors = consumed.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t.toString) }.toIndexedSeq
+
+        for (t <- ManaType.values) {
+          val maxIntensity = deck.current.flatMap(_.card.faces.map(_.manaCost.intensity(t))).max.toInt
+          if (maxIntensity == 0) {
+            devotionData.addValue(0, 0, t.toString)
+            devotionRenderer.setSeriesPaint(0, Color(0, 0, 0, 0))
+          } else {
+            for (i <- 1 to maxIntensity) {
+              val count = deck.current.count(_.card.faces.exists(_.manaCost.intensity(t).toInt == i))
+              devotionData.addValue(count/positiveCosts, i, t.toString)
+              devotionRenderer.setSeriesPaint(i, Color(0, 0, 0, 0))
+            }
+          }
+        }
       case CardAnalysisType.Types =>
         val data = CardAttribute.CardType.options.collect{
           case t if SettingsDialog.settings.editor.manaAnalysis.get(t).isDefined => t -> deck.current.filter(_.card.types.contains(t)).map(_.count).sum
