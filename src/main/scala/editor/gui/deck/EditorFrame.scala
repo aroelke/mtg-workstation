@@ -1968,19 +1968,20 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         }
         analysisRenderer.colors = consumed.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t.toString) }.toIndexedSeq
 
-        for (t <- ManaType.values) {
-          val maxIntensity = deck.current.flatMap(_.card.faces.map(_.manaCost.intensity(t))).max.toInt
-          if (maxIntensity == 0) {
-            devotionData.addValue(0, 0, t.toString)
-            devotionRenderer.setSeriesPaint(0, Color(0, 0, 0, 0))
-          } else {
-            for (i <- maxIntensity to 1 by -1) {
-              val count = deck.current.count(_.card.faces.exists(_.manaCost.intensity(t).toInt == i))
-              devotionData.addValue(count/positiveCosts, i, t.toString)
-              devotionRenderer.setSeriesPaint(i, Color(0, 0, 0, 0))
-            }
+        val overallMax = ManaType.values.map((t) => deck.current.flatMap(_.card.faces.map(_.manaCost.devotionTo(t))).max).max
+        for (i <- overallMax to 1 by -1) {
+          for ((t, _) <- consumed) {
+            val count = deck.current.count(_.card.faces.exists(_.manaCost.devotionTo(t).toInt == i))
+            devotionData.addValue(count/positiveCosts, i, t.toString)
           }
         }
+        for ((t, _) <- consumed)
+          devotionData.addValue(0, 0, t.toString)
+        for (i <- 1 to overallMax) {
+          val rgb = (i - 1).toFloat/(overallMax - 1)
+          devotionRenderer.setSeriesPaint(i - 1, Color(rgb, rgb, rgb, math.abs(rgb - 0.5f)))
+        }
+        devotionRenderer.setSeriesPaint(overallMax, Color.WHITE)
       case CardAnalysisType.Types =>
         val data = CardAttribute.CardType.options.collect{
           case t if SettingsDialog.settings.editor.manaAnalysis.get(t).isDefined => t -> deck.current.filter(_.card.types.contains(t)).map(_.count).sum
