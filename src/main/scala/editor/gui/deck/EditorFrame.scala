@@ -135,6 +135,13 @@ import java.awt.LinearGradientPaint
 import java.awt.geom.Point2D
 import java.awt.MultipleGradientPaint
 import org.jfree.chart.renderer.category.CategoryItemRendererState
+import org.jfree.chart.labels.CategoryToolTipGenerator
+import org.jfree.data.category.CategoryDataset
+import editor.database.symbol.ManaSymbolInstances
+import editor.gui.ElementAttribute.ManaCostElement
+import editor.database.attributes.ManaCost
+import editor.database.symbol.FunctionalSymbol
+import editor.database.symbol.ManaSymbol
 
 object EditorFrame {
   val MainDeck = 0
@@ -983,7 +990,19 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     override def clone: Object = super.clone
   }
   devotionRenderer.setBarPainter(StandardBarPainter())
-  devotionRenderer.setDefaultToolTipGenerator(StandardCategoryToolTipGenerator("{0} {1} {2}", DecimalFormat()))
+  devotionRenderer.setDefaultToolTipGenerator(new CategoryToolTipGenerator {
+    def generateToolTip(dataset: CategoryDataset, row: Int, column: Int) = {
+      val devotion = dataset.getRowKey(row) match {
+        case n: Integer => n.toInt
+        case _ => 0
+      }
+      val symbol = dataset.getColumnKey(column) match {
+        case s: String => ManaSymbol.parse(s).getOrElse(ManaSymbolInstances.StaticSymbol(Infinity))
+        case _ => ManaSymbolInstances.StaticSymbol(Infinity)
+      }
+      s"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq.fill(devotion)(symbol))))}: ${dataset.getValue(row, column)}</html>"
+    }
+  })
   devotionRenderer.setDrawBarOutline(true)
   devotionRenderer.setDefaultOutlinePaint(Color.BLACK)
   devotionRenderer.setShadowVisible(false)
