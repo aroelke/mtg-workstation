@@ -996,11 +996,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         case n: Integer => n.toInt
         case _ => 0
       }
-      val symbol = dataset.getColumnKey(column) match {
+      val symbol =  if (devotion > 0) dataset.getColumnKey(column) match {
         case s: String => ManaSymbol.parse(s).getOrElse(ManaSymbolInstances.StaticSymbol(Infinity))
         case _ => ManaSymbolInstances.StaticSymbol(Infinity)
-      }
-      s"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq.fill(devotion)(symbol))))}: ${dataset.getValue(row, column)}</html>"
+      } else ManaSymbolInstances.VariableSymbol('X')
+      s"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq.fill(math.max(1, devotion))(symbol))))}: ${dataset.getValue(row, column)}</html>"
     }
   })
   devotionRenderer.setDrawBarOutline(true)
@@ -2001,6 +2001,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
           devotionRenderer.setSeriesPaint(i - 1, Color(rgb, rgb, rgb, math.abs(rgb - 0.5f)))
         }
         devotionRenderer.setSeriesPaint(overallMax, Color.WHITE)
+        val undevoted = consumed.collect{ case (t, n) if t == ManaType.Colorless => n }.headOption.getOrElse(0.0) - deck.current.count(_.card.faces.exists(_.manaCost.devotionTo(ManaType.Colorless) > 0))/positiveCosts
+        devotionData.addValue(undevoted, "X", ManaType.Colorless.toString)
+        devotionRenderer.setSeriesPaint(overallMax + 1, Color(0, 0, 0, 0))
       case CardAnalysisType.Types =>
         val data = CardAttribute.CardType.options.collect{
           case t if SettingsDialog.settings.editor.manaAnalysis.get(t).isDefined => t -> deck.current.filter(_.card.types.contains(t)).map(_.count).sum
