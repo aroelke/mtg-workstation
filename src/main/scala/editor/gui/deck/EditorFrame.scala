@@ -993,14 +993,19 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   devotionRenderer.setDefaultToolTipGenerator(new CategoryToolTipGenerator {
     def generateToolTip(dataset: CategoryDataset, row: Int, column: Int) = {
       val devotion = dataset.getRowKey(row) match {
-        case n: Integer => n.toInt
+        case n: java.lang.Integer => n.toInt
         case _ => 0
       }
-      val symbol =  if (devotion > 0) dataset.getColumnKey(column) match {
+      val symbol = if (devotion > 0) dataset.getColumnKey(column) match {
         case s: String => ManaSymbol.parse(s).getOrElse(ManaSymbolInstances.StaticSymbol(Infinity))
         case _ => ManaSymbolInstances.StaticSymbol(Infinity)
       } else ManaSymbolInstances.VariableSymbol('X')
-      s"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq.fill(math.max(1, devotion))(symbol))))}: ${dataset.getValue(row, column)}</html>"
+      val frequency = dataset.getValue(row, column) match {
+        case n: java.lang.Double => n.toDouble
+        case n: java.lang.Float => n.toDouble
+        case _ => 0.0
+      }
+      f"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq.fill(math.max(1, devotion))(symbol))))}: $frequency%.3f</html>"
     }
   })
   devotionRenderer.setDrawBarOutline(false)
