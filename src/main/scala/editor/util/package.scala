@@ -1,5 +1,7 @@
 package editor
 
+import org.jfree.data.category.CategoryDataset
+
 import java.awt.Color
 import javax.swing.JComboBox
 import scala.util.Random
@@ -21,6 +23,11 @@ package object util {
     extension (r: Random) {
       /** @return a random color. */
       def nextColor = Color(r.nextFloat, r.nextFloat, r.nextFloat)
+    }
+
+    extension (dataset: CategoryDataset) {
+      /** @return the row key, column key, and value associated with the row and column index of the data set */
+      def getTriple(row: Int, column: Int) = (dataset.getRowKey(row), dataset.getColumnKey(column), dataset.getValue(row, column))
     }
   }
 }

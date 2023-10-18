@@ -991,24 +991,15 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   }
   devotionRenderer.setBarPainter(StandardBarPainter())
   devotionRenderer.setDefaultToolTipGenerator(new CategoryToolTipGenerator {
-    def generateToolTip(dataset: CategoryDataset, row: Int, column: Int) = {
-      val devotion = dataset.getRowKey(row) match {
-        case n: java.lang.Integer => n.toInt
-        case _ => 0
-      }
-      val symbol = if (devotion > 0) dataset.getColumnKey(column) match {
-        case s: String => ManaSymbol.parse(s).getOrElse(ManaSymbolInstances.StaticSymbol(Infinity))
-        case _ => ManaSymbolInstances.StaticSymbol(Infinity)
-      } else ManaSymbolInstances.VariableSymbol('X')
-      val frequency = dataset.getValue(row, column) match {
-        case n: java.lang.Double => n.toDouble
-        case n: java.lang.Float => n.toDouble
-        case _ => 0.0
-      }
-      f"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq.fill(math.max(1, devotion))(symbol))))}: $frequency%.3f</html>"
+    def generateToolTip(dataset: CategoryDataset, row: Int, column: Int) = dataset.getTriple(row, column) match {
+      case (r: java.lang.Integer, s: String, v: java.lang.Double) if r > 0 =>
+        val symbol = ManaSymbol.parse(s).getOrElse(ManaSymbolInstances.StaticSymbol(Infinity))
+        f"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq.fill(r)(symbol))))}: $v%.3f</html>"
+      case (_, _, v: java.lang.Double) => f"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq(ManaSymbolInstances.VariableSymbol('X')))))}: $v%.3f</html>"
+      case _ => s"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq(ManaSymbolInstances.StaticSymbol(Infinity)))))}: 0</html>"
     }
   })
-  devotionRenderer.setDrawBarOutline(false)
+  devotionRenderer.setDrawBarOutline(true)
   devotionRenderer.setDefaultOutlinePaint(Color.BLACK)
   devotionRenderer.setShadowVisible(false)
   devotionRenderer.setDefaultSeriesVisibleInLegend(false)
