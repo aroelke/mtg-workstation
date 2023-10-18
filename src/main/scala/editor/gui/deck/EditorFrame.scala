@@ -1003,7 +1003,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       s"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq.fill(math.max(1, devotion))(symbol))))}: ${dataset.getValue(row, column)}</html>"
     }
   })
-  devotionRenderer.setDrawBarOutline(true)
+  devotionRenderer.setDrawBarOutline(false)
   devotionRenderer.setDefaultOutlinePaint(Color.BLACK)
   devotionRenderer.setShadowVisible(false)
   devotionRenderer.setDefaultSeriesVisibleInLegend(false)
@@ -1997,8 +1997,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         for ((t, _) <- consumed)
           devotionData.addValue(0, 0, t.toString)
         for (i <- 1 to overallMax) {
-          val rgb = (i - 1).toFloat/(overallMax - 1)
-          devotionRenderer.setSeriesPaint(i - 1, Color(rgb, rgb, rgb, math.abs(rgb - 0.5f)))
+          val ratio = (i - 1).toFloat/(overallMax - 1)
+          val shade = if (ratio < 0.5) 0f else 1f
+          devotionRenderer.setSeriesPaint(i - 1, Color(shade, shade, shade, math.abs(ratio - 0.5f)))
         }
         devotionRenderer.setSeriesPaint(overallMax, Color.WHITE)
         val undevoted = consumed.collect{ case (t, n) if t == ManaType.Colorless => n }.headOption.getOrElse(0.0) - deck.current.count(_.card.faces.exists(_.manaCost.devotionTo(ManaType.Colorless) > 0))/positiveCosts
