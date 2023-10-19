@@ -142,6 +142,7 @@ import editor.gui.ElementAttribute.ManaCostElement
 import editor.database.attributes.ManaCost
 import editor.database.symbol.FunctionalSymbol
 import editor.database.symbol.ManaSymbol
+import org.jfree.chart.labels.CategoryItemLabelGenerator
 
 object EditorFrame {
   val MainDeck = 0
@@ -936,10 +937,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   listTabs.addTab(ManaAnalysis.title, manaAnalysisPanel)
 
   /* CARD ANALYSIS TAB */
-  private enum CardAnalysisType(override val toString: String, val xlabel: String, val tooltip: String, val legend: Boolean) {
-    case Mana       extends CardAnalysisType("Mana Production", "Mana Type", "{0} {1}: {2}", true)
-    case Types      extends CardAnalysisType("Card Types", "Card Type", "{1}: {2}", false)
-    case Categories extends CardAnalysisType("Categories", "Category", "{1}: {2}", false)
+  private enum CardAnalysisType(override val toString: String, val xlabel: String, val ylabel: String, val tooltip: String, val legend: Boolean) {
+    case Mana       extends CardAnalysisType("Mana Production", "Mana Type", "Amount (%)", "{0} {1}: {2}", true)
+    case Types      extends CardAnalysisType("Card Types", "Card Type", "Amount", "{1}: {2}", false)
+    case Categories extends CardAnalysisType("Categories", "Category", "Amount", "{1}: {2}", false)
   }
   private val cardAnalysesBox = JComboBox(CardAnalysisType.values)
 
@@ -976,8 +977,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   analysisRenderer.setDrawBarOutline(true)
   analysisRenderer.setDefaultOutlinePaint(Color.BLACK)
   analysisRenderer.setShadowVisible(false)
-  private val analysisTypeAxis = CategoryAxis("Mana Type")
-  private val analysisCountAxis = NumberAxis("Amount")
+  private val analysisTypeAxis = CategoryAxis(cardAnalysesBox.getCurrentItem.xlabel)
+  private val analysisCountAxis = NumberAxis(cardAnalysesBox.getCurrentItem.ylabel)
 
   private val devotionData = DefaultCategoryDataset()
   private val devotionRenderer = new StackedBarRenderer() {
@@ -996,7 +997,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         val symbol = ManaSymbol.parse(s).getOrElse(ManaSymbolInstances.StaticSymbol(Infinity))
         f"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq.fill(r)(symbol))))}: $v%.3f</html>"
       case (c: java.lang.Character, _, v: java.lang.Double) => f"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq(ManaSymbolInstances.VariableSymbol(c)))))}: $v%.3f</html>"
-      case (a, b, c) => s"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq(ManaSymbolInstances.StaticSymbol(Infinity)))))}: 0</html>"
+      case _ => s"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq(ManaSymbolInstances.StaticSymbol(Infinity)))))}: 0</html>"
     }
   })
   devotionRenderer.setDrawBarOutline(true)
@@ -1030,6 +1031,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   cardAnalysesBox.addActionListener(_ => {
     updateStats()
     analysisTypeAxis.setLabel(cardAnalysesBox.getCurrentItem.xlabel)
+    analysisCountAxis.setLabel(cardAnalysesBox.getCurrentItem.ylabel)
     analysisRenderer.setDefaultToolTipGenerator(StandardCategoryToolTipGenerator(cardAnalysesBox.getCurrentItem.tooltip, DecimalFormat()))
     if (cardAnalysesBox.getCurrentItem.legend) {
       if (analysisChart.getLegend == null)
@@ -1978,8 +1980,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
           })
         }).filter{ case (_, f) => f > 0 }
         for ((t, f) <- consumed) {
-          analysisData.addValue(f, "Costs", t.toString)
-          analysisData.addValue(deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum.toDouble/deck.current.filter(_.card.faces.exists(!_.produces.isEmpty)).map(_.count).sum, "Produces", t.toString)
+          analysisData.addValue(f*100, "Costs", t.toString)
+          analysisData.addValue(deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum.toDouble*100/deck.current.filter(_.card.faces.exists(!_.produces.isEmpty)).map(_.count).sum, "Produces", t.toString)
         }
         analysisRenderer.colors = consumed.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t.toString) }.toIndexedSeq
 
@@ -1987,7 +1989,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         for (i <- overallMax to 1 by -1) {
           for ((t, _) <- consumed) {
             val count = deck.current.count(_.card.faces.exists(_.manaCost.devotionTo(t).toInt == i))
-            devotionData.addValue(count/positiveCosts, i, t.toString)
+            devotionData.addValue(count*100/positiveCosts, i, t.toString)
           }
         }
         for ((t, _) <- consumed)
