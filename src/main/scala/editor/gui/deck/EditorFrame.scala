@@ -992,12 +992,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   }
   devotionRenderer.setBarPainter(StandardBarPainter())
   devotionRenderer.setDefaultToolTipGenerator(new CategoryToolTipGenerator {
+    private val pattern = "<html>Costs %s: %.3f</html>"
     def generateToolTip(dataset: CategoryDataset, row: Int, column: Int) = dataset.getTriple(row, column) match {
       case (r: java.lang.Integer, s: String, v: java.lang.Double) if r > 0 =>
         val symbol = ManaSymbol.parse(s).getOrElse(ManaSymbolInstances.StaticSymbol(Infinity))
-        f"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq.fill(r)(symbol))))}: $v%.3f</html>"
-      case (c: java.lang.Character, _, v: java.lang.Double) => f"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq(ManaSymbolInstances.VariableSymbol(c)))))}: $v%.3f</html>"
-      case _ => s"<html>Costs ${ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq(ManaSymbolInstances.StaticSymbol(Infinity)))))}: 0</html>"
+        pattern.format(ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq.fill(r)(symbol)))), v.toDouble)
+      case (c: java.lang.Character, _, v: java.lang.Double) => pattern.format("any", v.toDouble)
+      case _ => pattern.format(ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq(ManaSymbolInstances.StaticSymbol(Infinity))))), 0.0)
     }
   })
   devotionRenderer.setDrawBarOutline(true)
@@ -2001,7 +2002,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         }
         devotionRenderer.setSeriesPaint(overallMax, Color.WHITE)
         val undevoted = consumed.collect{ case (t, n) if t == ManaType.Colorless => n }.headOption.getOrElse(0.0) - deck.current.count(_.card.faces.exists(_.manaCost.devotionTo(ManaType.Colorless) > 0))/positiveCosts
-        devotionData.addValue(undevoted, 'X', ManaType.Colorless.toString)
+        devotionData.addValue(undevoted*100, 'X', ManaType.Colorless.toString)
         devotionRenderer.setSeriesPaint(overallMax + 1, Color(0, 0, 0, 0))
       case CardAnalysisType.Types =>
         val data = CardAttribute.CardType.options.collect{
