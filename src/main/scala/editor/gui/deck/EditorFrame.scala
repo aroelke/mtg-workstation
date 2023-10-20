@@ -993,12 +993,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   devotionRenderer.setBarPainter(StandardBarPainter())
   devotionRenderer.setDefaultToolTipGenerator(new CategoryToolTipGenerator {
     private val pattern = "<html>Costs %s: %.3f</html>"
+    private def tooltip(s: ManaSymbol) = ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq(s))))
     def generateToolTip(dataset: CategoryDataset, row: Int, column: Int) = dataset.getTriple(row, column) match {
       case (r: java.lang.Integer, s: String, v: java.lang.Double) if r > 0 =>
         val symbol = ManaSymbol.parse(s).getOrElse(ManaSymbolInstances.StaticSymbol(Infinity))
         pattern.format(ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq.fill(r)(symbol)))), v.toDouble)
-      case (c: java.lang.Character, _, v: java.lang.Double) => pattern.format("any", v.toDouble)
-      case _ => pattern.format(ManaCostElement.tooltip(Seq(ManaCost(IndexedSeq(ManaSymbolInstances.StaticSymbol(Infinity))))), 0.0)
+      case (c: java.lang.Character, _, v: java.lang.Double) => pattern.format(tooltip(ManaSymbolInstances.VariableSymbol(c)), v.toDouble)
+      case _ => pattern.format(tooltip(ManaSymbolInstances.StaticSymbol(Infinity)), 0.0)
     }
   })
   devotionRenderer.setDrawBarOutline(true)
