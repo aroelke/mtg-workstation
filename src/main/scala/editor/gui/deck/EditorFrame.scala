@@ -907,16 +907,16 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
   categoryAnalysisPanel.add(Box.createHorizontalStrut(2))
   categoryAnalysisPanel.add(sectionsBox)
   categoryAnalysisPanel.add(Box.createHorizontalStrut(15))
-  private val analyzeCategoryBox = JCheckBox("Analyze category:", false)
-  analyzeCategoryBox.addActionListener(_ => {
-    analyzeCategoryCombo.setEnabled(analyzeCategoryBox.isSelected)
+  private val manaAnalyzeCategoryBox = JCheckBox("Analyze category:", false)
+  private val manaAnalyzeCategoryCombo = JComboBox[String]()
+  manaAnalyzeCategoryBox.addActionListener(_ => {
+    manaAnalyzeCategoryCombo.setEnabled(manaAnalyzeCategoryBox.isSelected)
     updateStats()
   })
-  categoryAnalysisPanel.add(analyzeCategoryBox)
-  private val analyzeCategoryCombo = JComboBox[String]()
-  analyzeCategoryCombo.setEnabled(false)
-  analyzeCategoryCombo.addActionListener(_ => if (analyzeCategoryCombo.getItemCount > 0) updateStats())
-  categoryAnalysisPanel.add(analyzeCategoryCombo)
+  categoryAnalysisPanel.add(manaAnalyzeCategoryBox)
+  manaAnalyzeCategoryCombo.setEnabled(manaAnalyzeCategoryBox.isSelected)
+  manaAnalyzeCategoryCombo.addActionListener(_ => if (manaAnalyzeCategoryCombo.getItemCount > 0) updateStats())
+  categoryAnalysisPanel.add(manaAnalyzeCategoryCombo)
   categoryAnalysisPanel.add(Box.createHorizontalGlue)
   manaAnalysisConfigPanel.add(categoryAnalysisPanel, BorderLayout.NORTH)
 
@@ -1042,6 +1042,16 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       analysisChart.removeLegend()
   })
   cardAnalysisConfigPanel.add(cardAnalysesBox)
+  cardAnalysisConfigPanel.add(Box.createHorizontalStrut(15))
+  private val cardAnalyzeCategoryBox = JCheckBox("Analyze Category:", false)
+  private val cardAnalyzeCategoryCombo = JComboBox[String]()
+  cardAnalyzeCategoryBox.addActionListener(_ => {
+    cardAnalyzeCategoryCombo.setEnabled(cardAnalyzeCategoryBox.isSelected)
+    updateStats()
+  })
+  cardAnalysisConfigPanel.add(cardAnalyzeCategoryBox)
+  cardAnalyzeCategoryCombo.addActionListener(_ => if (cardAnalyzeCategoryCombo.getItemCount > 0) updateStats())
+  cardAnalysisConfigPanel.add(cardAnalyzeCategoryCombo)
   cardAnalysisConfigPanel.add(Box.createHorizontalGlue())
   cardAnalysisPanel.add(cardAnalysisConfigPanel, BorderLayout.SOUTH)
 
@@ -1833,20 +1843,37 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       })
     }
 
-    analyzeCategoryBox.setVisible(!deck.current.categories.isEmpty)
-    analyzeCategoryCombo.setVisible(!deck.current.categories.isEmpty)
+    manaAnalyzeCategoryBox.setVisible(!deck.current.categories.isEmpty)
+    manaAnalyzeCategoryCombo.setVisible(!deck.current.categories.isEmpty)
+    cardAnalyzeCategoryBox.setVisible(!deck.current.categories.isEmpty)
+    cardAnalyzeCategoryCombo.setVisible(!deck.current.categories.isEmpty)
     if (deck.current.categories.isEmpty)
-      analyzeCategoryBox.setSelected(false)
+      manaAnalyzeCategoryBox.setSelected(false)
+      cardAnalyzeCategoryBox.setSelected(false)
     else {
-      val selectedForAnalysis = analyzeCategoryCombo.getCurrentItem
-      analyzeCategoryCombo.removeAllItems()
-      deck.current.categories.foreach((c) => analyzeCategoryCombo.addItem(c.categorization.name))
-      analyzeCategoryCombo.setMaximumSize(analyzeCategoryCombo.getPreferredSize())
-      val indexForAnalysis = analyzeCategoryCombo.getModel.asInstanceOf[DefaultComboBoxModel[String]].getIndexOf(selectedForAnalysis)
-      if (indexForAnalysis < 0) {
-        analyzeCategoryCombo.setSelectedIndex(0)
-        analyzeCategoryBox.setSelected(false)
-      } else analyzeCategoryCombo.setSelectedIndex(indexForAnalysis)
+      val selectedForManaAnalysis = manaAnalyzeCategoryCombo.getCurrentItem
+      manaAnalyzeCategoryCombo.removeAllItems()
+      deck.current.categories.foreach((c) => manaAnalyzeCategoryCombo.addItem(c.categorization.name))
+      manaAnalyzeCategoryCombo.setMaximumSize(manaAnalyzeCategoryCombo.getPreferredSize())
+      val indexForManaAnalysis = manaAnalyzeCategoryCombo.getModel.asInstanceOf[DefaultComboBoxModel[String]].getIndexOf(selectedForManaAnalysis)
+      if (indexForManaAnalysis < 0) {
+        manaAnalyzeCategoryCombo.setSelectedIndex(0)
+        manaAnalyzeCategoryBox.setSelected(false)
+      } else {
+        manaAnalyzeCategoryCombo.setSelectedIndex(indexForManaAnalysis)
+      }
+
+      val selectedForCardAnalysis = cardAnalyzeCategoryCombo.getCurrentItem
+      cardAnalyzeCategoryCombo.removeAllItems()
+      deck.current.categories.foreach((c) => cardAnalyzeCategoryCombo.addItem(c.categorization.name))
+      cardAnalyzeCategoryCombo.setMaximumSize(cardAnalyzeCategoryCombo.getPreferredSize)
+      val indexForCardAnalysis = cardAnalyzeCategoryCombo.getModel.asInstanceOf[DefaultComboBoxModel[String]].getIndexOf(selectedForCardAnalysis)
+      if (indexForCardAnalysis < 0) {
+        cardAnalyzeCategoryCombo.setSelectedIndex(0)
+        cardAnalyzeCategoryBox.setSelected(false)
+      } else {
+        cardAnalyzeCategoryCombo.setSelectedIndex(indexForManaAnalysis)
+      }
     }
 
     categoriesContainer.revalidate()
@@ -1884,15 +1911,15 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
     landDrops.clear()
     val colorSets = ListMap((1 to ManaType.colors.size).flatMap(ManaType.colors.combinations(_).map((c) => ManaType.sorted(c).map(_.toString) -> c.toSet)):_*)
     val sections = sectionsBox.getCurrentItem match {
-      case ManaCurveSection.ByNothing    => Seq(Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getCurrentItem else "Main Deck"))
+      case ManaCurveSection.ByNothing    => Seq(Seq(if (manaAnalyzeCategoryBox.isSelected) manaAnalyzeCategoryCombo.getCurrentItem else "Main Deck"))
       case ManaCurveSection.ByColorGroup => Seq(Seq("Colorless")) ++ ManaType.colors.map((m) => Seq(m.toString)) ++ Seq(Seq("Multicolored"))
       case ManaCurveSection.ByColors     => Seq(Seq("Colorless")) ++ colorSets.keys
       case ManaCurveSection.ByType       => Seq("Battle", "Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery", "Tribal").map(Seq(_)); // Land is omitted because we don't count them here
     }
-    val analyte = if (analyzeCategoryBox.isSelected) deck.current.categories(analyzeCategoryCombo.getCurrentItem).list else deck.current
-    val analyteLands = analyte.collect{ case e if SettingsDialog.settings.editor.isLand(e.card) => e.count }.sum
-    if (analyte.total - analyteLands > 0) {
-      var sectionManaValues = sections.zipWithIndex.map{ case (s, i) => s -> analyte
+    val manaAnalyte = if (manaAnalyzeCategoryBox.isSelected) deck.current.categories(manaAnalyzeCategoryCombo.getCurrentItem).list else deck.current
+    val manaAnalyteLands = manaAnalyte.collect{ case e if SettingsDialog.settings.editor.isLand(e.card) => e.count }.sum
+    if (manaAnalyte.total - manaAnalyteLands > 0) {
+      var sectionManaValues = sections.zipWithIndex.map{ case (s, i) => s -> manaAnalyte
         .filter((e) => !SettingsDialog.settings.editor.isLand(e.card))
         .filter((e) => sectionsBox.getCurrentItem match {
           case ManaCurveSection.ByNothing => true
@@ -1972,25 +1999,26 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
 
     analysisData.clear()
     devotionData.clear()
+    val cardAnalyte = if (cardAnalyzeCategoryBox.isSelected) deck.current.categories(cardAnalyzeCategoryCombo.getCurrentItem).list else deck.current
     cardAnalysesBox.getCurrentItem match {
       case CardAnalysisType.Mana =>
-        val positiveCosts = deck.current.filter(_.card.faces.exists(_.manaValue > 0)).map(_.count).sum.toDouble
+        val positiveCosts = cardAnalyte.filter(_.card.faces.exists(_.manaValue > 0)).map(_.count).sum.toDouble
         val consumed = ManaType.values.map((t) => {
           t -> (t match {
-            case ManaType.Colorless => deck.current.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty || f.manaCost.colors.contains(ManaType.Colorless))).map(_.count).sum/positiveCosts
-            case c => deck.current.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum/positiveCosts
+            case ManaType.Colorless => cardAnalyte.filter(_.card.faces.exists((f) => f.manaValue > 0 && f.manaCost.colors.isEmpty || f.manaCost.colors.contains(ManaType.Colorless))).map(_.count).sum/positiveCosts
+            case c => cardAnalyte.filter(_.card.faces.exists(_.manaCost.colors.contains(c))).map(_.count).sum/positiveCosts
           })
         }).filter{ case (_, f) => f > 0 }
         for ((t, f) <- consumed) {
           analysisData.addValue(f*100, "Costs", t.toString)
-          analysisData.addValue(deck.current.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum.toDouble*100/deck.current.filter(_.card.faces.exists(!_.produces.isEmpty)).map(_.count).sum, "Produces", t.toString)
+          analysisData.addValue(cardAnalyte.filter((e) => CardAttribute.ProducesMana.ofType(t)(e.card)).map(_.count).sum.toDouble*100/cardAnalyte.filter(_.card.faces.exists(!_.produces.isEmpty)).map(_.count).sum, "Produces", t.toString)
         }
         analysisRenderer.colors = consumed.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t.toString) }.toIndexedSeq
 
-        val overallMax = ManaType.values.map((t) => deck.current.flatMap(_.card.faces.map(_.manaCost.devotionTo(t))).maxOption.getOrElse(0)).maxOption.getOrElse(0)
+        val overallMax = ManaType.values.map((t) => cardAnalyte.flatMap(_.card.faces.map(_.manaCost.devotionTo(t))).maxOption.getOrElse(0)).maxOption.getOrElse(0)
         for (i <- overallMax to 1 by -1) {
           for ((t, _) <- consumed) {
-            val count = deck.current.collect{ case e if e.card.faces.exists(_.manaCost.devotionTo(t).toInt == i) => e.count }.sum
+            val count = cardAnalyte.collect{ case e if e.card.faces.exists(_.manaCost.devotionTo(t).toInt == i) => e.count }.sum
             devotionData.addValue(count*100/positiveCosts, i, t.toString)
           }
         }
@@ -2003,20 +2031,20 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         }
         devotionRenderer.setSeriesPaint(overallMax, Color.WHITE)
         consumed.find{ case (t, _) => t == ManaType.Colorless }.foreach{ case (t, n) =>
-          val undevoted = n - deck.current.count(_.card.faces.exists(_.manaCost.devotionTo(ManaType.Colorless) > 0))/positiveCosts
+          val undevoted = n - cardAnalyte.count(_.card.faces.exists(_.manaCost.devotionTo(ManaType.Colorless) > 0))/positiveCosts
           devotionData.addValue(undevoted*100, 'X', ManaType.Colorless.toString)
           devotionRenderer.setSeriesPaint(overallMax + 1, Color(0, 0, 0, 0))
         }
       case CardAnalysisType.Types =>
         val data = CardAttribute.CardType.options.collect{
-          case t if SettingsDialog.settings.editor.manaAnalysis.get(t).isDefined => t -> deck.current.filter(_.card.types.contains(t)).map(_.count).sum
+          case t if SettingsDialog.settings.editor.manaAnalysis.get(t).isDefined => t -> cardAnalyte.filter(_.card.types.contains(t)).map(_.count).sum
         }.filter{ case (_, n) => n > 0 }.toSeq
         for ((t, n) <- data)
           analysisData.addValue(n, "Card Type", t)
         analysisRenderer.colors = data.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t) }.toIndexedSeq
       case CardAnalysisType.Categories =>
-        val sorted = categories.toIndexedSeq.sortBy(_.color.getRGB)
-        val data = sorted.map((c) => c -> deck.current.filter((e) => c(e.card)).map(_.count).sum)
+        val sorted = categories.filter((c) => !cardAnalyzeCategoryBox.isSelected || c.name != cardAnalyzeCategoryCombo.getCurrentItem).toIndexedSeq.sortBy(_.color.getRGB)
+        val data = sorted.map((c) => c -> cardAnalyte.filter((e) => c(e.card)).map(_.count).sum).filter{ case (_, n) => n > 0 }
         for ((c, n) <- data)
           analysisData.addValue(n, "Category", c.name)
         analysisRenderer.colors = data.map{ case (c, _) => c.color }
