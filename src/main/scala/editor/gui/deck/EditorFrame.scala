@@ -1990,7 +1990,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         val overallMax = ManaType.values.map((t) => deck.current.flatMap(_.card.faces.map(_.manaCost.devotionTo(t))).maxOption.getOrElse(0)).maxOption.getOrElse(0)
         for (i <- overallMax to 1 by -1) {
           for ((t, _) <- consumed) {
-            val count = deck.current.count(_.card.faces.exists(_.manaCost.devotionTo(t).toInt == i))
+            val count = deck.current.collect{ case e if e.card.faces.exists(_.manaCost.devotionTo(t).toInt == i) => e.count }.sum
             devotionData.addValue(count*100/positiveCosts, i, t.toString)
           }
         }
