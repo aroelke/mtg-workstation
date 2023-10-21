@@ -1987,7 +1987,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         }
         analysisRenderer.colors = consumed.map{ case (t, _) => SettingsDialog.settings.editor.manaAnalysis(t.toString) }.toIndexedSeq
 
-        val overallMax = ManaType.values.map((t) => deck.current.flatMap(_.card.faces.map(_.manaCost.devotionTo(t))).max).max
+        val overallMax = ManaType.values.map((t) => deck.current.flatMap(_.card.faces.map(_.manaCost.devotionTo(t))).maxOption.getOrElse(0)).maxOption.getOrElse(0)
         for (i <- overallMax to 1 by -1) {
           for ((t, _) <- consumed) {
             val count = deck.current.count(_.card.faces.exists(_.manaCost.devotionTo(t).toInt == i))
@@ -2002,9 +2002,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
           devotionRenderer.setSeriesPaint(i - 1, Color(shade, shade, shade, math.abs(ratio - 0.5f)))
         }
         devotionRenderer.setSeriesPaint(overallMax, Color.WHITE)
-        val undevoted = consumed.collect{ case (t, n) if t == ManaType.Colorless => n }.headOption.getOrElse(0.0) - deck.current.count(_.card.faces.exists(_.manaCost.devotionTo(ManaType.Colorless) > 0))/positiveCosts
-        devotionData.addValue(undevoted*100, 'X', ManaType.Colorless.toString)
-        devotionRenderer.setSeriesPaint(overallMax + 1, Color(0, 0, 0, 0))
+        consumed.find{ case (t, _) => t == ManaType.Colorless }.foreach{ case (t, n) =>
+          val undevoted = n - deck.current.count(_.card.faces.exists(_.manaCost.devotionTo(ManaType.Colorless) > 0))/positiveCosts
+          devotionData.addValue(undevoted*100, 'X', ManaType.Colorless.toString)
+          devotionRenderer.setSeriesPaint(overallMax + 1, Color(0, 0, 0, 0))
+        }
       case CardAnalysisType.Types =>
         val data = CardAttribute.CardType.options.collect{
           case t if SettingsDialog.settings.editor.manaAnalysis.get(t).isDefined => t -> deck.current.filter(_.card.types.contains(t)).map(_.count).sum
