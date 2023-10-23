@@ -90,7 +90,7 @@ object TextFilter {
 final case class TextFilter(attribute: CardAttribute[Seq[String], TextFilter], value: (Card) => Seq[String], faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = Containment.AnyOf, regex: Boolean = false, text: String = "") extends FilterLeaf {
   import TextFilter._
 
-  private def matches(s: String) = if (regex) s"(?si)${replaceTokens(text)}".r.findFirstIn(s).isDefined else contain match {
+  def matches(s: String) = if (regex) s"(?si)${replaceTokens(text)}".r.findFirstIn(s).isDefined else contain match {
     case AllOf => createSimpleMatcher(text)(s)
     case AnyOf | NoneOf =>
       val r = WordPattern.findAllMatchIn(text).map((m) => {
