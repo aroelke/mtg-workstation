@@ -20,6 +20,9 @@ import javax.swing.text.StyleConstants
 import javax.swing.text.StyledDocument
 import scala.collection.immutable.ListSet
 import scala.collection.immutable.TreeMap
+import scala.util.matching._
+import editor.database.symbol.ColorSymbol
+import editor.database.symbol.ManaSymbolInstances
 
 /**
  * A single-faced [[Card]], or a single face of a [[MultiCard]].
@@ -86,6 +89,27 @@ case class SingleCard(
   override lazy val typeLine = TypeLine(cardts, subts, superts)
   override lazy val isLand = types.exists(_.equalsIgnoreCase("land"))
   override lazy val imageNames = Seq(name.toLowerCase)
+
+  private val specificPattern = raw"adds? (?:an amount of |\w+ |an additional (?:amount of |\w+ )?)?((?:(?:, |,? or )?${ManaCost.Pattern.regex})+)".r
+  private val anyPattern = raw"(?s).*add (?:\w+|an amount of) mana (?:of any|of any one|in any combination of) (type|color).*".r
+
+  override lazy val produces = normalizedOracle.head match {
+    case anyPattern("color") => ManaType.colors.toSet
+    case anyPattern("type")  => ManaType.values.toSet
+    case _ =>
+      val matches = specificPattern.findAllIn(normalizedOracle.head).matchData
+      if (matches.isEmpty) {
+        Set.empty
+      } else {
+        matches.flatMap((m) => ManaCost.parse(m.group(1).replaceAll("( |,|or)", ""))).map(_.intensity.keys).flatten.toSet
+      } ++ Map(
+        "plains" -> ManaType.White,
+        "island" -> ManaType.Blue,
+        "swamp" -> ManaType.Black,
+        "mountain" -> ManaType.Red,
+        "forest" -> ManaType.Green
+      ).collect{ case (word, color) if subtypes.exists(_.equalsIgnoreCase(word)) => color }.toSet
+  }
 
   override def formatDocument(document: StyledDocument, printed: Boolean) = {
     val textStyle = document.getStyle("text")

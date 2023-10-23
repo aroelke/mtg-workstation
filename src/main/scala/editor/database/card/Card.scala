@@ -199,6 +199,9 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   /** @return true if this card is a land, or false otherwise. */
   def isLand: Boolean
 
+  /** @return the set of [[ManaType]]s this card can produce, or an empty set if it can't produce mana. */
+  def produces: Set[ManaType]
+
   /** @return the file names of the images to use to display the card. */
   def imageNames: Seq[String]
 

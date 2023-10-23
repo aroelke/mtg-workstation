@@ -12,6 +12,7 @@ import editor.gui.deck.CategoryEditorPanel
 import editor.gui.display.CardTable
 import editor.gui.display.CategoryList
 import editor.gui.generic.ComponentUtils
+import editor.gui.generic.DrawingPanel
 import editor.gui.generic.ScrollablePanel
 import editor.gui.generic.VerticalButtonList
 import editor.serialization
@@ -116,7 +117,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   editorNode.add(handAppearanceNode)
   private val formatsNode = DefaultMutableTreeNode("Formats")
   editorNode.add(formatsNode)
-  private val manaAnalysisNode = DefaultMutableTreeNode("Mana Analysis")
+  private val manaAnalysisNode = DefaultMutableTreeNode("Analysis")
   editorNode.add(manaAnalysisNode)
   root.add(editorNode)
 
@@ -492,7 +493,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   private val sections = Array(
     "Nothing",
     "Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored",
-    "Creature", "Artifact", "Enchantment", "Planeswalker", "Battle", "Instant", "Sorcery", "Tribal"
+    "Creature", "Artifact", "Enchantment", "Planeswalker", "Battle", "Instant", "Sorcery", "Land", "Tribal"
   )
   private val sectionChoosers = sections.map(_ -> JColorChooser()).toMap
   for ((_, chooser) <- sectionChoosers) {
@@ -552,6 +553,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     typesDataset.addValue(1, "Battle", "3")
     typesDataset.addValue(2, "Instant", "4")
     typesDataset.addValue(2, "Sorcery", "4")
+    typesDataset.addValue(1, "Land", "2")
     typesDataset.addValue(1, "Tribal", "4")
     val typesRenderer = StackedBarRenderer()
     typesRenderer.setBarPainter(StandardBarPainter())
@@ -565,7 +567,8 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     sectionChoosers("Battle").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(4, sectionChoosers("Battle").getColor))
     sectionChoosers("Instant").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(5, sectionChoosers("Instant").getColor))
     sectionChoosers("Sorcery").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(6, sectionChoosers("Sorcery").getColor))
-    sectionChoosers("Tribal").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(7, sectionChoosers("Tribal").getColor))
+    sectionChoosers("Land").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(7, sectionChoosers("Land").getColor))
+    sectionChoosers("Tribal").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(8, sectionChoosers("Tribal").getColor))
     val typesX = CategoryAxis()
     val typesY = NumberAxis()
     val typesPlot = CategoryPlot(typesDataset, typesX, typesY, typesRenderer)
@@ -589,15 +592,12 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     panel.setForeground(label.getForeground())
     panel.setBackground(label.getBackground())
     panel.add(label, BorderLayout.CENTER)
-    val color = new JPanel {
-      override def paintComponent(g: Graphics): Unit = {
-        super.paintComponent(g)
-        g.setColor(sectionChoosers(value).getColor)
-        g.fillRect(1, 1, getWidth - 3, getHeight - 3)
-        g.setColor(Color.BLACK)
-        g.drawRect(1, 1, getWidth - 3, getHeight - 3)
-      }
-    }
+    val color = DrawingPanel((g, p) => {
+      g.setColor(sectionChoosers(value).getColor)
+      g.fillRect(1, 1, p.getWidth - 3, p.getHeight - 3)
+      g.setColor(Color.BLACK)
+      g.drawRect(1, 1, p.getWidth - 3, p.getHeight - 3)
+    })
     color.setPreferredSize(Dimension(label.getPreferredSize.height, label.getPreferredSize.height))
     color.setForeground(label.getForeground)
     color.setBackground(label.getBackground)
@@ -639,6 +639,13 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   private val linePanel = ChartPanel(nothingChart)
   linePanel.setPreferredSize(Dimension(landLineChooser.getPreviewPanel.getPreferredSize.width, landLineChooser.getPreviewPanel.getPreferredSize.height*5/2))
   landLineChooser.setPreviewPanel(linePanel)
+
+  // Mana Production Filtering
+  private val produceConsumedPanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
+  produceConsumedPanel.setBorder(BorderFactory.createTitledBorder("Mana Production"))
+  private val produceConsumedBox = JCheckBox("Only show produced mana for types in mana costs")
+  produceConsumedPanel.add(produceConsumedBox)
+  manaAnalysisPanel.add(produceConsumedPanel)
 
   // Default options for legality panel
   private val legalityDefaultsBox = Box.createHorizontalBox
@@ -771,7 +778,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
             list = cmdrListName.getText,
             sideboard = if (sideCheck.isSelected) sideField.getText else ""
           ),
-          manaAnalysis = ManaAnalysisSettings(sectionChoosers.map{ case (s, c) => s -> c.getColor }.toMap).copy(line = landLineChooser.getColor),
+          manaAnalysis = ManaAnalysisSettings(sectionChoosers.map{ case (s, c) => s -> c.getColor }.toMap).copy(line = landLineChooser.getColor, produceConsumed = produceConsumedBox.isSelected),
           columns = editorColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toIndexedSeq.sortBy(_.ordinal),
           stripe = editorStripeColor.getColor,
           manaValue = manaValueBox.getCurrentItem,
@@ -860,6 +867,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     }
     sections.foreach(s => sectionChoosers(s).setColor(settings.editor.manaAnalysis(s)))
     landLineChooser.setColor(settings.editor.manaAnalysis.line)
+    produceConsumedBox.setSelected(settings.editor.manaAnalysis.produceConsumed)
 
     setVisible(true)
   }

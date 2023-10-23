@@ -100,6 +100,10 @@ class CardTableModel(private var cards: CardList, private var attributes: Indexe
     fireTableStructureChanged()
   }
 
+  /**
+   * Change the attributes to be displayed by the table.
+   * @param c new attributes to show
+   */
   @targetName("card_columns_=") def columns_=(c: IndexedSeq[CardAttribute[?, ?]]): Unit = columns = c.map(ElementAttribute.fromAttribute)
 
   /** @return the list of cards shown by the table. */
