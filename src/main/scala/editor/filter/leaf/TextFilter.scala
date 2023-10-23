@@ -63,14 +63,14 @@ object TextFilter {
    * Create a regex matcher that matches words and quote-enclosed strings separated by white space in a pattern.
    * 
    * @param pattern pattern containing words and phrases to match
-   * @return a string function that returns true if the input string contains all of the words and phrases in the pattern, in
-   * any order, and returns false otherwise
+   * @param text string to test for matches
+   * @return true if text contains all of the words and phrases in the pattern, in any order, or false otherwise
    */
-  def createSimpleMatcher(pattern: String) = {
+  def createSimpleMatcher(pattern: String)(text: String) = {
     val r = WordPattern.findAllMatchIn(pattern).map((m) => {
       replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.matched).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
     }).mkString("(?mi)^(?=.*(?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))(?=.*(?:^|$|\\W)\\Q", "\\E(?:^|$|\\W)).*$").r
-    (s: String) => r.findFirstIn(s).isDefined
+    r.findFirstIn(text).isDefined
   }
 
   private case class Data(contain: Containment, regex: Boolean, text: String)
@@ -90,19 +90,19 @@ object TextFilter {
 final case class TextFilter(attribute: CardAttribute[Seq[String], TextFilter], value: (Card) => Seq[String], faces: FaceSearchOptions = FaceSearchOptions.ANY, contain: Containment = Containment.AnyOf, regex: Boolean = false, text: String = "") extends FilterLeaf {
   import TextFilter._
 
-  private lazy val matches: (String) => Boolean = if (regex) s"(?si)${replaceTokens(text)}".r.findFirstIn(_).isDefined else contain match {
-    case AllOf => createSimpleMatcher(text)
+  private def matches(s: String) = if (regex) s"(?si)${replaceTokens(text)}".r.findFirstIn(s).isDefined else contain match {
+    case AllOf => createSimpleMatcher(text)(s)
     case AnyOf | NoneOf =>
       val r = WordPattern.findAllMatchIn(text).map((m) => {
         replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.matched).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
       }).mkString("(?mi)((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))").replace("\\Q\\E", "").r
       if (contain == AnyOf)
-        r.findFirstIn(_).isDefined
+        r.findFirstIn(s).isDefined
       else
-        !r.findFirstIn(_).isDefined
-    case SomeOf => !createSimpleMatcher(text)(_)
-    case Exactly => text.equalsIgnoreCase
-    case NotExactly => !text.equalsIgnoreCase(_)
+        !r.findFirstIn(s).isDefined
+    case SomeOf => !createSimpleMatcher(text)(s)
+    case Exactly => text.equalsIgnoreCase(s)
+    case NotExactly => !text.equalsIgnoreCase(s)
   }
 
   override val unified = false
