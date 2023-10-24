@@ -3,7 +3,7 @@ package editor.database.card
 import editor.database.attributes.CombatStat
 import editor.database.attributes.Expansion
 import editor.database.attributes.Legality
-import editor.database.attributes.Loyalty
+import editor.database.attributes.CounterStat
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
@@ -75,7 +75,7 @@ case class SingleCard(
   number: String,
   power: Option[CombatStat],
   toughness: Option[CombatStat],
-  loyalty: Option[Loyalty],
+  loyalty: Option[CounterStat],
   rulings: TreeMap[Date, Seq[String]],
   legality: Map[String, Legality],
   commandFormats: Seq[String]

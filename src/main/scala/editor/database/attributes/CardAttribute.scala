@@ -319,8 +319,8 @@ object CardAttribute {
   }
 
   /** Loyalty of each face, if it's a planeswalker. */
-  case object Loyalty extends CardAttribute[Seq[Option[Loyalty]], NumberFilter]("Loyalty", "Planeswalker starting loyalty")
-      with ComparesOrdered[Seq[Option[Loyalty]]]
+  case object Loyalty extends CardAttribute[Seq[Option[CounterStat]], NumberFilter]("Loyalty", "Planeswalker starting loyalty")
+      with ComparesOrdered[Seq[Option[CounterStat]]]
       with HasNumberFilter(false, _.loyalty.map(_.value).getOrElse(Double.NaN), Some(_.loyaltyVariable)) {
     override def apply(e: CardListEntry) = e.card.faces.map(_.loyalty)
   }

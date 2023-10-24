@@ -1,22 +1,22 @@
 package editor.database.attributes
 
 /**
- * Starting loyalty of a planeswalker card. Some planeswalkers have variable loyalties,
- * either starting (X) or based on game state (*), instead of concrete numbers.
+ * Starting stat of a card that is tracked via counters (e.g. loyalty or defense). Some have
+ * variable values, either starting (X) or based on game state (*), instead of concrete numbers.
  * 
  * @constructor create a new starting loyalty
  * @param value amount of loyalty
  * 
  * @author Alec Roelke
  */
-case class Loyalty(value: Double) extends Ordered[Loyalty] {
+case class CounterStat(value: Double) extends Ordered[CounterStat] {
   /** Whether or not the card actually has loyalty (i.e. is a planeswalker) */
   val exists = !value.isNaN
 
   /** Whether or not the starting loyalty is variable. */
   val variable = value < 0
 
-  override def compare(that: Loyalty) = {
+  override def compare(that: CounterStat) = {
     val c = value.compare(that.value)
     if (c == 0) {
       if (variable && !that.variable)
@@ -29,13 +29,13 @@ case class Loyalty(value: Double) extends Ordered[Loyalty] {
   }
 
   override val toString = value match {
-    case Loyalty.X    => "X"
-    case Loyalty.STAR => "*"
+    case CounterStat.X    => "X"
+    case CounterStat.STAR => "*"
     case _ => value.toInt.toString
   }
 }
 
-object Loyalty {
+object CounterStat {
   /**
    * Create a loyalty value from a string. The only permitted options are integers,
    * "X", "*", and the empty string (to represent no loyalty).
@@ -43,9 +43,9 @@ object Loyalty {
    * @param s string to parse
    * @return a new loyalty value
    */
-  def apply(s: String): Loyalty = Loyalty(s.toUpperCase match {
-    case "X" => Loyalty.X
-    case "*" => Loyalty.STAR
+  def apply(s: String): CounterStat = CounterStat(s.toUpperCase match {
+    case "X" => CounterStat.X
+    case "*" => CounterStat.STAR
     case  u  => u.toDouble
   })
 

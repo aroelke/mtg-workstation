@@ -3,7 +3,7 @@ package editor.database.card
 import editor.database.attributes.CombatStat
 import editor.database.attributes.Expansion
 import editor.database.attributes.Legality
-import editor.database.attributes.Loyalty
+import editor.database.attributes.CounterStat
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
@@ -173,7 +173,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def toughness: Option[CombatStat]
 
   /** @return the card's loyalty if it's a planeswalker, or None otherwise. */
-  def loyalty: Option[Loyalty]
+  def loyalty: Option[CounterStat]
 
   /** @return the car'd artist. */
   def artist: String

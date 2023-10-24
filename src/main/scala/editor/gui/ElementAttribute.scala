@@ -10,7 +10,7 @@ import editor.database.attributes.Expansion
 import editor.database.attributes.HasMultiOptionsFilter
 import editor.database.attributes.HasOptions
 import editor.database.attributes.HasSingletonOptionsFilter
-import editor.database.attributes.Loyalty
+import editor.database.attributes.CounterStat
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
@@ -368,9 +368,9 @@ object ElementAttribute {
   }
 
   /** Element for filtering by and rendering planeswalker loyalty. */
-  case object LoyaltyElement extends ElementAttribute[Seq[Option[Loyalty]], NumberFilter]
+  case object LoyaltyElement extends ElementAttribute[Seq[Option[CounterStat]], NumberFilter]
       with NumberElement
-      with OptionIterableRenderer[Loyalty, Seq[Option[Loyalty]]]()
+      with OptionIterableRenderer[CounterStat, Seq[Option[CounterStat]]]()
       with CantBeEdited {
     override def attribute = CardAttribute.Loyalty
   }
