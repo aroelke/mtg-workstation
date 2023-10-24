@@ -325,6 +325,13 @@ object CardAttribute {
     override def apply(e: CardListEntry) = e.card.faces.map(_.loyalty)
   }
 
+  /** Defense of each face, if it's a battle. */
+  case object Defense extends CardAttribute[Seq[Option[CounterStat]], NumberFilter]("Defense", "Battle starting defense")
+      with ComparesOrdered[Seq[Option[CounterStat]]]
+      with HasNumberFilter(false, _.defense.map(_.value).getOrElse(Double.NaN), Some(_.defenseVariable)) {
+    override def apply(e: CardListEntry) = e.card.faces.map(_.defense)
+  }
+
   /** Overall layout of the card, or how faces are arranged if there are multiple faces. */
   case object Layout extends CardAttribute[CardLayout, SingletonOptionsFilter[CardLayout]]("Layout", "Layout of card faces")
       with ComparesOrdered[CardLayout]
@@ -483,7 +490,42 @@ object CardAttribute {
       with CantCompare[Unit]
 
   /** Array of all card attributes. */
-  val values: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(Name, RulesText, FlavorText, PrintedText, ManaCost, RealManaValue, EffManaValue, Colors, ColorIdentity, Devotion, TypeLine, PrintedTypes, CardType, Subtype, Supertype, Power, Toughness, Loyalty, Layout, Expansion, Block, Rarity, Artist, CardNumber, LegalIn, ProducesMana, Tags, Categories, Count, DateAdded, AnyCard, NoCard, Group)
+  val values: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(
+    Name,
+    RulesText,
+    FlavorText,
+    PrintedText,
+    ManaCost,
+    RealManaValue,
+    EffManaValue,
+    Colors,
+    ColorIdentity,
+    Devotion,
+    TypeLine,
+    PrintedTypes,
+    CardType,
+    Subtype,
+    Supertype,
+    Power,
+    Toughness,
+    Loyalty,
+    Defense,
+    Layout,
+    Expansion,
+    Block,
+    Rarity,
+    Artist,
+    CardNumber,
+    LegalIn,
+    ProducesMana,
+    Tags,
+    Categories,
+    Count,
+    DateAdded,
+    AnyCard,
+    NoCard,
+    Group
+  )
 
   /** Array of all card attributes that can be displayed in a GUI. */
   lazy val displayableValues = values.filter(!_.isInstanceOf[CantCompare[?]])

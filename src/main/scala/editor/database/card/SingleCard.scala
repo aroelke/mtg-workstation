@@ -50,6 +50,7 @@ import editor.database.symbol.ManaSymbolInstances
  * @param power power of the card, if it's a creature
  * @param toughness toughness of the card, if it's a creature
  * @param loyalty loyalty of the card, if it's a planeswalker
+ * @param defense defense of the card, if it's a battle
  * @param rulings clarifications on how the card works and when they were made
  * @param legality which formats the card is legal (or restricted) in
  * @param commandFormats formats in which the card can be commander
@@ -76,6 +77,7 @@ case class SingleCard(
   power: Option[CombatStat],
   toughness: Option[CombatStat],
   loyalty: Option[CounterStat],
+  defense: Option[CounterStat],
   rulings: TreeMap[Date, Seq[String]],
   legality: Map[String, Legality],
   commandFormats: Seq[String]

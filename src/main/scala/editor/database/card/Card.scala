@@ -175,6 +175,9 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   /** @return the card's loyalty if it's a planeswalker, or None otherwise. */
   def loyalty: Option[CounterStat]
 
+  /** @return the card's defense if it's a battle, or None otherwise. */
+  def defense: Option[CounterStat]
+
   /** @return the car'd artist. */
   def artist: String
 
@@ -239,6 +242,9 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
 
   /** @return true if the card has a loyalty value and it's variable (contains * or X) or false otherwise. */
   def loyaltyVariable = faces.exists(_.loyalty.exists(_.variable))
+
+  /** @return true if the card has a defense value and it's variable (contains * or X) or false otherwise. */
+  def defenseVariable = faces.exists(_.defense.exists(_.variable))
 
   /**
    * Determine the card's legality in a particular format.
