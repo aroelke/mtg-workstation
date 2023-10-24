@@ -242,7 +242,9 @@ case class SingleCard(
       if (power.isDefined && toughness.isDefined)
         document.insertString(document.getLength, s"${power.get}/${toughness.get}\n", textStyle)
       else if (loyalty.isDefined)
-          document.insertString(document.getLength, s"${loyalty.get}\n", textStyle)
+        document.insertString(document.getLength, s"${loyalty.get}\n", textStyle)
+      else if (defense.isDefined)
+        document.insertString(document.getLength, s"${defense.get}\n", textStyle)
 
       document.insertString(document.getLength, s"$artist $number/${expansion.count}", textStyle)
     } catch case e: BadLocationException => e.printStackTrace()
