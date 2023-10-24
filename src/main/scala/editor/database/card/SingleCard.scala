@@ -241,8 +241,8 @@ case class SingleCard(
 
       (power, toughness, loyalty, defense) match {
         case (Some(p), Some(t), None, None) => document.insertString(document.getLength, s"$p/$t\n", textStyle)
-        case (None, None, Some(l), None)    => document.insertString(document.getLength, s"$l\n", textStyle)
-        case (None, None, None, Some(d))    => document.insertString(document.getLength, s"$d\n", textStyle)
+        case (None, None, Some(l), None)    => document.insertString(document.getLength, s"[$l]\n", textStyle)
+        case (None, None, None, Some(d))    => document.insertString(document.getLength, s"{$d}\n", textStyle)
         case _ => throw IllegalArgumentException(s"Illegal combination of power/toughness, loyalty, defense: $power/$toughness, $loyalty, $defense")
       }
 
