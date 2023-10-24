@@ -10,7 +10,7 @@ import editor.database.attributes.Expansion
 import editor.database.attributes.HasMultiOptionsFilter
 import editor.database.attributes.HasOptions
 import editor.database.attributes.HasSingletonOptionsFilter
-import editor.database.attributes.Loyalty
+import editor.database.attributes.CounterStat
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
@@ -368,11 +368,19 @@ object ElementAttribute {
   }
 
   /** Element for filtering by and rendering planeswalker loyalty. */
-  case object LoyaltyElement extends ElementAttribute[Seq[Option[Loyalty]], NumberFilter]
+  case object LoyaltyElement extends ElementAttribute[Seq[Option[CounterStat]], NumberFilter]
       with NumberElement
-      with OptionIterableRenderer[Loyalty, Seq[Option[Loyalty]]]()
+      with OptionIterableRenderer[CounterStat, Seq[Option[CounterStat]]]()
       with CantBeEdited {
     override def attribute = CardAttribute.Loyalty
+  }
+
+  /** Element for filtering by and rendering battle defense. */
+  case object DefenseElement extends ElementAttribute[Seq[Option[CounterStat]], NumberFilter]
+      with NumberElement
+      with OptionIterableRenderer[CounterStat, Seq[Option[CounterStat]]]()
+      with CantBeEdited {
+    override def attribute = CardAttribute.Defense
   }
 
   /** Element for filtering by and rendering card layout. */
@@ -491,7 +499,40 @@ object ElementAttribute {
   }
 
   /** Array of GUI element attributes. */
-  val values: IndexedSeq[ElementAttribute[?, ?]] = IndexedSeq(NameElement, RuleTextElement, PrintedTextElement, ManaCostElement, RealManaValueElement, EffManaValueElement, ColorsElement, ColorIdentityElement, DevotionElement, TypeLineElement, PrintedTypesElement, CardTypeElement, SubtypeElement, SupertypeElement, PowerElement, ToughnessElement, LoyaltyElement, LayoutElement, ExpansionElement, BlockElement, RarityElement, ArtistElement, CardNumberElement, LegalInElement, ProducesManaElement, TagsElement, AnyCardElement, NoCardElement, CategoriesElement, CountElement, DateAddedElement)
+  val values: IndexedSeq[ElementAttribute[?, ?]] = IndexedSeq(
+    NameElement,
+    RuleTextElement,
+    PrintedTextElement,
+    ManaCostElement,
+    RealManaValueElement,
+    EffManaValueElement,
+    ColorsElement,
+    ColorIdentityElement,
+    DevotionElement,
+    TypeLineElement,
+    PrintedTypesElement,
+    CardTypeElement,
+    SubtypeElement,
+    SupertypeElement,
+    PowerElement,
+    ToughnessElement,
+    LoyaltyElement,
+    DefenseElement,
+    LayoutElement,
+    ExpansionElement,
+    BlockElement,
+    RarityElement,
+    ArtistElement,
+    CardNumberElement,
+    LegalInElement,
+    ProducesManaElement,
+    TagsElement,
+    AnyCardElement,
+    NoCardElement,
+    CategoriesElement,
+    CountElement,
+    DateAddedElement
+  )
 
   /** Array of GUI element attributes that can create filters. */
   val filterableValues = values.filter(!_.attribute.isInstanceOf[CantBeFiltered])

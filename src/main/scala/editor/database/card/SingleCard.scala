@@ -3,7 +3,7 @@ package editor.database.card
 import editor.database.attributes.CombatStat
 import editor.database.attributes.Expansion
 import editor.database.attributes.Legality
-import editor.database.attributes.Loyalty
+import editor.database.attributes.CounterStat
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
@@ -50,6 +50,7 @@ import editor.database.symbol.ManaSymbolInstances
  * @param power power of the card, if it's a creature
  * @param toughness toughness of the card, if it's a creature
  * @param loyalty loyalty of the card, if it's a planeswalker
+ * @param defense defense of the card, if it's a battle
  * @param rulings clarifications on how the card works and when they were made
  * @param legality which formats the card is legal (or restricted) in
  * @param commandFormats formats in which the card can be commander
@@ -75,7 +76,8 @@ case class SingleCard(
   number: String,
   power: Option[CombatStat],
   toughness: Option[CombatStat],
-  loyalty: Option[Loyalty],
+  loyalty: Option[CounterStat],
+  defense: Option[CounterStat],
   rulings: TreeMap[Date, Seq[String]],
   legality: Map[String, Legality],
   commandFormats: Seq[String]
@@ -237,10 +239,12 @@ case class SingleCard(
         document.insertString(document.getLength, "\n", reminderStyle)
       }
 
-      if (power.isDefined && toughness.isDefined)
-        document.insertString(document.getLength, s"${power.get}/${toughness.get}\n", textStyle)
-      else if (loyalty.isDefined)
-          document.insertString(document.getLength, s"${loyalty.get}\n", textStyle)
+      (power, toughness, loyalty, defense) match {
+        case (Some(p), Some(t), None, None) => document.insertString(document.getLength, s"$p/$t\n", textStyle)
+        case (None, None, Some(l), None)    => document.insertString(document.getLength, s"[$l]\n", textStyle)
+        case (None, None, None, Some(d))    => document.insertString(document.getLength, s"{$d}\n", textStyle)
+        case _ => throw IllegalArgumentException(s"Illegal combination of power/toughness, loyalty, defense: $power/$toughness, $loyalty, $defense")
+      }
 
       document.insertString(document.getLength, s"$artist $number/${expansion.count}", textStyle)
     } catch case e: BadLocationException => e.printStackTrace()

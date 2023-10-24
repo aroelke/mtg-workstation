@@ -208,6 +208,7 @@ private case class RawCard(
   power: Option[String] = None,
   toughness: Option[String] = None,
   loyalty: Option[String] = None,
+  defense: Option[String] = None,
   rarity: String = "",
   otherFaceIds: Option[Seq[String]] = None
 )
@@ -331,7 +332,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       val formatNames = collection.mutable.Map.from(FormatConstraints.FormatNames.map((n) => n -> n).toMap)
       val numbers = collection.mutable.Map[String, String]()
       val stats = collection.mutable.Map[String, CombatStat]()
-      val loyalties = collection.mutable.Map[String, Loyalty]()
+      val counters = collection.mutable.Map[String, CounterStat]()
       val rulingDates = collection.mutable.Map[String, Date]()
       val rulingContents = collection.mutable.Map[String, String]()
 
@@ -388,7 +389,8 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               numbers.getOrElseUpdate(raw.number, raw.number),
               raw.power.map((p) => stats.getOrElseUpdate(p, CombatStat(p))),
               raw.toughness.map((t) => stats.getOrElseUpdate(t, CombatStat(t))),
-              raw.loyalty.map((l) => loyalties.getOrElseUpdate(l, Loyalty(l))),
+              raw.loyalty.map((l) => counters.getOrElseUpdate(l, CounterStat(l))),
+              raw.defense.map((d) => counters.getOrElseUpdate(d, CounterStat(d))),
               TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
               raw.legalities.map{ case (format, legality) => formatNames.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap,
               raw.leadershipSkills.toSeq.flatMap(_.commands.collect{ case (format, legal) if legal => formatNames.getOrElseUpdate(format, format) }).sorted

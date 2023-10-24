@@ -32,6 +32,7 @@ abstract class MultiCard(layout: CardLayout, override val faces: IndexedSeq[Card
   override def power = throw UnsupportedOperationException("only individual faces can have power values")
   override def toughness = throw UnsupportedOperationException("only individual faces can have toughness values")
   override def loyalty = throw UnsupportedOperationException("only individual faces can have loyalty values")
+  override def defense = throw UnsupportedOperationException("only individual faces can have defense values")
   override def number = throw UnsupportedOperationException("only individual faces can have card numbers")
   override def artist = throw UnsupportedOperationException("only individual faces can have artists")
   override lazy val rulings = TreeMap.from(faces.flatMap(_.rulings))

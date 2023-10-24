@@ -2,7 +2,7 @@ package editor.gui.display
 
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.CombatStat
-import editor.database.attributes.Loyalty
+import editor.database.attributes.CounterStat
 import editor.database.attributes.ManaCost
 import editor.database.card.Card
 import editor.gui.ElementAttribute
@@ -96,7 +96,7 @@ private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[Tabl
       given ascending: Boolean = getSortKeys.asScala.exists(_.getSortOrder == SortOrder.ASCENDING)
       m.columns(column) match {
         case ElementAttribute.PowerElement | ElementAttribute.ToughnessElement => SeqOrdering[Option[CombatStat]]
-        case ElementAttribute.LoyaltyElement => SeqOrdering[Option[Loyalty]]
+        case ElementAttribute.LoyaltyElement => SeqOrdering[Option[CounterStat]]
         case attribute => attribute.attribute
       }
     case _ => super.getComparator(column)
