@@ -228,69 +228,20 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
 
     var error = false
     val face = faces(0)
-    val result = layout match {
-      case SPLIT | AFTERMATH | ADVENTURE =>
-        if (faces.size < 2) {
-          errors += s"$face (${face.expansion}): Can't find other face(s) for split card."
-          error = true
-        } else {
-          faces.foreach{ f => if (f.layout != face.layout) {
-            errors += s"$face (${face.expansion}): Can't join non-split faces into a split card."
-            error = true
-          }}
-        }
-        if (!error) Set(SplitCard(faces)) else Set.empty
-      case FLIP =>
-        if (faces.size < 2) {
-          errors += s"$face: (${face.expansion}): Can't find other side of flip card."
-          error = true
-        } else if (faces.size > 2) {
-          errors += s"$face: (${face.expansion}): Too many sides for flip card."
-          error = true
-        } else if (faces(0).layout != FLIP || faces(1).layout != FLIP) {
-          errors += s"$face (${face.expansion}): Can't join non-flip cards into a flip card."
-          error = true
-        }
-        if (!error) Set(FlipCard(faces(0), faces(1))) else Set.empty
-      case TRANSFORM =>
-        if (faces.size < 2) {
-          errors += s"$face (${face.expansion}): Can't find other face of double-faced card."
-          error = true
-        } else if (faces.size > 2) {
-          errors += s"$face (${face.expansion}): Too many faces for double-faced card."
-          error = true
-        } else if (faces(0).layout != TRANSFORM || faces(1).layout != TRANSFORM) {
-          errors += s"$face (${face.expansion}): Can't join single-faced cards into double-faced cards"
-          error = true
-        }
-        if (!error) Set(TransformCard(faces(0), faces(1))) else Set.empty
-      case MODAL_DFC =>
-        if (faces.size < 2) {
-          errors += s"$face (${face.expansion}): Can't find other face of modal double-faced card."
-          error = true
-        } else if (faces.size > 2) {
-          errors += s"$face (${face.expansion}): Too many faces for modal double-faced card."
-          error = true
-        } else if (faces(0).layout != MODAL_DFC || faces(1).layout != MODAL_DFC) {
-          errors += s"$face (${face.expansion}): Can't join single-faced cards into modal double-faced cards."
-          error = true
-        }
-        if (!error) Set(ModalCard(faces(0), faces(1))) else Set.empty
-      case MELD =>
-        if (faces.size < 3) {
-          errors += s"$face (${face.expansion}): Can't find some faces of meld card."
-          error = true
-        } else if (faces.size > 3) {
-          errors += s"$face (${face.expansion}): Too many faces for meld card."
-          error = true
-        } else if (faces(0).layout != MELD || faces(1).layout != MELD || faces(2).layout != MELD) {
-          errors += s"$face (${face.expansion}): Can't join single-faced cards into meld cards."
-          error = true
-        }
-        if (!error) Set(MeldCard(faces(0), faces(1), faces(2)), MeldCard(faces(1), faces(0), faces(2))) else Set.empty
-      case _ => Set.empty
+    val joined = {
+      if (faces.size < layout.faces) {
+        errors += s"$face (${face.expansion}): Can't find other face(s) for ${layout.toString.toLowerCase} card"
+        error = true
+      } else if (faces.size > layout.faces && layout.faces > 0) {
+        errors += s"$face (${face.expansion}): Too many faces for ${layout.toString.toLowerCase} card"
+        error = true
+      } else if (faces.forall(_.layout != layout)) {
+        errors += s"${face} (${face.expansion}): can't join non-${layout.toString.toLowerCase} faces into a ${layout.toString.toLowerCase} card"
+        error = true
+      }
+      if (!error) layout.combine(faces) else Set.empty
     }
-    if (error) faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet else result
+    if (error) faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet else joined
   }
 
   protected override def doInBackground() = {
