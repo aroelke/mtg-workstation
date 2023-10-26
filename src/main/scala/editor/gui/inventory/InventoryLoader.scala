@@ -227,17 +227,12 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
     import CardLayout._
 
     val face = faces(0)
-    if (faces.size < layout.faces) {
-      errors += s"$face (${face.expansion}): Can't find other face(s) for ${layout.toString.toLowerCase} card"
-      faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet
-    } else if (faces.size > layout.faces && layout.faces > 0) {
-      errors += s"$face (${face.expansion}): Too many faces for ${layout.toString.toLowerCase} card"
-      faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet
-    } else if (faces.forall(_.layout != layout)) {
-      errors += s"${face} (${face.expansion}): can't join non-${layout.toString.toLowerCase} faces into a ${layout.toString.toLowerCase} card"
-      faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet
-    } else {
-      layout.combine(faces)
+    try {
+      layout.collect(faces)
+    } catch {
+      case e: IllegalArgumentException =>
+        errors += s"$face: (${face.expansion}): ${e.getMessage}"
+        faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet
     }
   }
 

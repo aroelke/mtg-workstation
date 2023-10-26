@@ -9,9 +9,26 @@ package editor.database.card
  * 
  * @author Alec Roelke
  */
-enum CardLayout(name: String, val faces: Int = 1, val combine: (singles: Seq[Card]) => Set[MultiCard] = _ => throw UnsupportedOperationException(s"$this does not have multiple faces to collect")) extends Ordered[CardLayout] {
+enum CardLayout(name: String, val faces: Int = 1, combine: (singles: Seq[Card]) => Set[MultiCard] = _ => throw UnsupportedOperationException(s"$this does not have multiple faces to collect")) extends Ordered[CardLayout] {
   /** @return true if the layout represents a card with multiple faces or mini-cards, and false otherwise */
   def isMultiFaced = faces != 1
+
+  /**
+   * Collect a list of single-faced cards into a set of multi-faced cards based on layout
+   * 
+   * @param singles list of cards to collect
+   * @return the set of [[MultiCard]]s represented by the list of single-faced cards
+   */
+  @throws[IllegalArgumentException]("if the list of cards is the wrong size or has the wrong layouts")
+  def collect(singles: Seq[Card]) = if (singles.size < faces) {
+    throw IllegalArgumentException(s"can't find other face(s) for ${name.toLowerCase} card")
+  } else if (singles.size > faces && faces > 0) {
+    throw IllegalArgumentException(s"too many faces for ${name.toLowerCase} card")
+  } else if (singles.forall(_.layout != this)) {
+    throw IllegalArgumentException(s"can't join non-${name.toLowerCase} faces into a ${name.toLowerCase} card")
+  } else {
+    combine(singles)
+  }
 
   override def compare(that: CardLayout) = ordinal - that.ordinal
   override def toString = name
