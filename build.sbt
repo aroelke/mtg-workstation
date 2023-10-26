@@ -11,7 +11,7 @@ appProperties := {
 name := "mtg-workstation"
 version := appProperties.value.getProperty("version")
 
-scalaVersion := "3.1.3"
+scalaVersion := "3.3.1"
 libraryDependencies ++= Seq(
   "org.json4s" % "json4s-native_3" % "4.1.0-M1",
   "com.rubiconproject.oss" % "jchronic" % "0.2.8",
