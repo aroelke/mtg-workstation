@@ -1290,7 +1290,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
 
   override def applySettings(oldSettings: Settings, newSettings: Settings) = {
     applyChanges(oldSettings, newSettings)(_.editor.columns)(deck.model.columns = _)
-                                          (_.editor.stripe)(deck.table.stripe = _)
+                                          (_.editor.stripe)((c) => _lists.flatten.foreach(_.table.stripe = c))
                                           (_.editor.manaAnalysis.line)(landRenderer.setSeriesPaint(0, _))
 
     for (i <- 0 until deck.table.getColumnCount)
