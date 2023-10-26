@@ -226,22 +226,19 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
   private def createMultiFacedCard(layout: CardLayout, faces: Seq[Card]) = {
     import CardLayout._
 
-    var error = false
     val face = faces(0)
-    val joined = {
-      if (faces.size < layout.faces) {
-        errors += s"$face (${face.expansion}): Can't find other face(s) for ${layout.toString.toLowerCase} card"
-        error = true
-      } else if (faces.size > layout.faces && layout.faces > 0) {
-        errors += s"$face (${face.expansion}): Too many faces for ${layout.toString.toLowerCase} card"
-        error = true
-      } else if (faces.forall(_.layout != layout)) {
-        errors += s"${face} (${face.expansion}): can't join non-${layout.toString.toLowerCase} faces into a ${layout.toString.toLowerCase} card"
-        error = true
-      }
-      if (!error) layout.combine(faces) else Set.empty
+    if (faces.size < layout.faces) {
+      errors += s"$face (${face.expansion}): Can't find other face(s) for ${layout.toString.toLowerCase} card"
+      faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet
+    } else if (faces.size > layout.faces && layout.faces > 0) {
+      errors += s"$face (${face.expansion}): Too many faces for ${layout.toString.toLowerCase} card"
+      faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet
+    } else if (faces.forall(_.layout != layout)) {
+      errors += s"${face} (${face.expansion}): can't join non-${layout.toString.toLowerCase} faces into a ${layout.toString.toLowerCase} card"
+      faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet
+    } else {
+      layout.combine(faces)
     }
-    if (error) faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet else joined
   }
 
   protected override def doInBackground() = {
