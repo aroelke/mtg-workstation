@@ -3,6 +3,7 @@ package editor.gui.deck
 import editor.collection.mutable.Deck
 import editor.gui.settings.SettingsDialog
 import editor.stats
+import editor.util.extensions._
 
 import java.awt.BorderLayout
 import java.awt.Color
@@ -126,28 +127,28 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
     override def getRowCount = deck.categories.size
 
     override def getColumnCount = drawsSpinner.getValue match {
-      case n: Integer => n + modeBox.getItemAt(modeBox.getSelectedIndex).columns
+      case n: Integer => n + modeBox.getCurrentItem.columns
       case _ => throw IllegalStateException(s"unexpected value of type ${drawsSpinner.getClass}")
     }
 
-    override def getColumnName(column: Int) = modeBox.getItemAt(modeBox.getSelectedIndex).title(column)
+    override def getColumnName(column: Int) = modeBox.getCurrentItem.title(column)
 
-    override def getColumnClass(column: Int) = modeBox.getItemAt(modeBox.getSelectedIndex).clazz(column)
+    override def getColumnClass(column: Int) = modeBox.getCurrentItem.clazz(column)
 
     override def getValueAt(row: Int, column: Int) = {
       val category = deck.categories.map(_.categorization.name).toSeq.sorted.apply(row)
-      modeBox.getItemAt(modeBox.getSelectedIndex).value(column)(category)
+      modeBox.getCurrentItem.value(column)(category)
     }
   }
   private val table = new JTable(model) {
     override def getCellEditor(row: Int, column: Int) = {
       val category = deck.categories.map(_.categorization.name).toSeq.sorted.apply(row)
-      modeBox.getItemAt(modeBox.getSelectedIndex).editor(column).map(_(category)).getOrElse(super.getCellEditor(row, column))
+      modeBox.getCurrentItem.editor(column).map(_(category)).getOrElse(super.getCellEditor(row, column))
     }
 
     override def getScrollableTracksViewportWidth = getPreferredSize.width < getParent.getWidth
 
-    override def isCellEditable(row: Int, column: Int) = modeBox.getItemAt(modeBox.getSelectedIndex).editor(column).isDefined
+    override def isCellEditable(row: Int, column: Int) = modeBox.getCurrentItem.editor(column).isDefined
 
     override def prepareRenderer(renderer: TableCellRenderer, row: Int, column: Int) = {
       val c = super.prepareRenderer(renderer, row, column)
@@ -193,7 +194,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
           probabilities(category) = Array.fill(1 + draws)(0)
           expectedCounts(category) = Array.fill(1 + draws)(0)
           val box = relationBoxes(category)
-          val r = box.getItemAt(box.getSelectedIndex)
+          val r = box.getCurrentItem
           for (j <- 0 to draws) {
             probabilities(category)(j) = r match {
               case AtLeast => 1 - (0 until desiredBoxes(category).getSelectedIndex).map(stats.hypergeometric(_, handSize + j, deck.categories(category).list.total, deck.total)).sum
@@ -213,7 +214,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
     val categories = deck.categories.map(_.categorization.name).toSeq.sorted
 
     val oldDesired = desiredBoxes.map{ case (c, b) => c -> b.getSelectedIndex }
-    val oldRelations = relationBoxes.map{ case (c, b) => c -> b.getItemAt(b.getSelectedIndex) }
+    val oldRelations = relationBoxes.map{ case (c, b) => c -> b.getCurrentItem }
 
     desiredBoxes.clear()
     relationBoxes.clear()

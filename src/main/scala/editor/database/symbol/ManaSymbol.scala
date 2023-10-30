@@ -65,11 +65,11 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
   /** All possible [[StaticSymbol]]s: 1/2, infinity, snow, and multicolored. */
   case StaticSymbol extends ManaSymbolInstances(
     map = Map(
-      "1/2" -> new StaticSymbol("half_mana.png", "1/2", 0.5),
-      OneHalf -> new StaticSymbol("half_mana.png", "1/2", 0.5),
-      Infinity -> new StaticSymbol("infinity_mana.png", Infinity.toString, Double.PositiveInfinity),
-      "S" -> new StaticSymbol("snow_mana.png", "S", 1, 1),
-      "M" -> new StaticSymbol("multicolored.png", "M", 0)
+      "1/2" -> new StaticSymbol("half_mana", "1/2", 0.5),
+      OneHalf -> new StaticSymbol("half_mana", "1/2", 0.5),
+      Infinity -> new StaticSymbol("infinity_mana", Infinity.toString, Double.PositiveInfinity),
+      "S" -> new StaticSymbol("snow_mana", "S", 1, 1),
+      "M" -> new StaticSymbol("multicolored", "M", 0)
     ),
     keygen = Some(_),
     comparator = { case (sa: StaticSymbol, sb: StaticSymbol) => (sa.value - sb.value).toInt }
@@ -150,7 +150,7 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
  * 
  * @author Alec Roelke
  */
-case class VariableSymbol private[symbol](variable: Char) extends ManaSymbol(s"${variable.toLower}_mana.png", variable.toString.toUpperCase, 0, Map(ManaType.Colorless -> 0.5), ManaSymbolInstances.VariableSymbol)
+case class VariableSymbol private[symbol](variable: Char) extends ManaSymbol(s"${variable.toLower}_mana", variable.toString.toUpperCase, 0, Map(ManaType.Colorless -> 0.5), ManaSymbolInstances.VariableSymbol)
 
 /**
  * A mana symbol with a special, specific meaning that isn't captured by any of the other generalized versions of mana symbols. Its color
@@ -175,7 +175,7 @@ case class StaticSymbol private[symbol](iconName: String, text: String, override
  * 
  * @author Alec Roelke
  */
-case class GenericSymbol private[symbol](amount: Int) extends ManaSymbol(s"${amount}_mana.png", amount.toString, amount, Map.empty, ManaSymbolInstances.GenericSymbol)
+case class GenericSymbol private[symbol](amount: Int) extends ManaSymbol(s"${amount}_mana", amount.toString, amount, Map.empty, ManaSymbolInstances.GenericSymbol)
 
 /**
  * Mana symbol representing half of a specific type of mana (not to be confused with the generic 1/2 mana symbol, which is a [[StaticSymbol]]). Its
@@ -187,7 +187,7 @@ case class GenericSymbol private[symbol](amount: Int) extends ManaSymbol(s"${amo
  * 
  * @author Alec Roelke
  */
-case class HalfColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s"half_${color.toString.toLowerCase}_mana.png", s"H${color.shorthand}", 0.5, Map(color -> 0.5), ManaSymbolInstances.HalfColorSymbol)
+case class HalfColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s"half_${color.toString.toLowerCase}_mana", s"H${color.shorthand}", 0.5, Map(color -> 0.5), ManaSymbolInstances.HalfColorSymbol)
 
 /**
  * A mana symbol that can be paid either with two mana of any type or one mana of a specific color. Its color intensity is 0.5 for its color, and 0
@@ -199,7 +199,7 @@ case class HalfColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s
  * 
  * @author Alec Roelke
  */
-case class TwobridSymbol private[symbol](color: ManaType) extends ManaSymbol(s"2_${color.toString.toLowerCase}_mana.png", s"2/${color.shorthand.toUpper}", 2, Map(color -> 0.5), ManaSymbolInstances.TwobridSymbol)
+case class TwobridSymbol private[symbol](color: ManaType) extends ManaSymbol(s"2_${color.toString.toLowerCase}_mana", s"2/${color.shorthand.toUpper}", 2, Map(color -> 0.5), ManaSymbolInstances.TwobridSymbol)
 
 /**
  * A "Phyrexian" mana symbol that can be paid with either of two colors of mana or 2 life. Its color intensity is 1/3 for each of its two colors of mana,
@@ -213,7 +213,7 @@ case class TwobridSymbol private[symbol](color: ManaType) extends ManaSymbol(s"2
  * @author Alec Roelke
  */
 case class PhyrexianHybridSymbol private[symbol](first: ManaType, second: ManaType) extends ManaSymbol(
-  s"phyrexian_${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png",
+  s"phyrexian_${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana",
   s"${first.shorthand.toUpper}/${second.shorthand.toUpper}/P",
   1,
   Map(first -> 1.0/3.0, second -> 1.0/3.0),
@@ -232,7 +232,7 @@ case class PhyrexianHybridSymbol private[symbol](first: ManaType, second: ManaTy
  * @author Alec Roelke
  */
 case class HybridSymbol private[symbol](first: ManaType, second: ManaType) extends ManaSymbol(
-  s"${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png",
+  s"${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana",
   s"${first.shorthand.toUpper}/${second.shorthand.toUpper}",
   1,
   Map(first -> 0.5, second -> 0.5),
@@ -249,7 +249,7 @@ case class HybridSymbol private[symbol](first: ManaType, second: ManaType) exten
  * 
  * @author Alec Roelke
  */
-case class PhyrexianSymbol private[symbol](color: ManaType) extends ManaSymbol(s"phyrexian_${color.toString.toLowerCase}_mana.png", s"${color.shorthand.toUpper}/P", 1, Map(color -> 1), ManaSymbolInstances.PhyrexianSymbol)
+case class PhyrexianSymbol private[symbol](color: ManaType) extends ManaSymbol(s"phyrexian_${color.toString.toLowerCase}_mana", s"${color.shorthand.toUpper}/P", 1, Map(color -> 1), ManaSymbolInstances.PhyrexianSymbol)
 
 /**
  * Mana symbol representing a specific type of mana. Its intensity is 1 for its mana type, and 0 for all others, as it can only be paid for by that type,
@@ -260,4 +260,4 @@ case class PhyrexianSymbol private[symbol](color: ManaType) extends ManaSymbol(s
  * 
  * @author Alec Roelke
  */
-case class ColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s"${color.toString.toLowerCase}_mana.png", color.shorthand.toString, 1, Map(color -> 1), ManaSymbolInstances.ColorSymbol)
+case class ColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s"${color.toString.toLowerCase}_mana", color.shorthand.toString, 1, Map(color -> 1), ManaSymbolInstances.ColorSymbol)

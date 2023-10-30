@@ -1,31 +1,32 @@
 package editor.gui
 
-import _root_.editor.collection.Categorization
-import _root_.editor.collection.mutable.Deck
-import _root_.editor.database.attributes.CantBeFiltered
-import _root_.editor.database.attributes.CantCompare
-import _root_.editor.database.attributes.CardAttribute
-import _root_.editor.database.attributes.CombatStat
-import _root_.editor.database.attributes.Expansion
-import _root_.editor.database.attributes.HasMultiOptionsFilter
-import _root_.editor.database.attributes.HasOptions
-import _root_.editor.database.attributes.HasSingletonOptionsFilter
-import _root_.editor.database.attributes.Loyalty
-import _root_.editor.database.attributes.ManaCost
-import _root_.editor.database.attributes.ManaType
-import _root_.editor.database.attributes.Rarity
-import _root_.editor.database.attributes.TypeLine
-import _root_.editor.database.card.Card
-import _root_.editor.database.card.CardLayout
-import _root_.editor.database.symbol.ManaSymbolInstances.ColorSymbol
-import _root_.editor.filter.leaf._
-import _root_.editor.gui.deck.EditorFrame
-import _root_.editor.gui.deck.InclusionCellEditor
-import _root_.editor.gui.filter.FilterSelectorPanel
-import _root_.editor.gui.filter.editor._
-import _root_.editor.gui.generic.ComponentUtils
-import _root_.editor.gui.generic.SpinnerCellEditor
-import _root_.editor.unicode._
+import editor.collection.Categorization
+import editor.collection.mutable.Deck
+import editor.database.attributes.CantBeFiltered
+import editor.database.attributes.CantCompare
+import editor.database.attributes.CardAttribute
+import editor.database.attributes.CombatStat
+import editor.database.attributes.Expansion
+import editor.database.attributes.HasMultiOptionsFilter
+import editor.database.attributes.HasOptions
+import editor.database.attributes.HasSingletonOptionsFilter
+import editor.database.attributes.CounterStat
+import editor.database.attributes.ManaCost
+import editor.database.attributes.ManaType
+import editor.database.attributes.Rarity
+import editor.database.attributes.TypeLine
+import editor.database.card.Card
+import editor.database.card.CardLayout
+import editor.database.symbol.ManaSymbolInstances.ColorSymbol
+import editor.filter.leaf._
+import editor.gui.deck.EditorFrame
+import editor.gui.deck.InclusionCellEditor
+import editor.gui.filter.FilterSelectorPanel
+import editor.gui.filter.leaf._
+import editor.gui.generic.ComponentUtils
+import editor.gui.generic.DrawingPanel
+import editor.gui.generic.SpinnerCellEditor
+import editor.unicode._
 
 import java.awt.Color
 import java.awt.Graphics
@@ -36,6 +37,7 @@ import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.table.TableCellEditor
+import scala.collection.immutable.ListSet
 import scala.reflect.ClassTag
 
 /**
@@ -119,8 +121,8 @@ sealed trait NumberElement { this: ElementAttribute[?, NumberFilter] =>
  * An [[ElementAttribute]] that creates [[ColorFilter]]s and renders [[ManaType]] sets as a row of mana type icons.
  * @author Alec Roelke
  */
-sealed trait ColorElement { this: ElementAttribute[Set[ManaType], ColorFilter] =>
-  override def filter(selector: FilterSelectorPanel) = ColorFilterPanel(attribute.filter, selector)
+sealed trait ColorElement(available: Seq[ManaType]) { this: ElementAttribute[Set[ManaType], ColorFilter] =>
+  override def filter(selector: FilterSelectorPanel) = ColorFilterPanel(attribute.filter, available, selector)
   override def render(value: Set[ManaType]) = {
     val panel = JPanel()
     panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))
@@ -128,7 +130,7 @@ sealed trait ColorElement { this: ElementAttribute[Set[ManaType], ColorFilter] =
     panel
   }
   override def tooltip(value: Set[ManaType]) = ManaType.sorted(value).map((t) => {
-    s"""<img src="${getClass.getResource(s"/images/icons/${ColorSymbol(t).name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
+    s"""<img src="${getClass.getResource(s"/images/symbols/${ColorSymbol(t).name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
   }).mkString
 }
 
@@ -266,9 +268,18 @@ object ElementAttribute {
     }
     override def tooltip(value: Seq[ManaCost]) = {
       value.map(_.map((s) => {
-        s"""<img src="${getClass.getResource(s"/images/icons/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
+        s"""<img src="${getClass.getResource(s"/images/symbols/${s.name}.png")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>"""
       }).mkString).mkString(Card.FaceSeparator)
     }
+  }
+
+  /**
+   * Element for filtering card devotion contribution.
+   * @see [[CardAttribute.Devotion]]
+   */
+  case object DevotionElement extends ElementAttribute[Seq[(Set[ManaType]) => Int], DevotionFilter] with CantBeRendered[Seq[(Set[ManaType]) => Int]] with CantBeEdited {
+    override def attribute = CardAttribute.Devotion
+    override def filter(selector: FilterSelectorPanel) = DevotionFilterPanel(selector)
   }
 
   /**
@@ -293,12 +304,12 @@ object ElementAttribute {
   }
 
   /** Element filtering by and rendering card colors across all faces. */
-  case object ColorsElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement with CantBeEdited {
+  case object ColorsElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement(ManaType.colors) with CantBeEdited {
     override def attribute = CardAttribute.Colors
   }
 
   /** Element for filtering by and rendering color identity. */
-  case object ColorIdentityElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement with CantBeEdited {
+  case object ColorIdentityElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement(ManaType.colors) with CantBeEdited {
     override def attribute = CardAttribute.ColorIdentity
   }
 
@@ -357,11 +368,19 @@ object ElementAttribute {
   }
 
   /** Element for filtering by and rendering planeswalker loyalty. */
-  case object LoyaltyElement extends ElementAttribute[Seq[Option[Loyalty]], NumberFilter]
+  case object LoyaltyElement extends ElementAttribute[Seq[Option[CounterStat]], NumberFilter]
       with NumberElement
-      with OptionIterableRenderer[Loyalty, Seq[Option[Loyalty]]]()
+      with OptionIterableRenderer[CounterStat, Seq[Option[CounterStat]]]()
       with CantBeEdited {
     override def attribute = CardAttribute.Loyalty
+  }
+
+  /** Element for filtering by and rendering battle defense. */
+  case object DefenseElement extends ElementAttribute[Seq[Option[CounterStat]], NumberFilter]
+      with NumberElement
+      with OptionIterableRenderer[CounterStat, Seq[Option[CounterStat]]]()
+      with CantBeEdited {
+    override def attribute = CardAttribute.Defense
   }
 
   /** Element for filtering by and rendering card layout. */
@@ -417,6 +436,11 @@ object ElementAttribute {
     override def filter(selector: FilterSelectorPanel) = LegalityFilterPanel(attribute.filter, selector)
   }
 
+  /** Element for filtering by and rendering potential mana type production. */
+  case object ProducesManaElement extends ElementAttribute[Set[ManaType], ColorFilter] with ColorElement(ManaType.values) with CantBeEdited {
+    override def attribute = CardAttribute.ProducesMana
+  }
+
   /** Element for filtering by and rendering user-defined tags. Tags are sorted alphabetically for rendering. */
   case object TagsElement extends ElementAttribute[Set[String], MultiOptionsFilter[String]]
       with MultiOptionsElement[String, MultiOptionsFilter[String]]
@@ -443,20 +467,16 @@ object ElementAttribute {
     override def filter(selector: FilterSelectorPanel) = throw UnsupportedOperationException("can't filter by category")
     override def render(value: Set[Categorization]) = {
       val categories = value.toSeq.sortBy(_.name)
-      val panel = new JPanel {
-        override def paintComponent(g: Graphics) = {
-          super.paintComponent(g)
-          for (i <- 0 until categories.size) {
-            val x = i*(getHeight + 1) + 1
+      DrawingPanel((g, p) => {
+        for (i <- 0 until categories.size) {
+            val x = i*(p.getHeight + 1) + 1
             val y = 1
             g.setColor(categories(i).color)
-            g.fillRect(x, y, getHeight - 3, getHeight - 3)
+            g.fillRect(x, y, p.getHeight - 3, p.getHeight - 3)
             g.setColor(Color.BLACK)
-            g.drawRect(x, y, getHeight - 3, getHeight - 3)
+            g.drawRect(x, y, p.getHeight - 3, p.getHeight - 3)
           }
-        }
-      }
-      panel
+      })
     }
     override def tooltip(value: Set[Categorization]) = s"""Categories:${value.map((c) => s"<br>$Bullet ${c.name}").toSeq.sorted.mkString}"""
     override def cellEditor(editor: Option[EditorFrame]) = editor.map(InclusionCellEditor(_))
@@ -479,7 +499,40 @@ object ElementAttribute {
   }
 
   /** Array of GUI element attributes. */
-  val values: IndexedSeq[ElementAttribute[?, ?]] = IndexedSeq(NameElement, RuleTextElement, PrintedTextElement, ManaCostElement, RealManaValueElement, EffManaValueElement, ColorsElement, ColorIdentityElement, TypeLineElement, PrintedTypesElement, CardTypeElement, SubtypeElement, SupertypeElement, PowerElement, ToughnessElement, LoyaltyElement, LayoutElement, ExpansionElement, BlockElement, RarityElement, ArtistElement, CardNumberElement, LegalInElement, TagsElement, AnyCardElement, NoCardElement, CategoriesElement, CountElement, DateAddedElement)
+  val values: IndexedSeq[ElementAttribute[?, ?]] = IndexedSeq(
+    NameElement,
+    RuleTextElement,
+    PrintedTextElement,
+    ManaCostElement,
+    RealManaValueElement,
+    EffManaValueElement,
+    ColorsElement,
+    ColorIdentityElement,
+    DevotionElement,
+    TypeLineElement,
+    PrintedTypesElement,
+    CardTypeElement,
+    SubtypeElement,
+    SupertypeElement,
+    PowerElement,
+    ToughnessElement,
+    LoyaltyElement,
+    DefenseElement,
+    LayoutElement,
+    ExpansionElement,
+    BlockElement,
+    RarityElement,
+    ArtistElement,
+    CardNumberElement,
+    LegalInElement,
+    ProducesManaElement,
+    TagsElement,
+    AnyCardElement,
+    NoCardElement,
+    CategoriesElement,
+    CountElement,
+    DateAddedElement
+  )
 
   /** Array of GUI element attributes that can create filters. */
   val filterableValues = values.filter(!_.attribute.isInstanceOf[CantBeFiltered])

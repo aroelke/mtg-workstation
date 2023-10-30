@@ -208,6 +208,7 @@ private case class RawCard(
   power: Option[String] = None,
   toughness: Option[String] = None,
   loyalty: Option[String] = None,
+  defense: Option[String] = None,
   rarity: String = "",
   otherFaceIds: Option[Seq[String]] = None
 )
@@ -225,71 +226,14 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
   private def createMultiFacedCard(layout: CardLayout, faces: Seq[Card]) = {
     import CardLayout._
 
-    var error = false
     val face = faces(0)
-    val result = layout match {
-      case SPLIT | AFTERMATH | ADVENTURE =>
-        if (faces.size < 2) {
-          errors += s"$face (${face.expansion}): Can't find other face(s) for split card."
-          error = true
-        } else {
-          faces.foreach{ f => if (f.layout != face.layout) {
-            errors += s"$face (${face.expansion}): Can't join non-split faces into a split card."
-            error = true
-          }}
-        }
-        if (!error) Set(SplitCard(faces)) else Set.empty
-      case FLIP =>
-        if (faces.size < 2) {
-          errors += s"$face: (${face.expansion}): Can't find other side of flip card."
-          error = true
-        } else if (faces.size > 2) {
-          errors += s"$face: (${face.expansion}): Too many sides for flip card."
-          error = true
-        } else if (faces(0).layout != FLIP || faces(1).layout != FLIP) {
-          errors += s"$face (${face.expansion}): Can't join non-flip cards into a flip card."
-          error = true
-        }
-        if (!error) Set(FlipCard(faces(0), faces(1))) else Set.empty
-      case TRANSFORM =>
-        if (faces.size < 2) {
-          errors += s"$face (${face.expansion}): Can't find other face of double-faced card."
-          error = true
-        } else if (faces.size > 2) {
-          errors += s"$face (${face.expansion}): Too many faces for double-faced card."
-          error = true
-        } else if (faces(0).layout != TRANSFORM || faces(1).layout != TRANSFORM) {
-          errors += s"$face (${face.expansion}): Can't join single-faced cards into double-faced cards"
-          error = true
-        }
-        if (!error) Set(TransformCard(faces(0), faces(1))) else Set.empty
-      case MODAL_DFC =>
-        if (faces.size < 2) {
-          errors += s"$face (${face.expansion}): Can't find other face of modal double-faced card."
-          error = true
-        } else if (faces.size > 2) {
-          errors += s"$face (${face.expansion}): Too many faces for modal double-faced card."
-          error = true
-        } else if (faces(0).layout != MODAL_DFC || faces(1).layout != MODAL_DFC) {
-          errors += s"$face (${face.expansion}): Can't join single-faced cards into modal double-faced cards."
-          error = true
-        }
-        if (!error) Set(ModalCard(faces(0), faces(1))) else Set.empty
-      case MELD =>
-        if (faces.size < 3) {
-          errors += s"$face (${face.expansion}): Can't find some faces of meld card."
-          error = true
-        } else if (faces.size > 3) {
-          errors += s"$face (${face.expansion}): Too many faces for meld card."
-          error = true
-        } else if (faces(0).layout != MELD || faces(1).layout != MELD || faces(2).layout != MELD) {
-          errors += s"$face (${face.expansion}): Can't join single-faced cards into meld cards."
-          error = true
-        }
-        if (!error) Set(MeldCard(faces(0), faces(1), faces(2)), MeldCard(faces(1), faces(0), faces(2))) else Set.empty
-      case _ => Set.empty
+    try {
+      layout.collect(faces)
+    } catch {
+      case e: IllegalArgumentException =>
+        errors += s"$face: (${face.expansion}): ${e.getMessage}"
+        faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet
     }
-    if (error) faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet else result
   }
 
   protected override def doInBackground() = {
@@ -331,7 +275,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       val formatNames = collection.mutable.Map.from(FormatConstraints.FormatNames.map((n) => n -> n).toMap)
       val numbers = collection.mutable.Map[String, String]()
       val stats = collection.mutable.Map[String, CombatStat]()
-      val loyalties = collection.mutable.Map[String, Loyalty]()
+      val counters = collection.mutable.Map[String, CounterStat]()
       val rulingDates = collection.mutable.Map[String, Date]()
       val rulingContents = collection.mutable.Map[String, String]()
 
@@ -388,7 +332,8 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               numbers.getOrElseUpdate(raw.number, raw.number),
               raw.power.map((p) => stats.getOrElseUpdate(p, CombatStat(p))),
               raw.toughness.map((t) => stats.getOrElseUpdate(t, CombatStat(t))),
-              raw.loyalty.map((l) => loyalties.getOrElseUpdate(l, Loyalty(l))),
+              raw.loyalty.map((l) => counters.getOrElseUpdate(l, CounterStat(l))),
+              raw.defense.map((d) => counters.getOrElseUpdate(d, CounterStat(d))),
               TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
               raw.legalities.map{ case (format, legality) => formatNames.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap,
               raw.leadershipSkills.toSeq.flatMap(_.commands.collect{ case (format, legal) if legal => formatNames.getOrElseUpdate(format, format) }).sorted

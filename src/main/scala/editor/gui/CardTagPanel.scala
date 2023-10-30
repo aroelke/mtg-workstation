@@ -1,12 +1,12 @@
 package editor.gui
 
-import _root_.editor.database.attributes.CardAttribute
-import _root_.editor.database.card.Card
-import _root_.editor.gui.generic.ScrollablePanel
-import _root_.editor.gui.generic.TristateCheckBox
-import _root_.editor.gui.generic.TristateCheckBoxState
-import _root_.editor.unicode._
-import _root_.editor.util.MouseListenerFactory
+import editor.database.attributes.CardAttribute
+import editor.database.card.Card
+import editor.gui.generic.ScrollablePanel
+import editor.gui.generic.TristateCheckBox
+import editor.gui.generic.TristateCheckBoxState
+import editor.unicode._
+import editor.util.MouseListenerFactory
 
 import java.awt.BorderLayout
 import java.awt.Color

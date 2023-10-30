@@ -3,7 +3,7 @@ package editor.database.card
 import editor.database.attributes.CombatStat
 import editor.database.attributes.Expansion
 import editor.database.attributes.Legality
-import editor.database.attributes.Loyalty
+import editor.database.attributes.CounterStat
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
@@ -173,7 +173,10 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def toughness: Option[CombatStat]
 
   /** @return the card's loyalty if it's a planeswalker, or None otherwise. */
-  def loyalty: Option[Loyalty]
+  def loyalty: Option[CounterStat]
+
+  /** @return the card's defense if it's a battle, or None otherwise. */
+  def defense: Option[CounterStat]
 
   /** @return the car'd artist. */
   def artist: String
@@ -198,6 +201,9 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
 
   /** @return true if this card is a land, or false otherwise. */
   def isLand: Boolean
+
+  /** @return the set of [[ManaType]]s this card can produce, or an empty set if it can't produce mana. */
+  def produces: Set[ManaType]
 
   /** @return the file names of the images to use to display the card. */
   def imageNames: Seq[String]
@@ -236,6 +242,9 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
 
   /** @return true if the card has a loyalty value and it's variable (contains * or X) or false otherwise. */
   def loyaltyVariable = faces.exists(_.loyalty.exists(_.variable))
+
+  /** @return true if the card has a defense value and it's variable (contains * or X) or false otherwise. */
+  def defenseVariable = faces.exists(_.defense.exists(_.variable))
 
   /**
    * Determine the card's legality in a particular format.

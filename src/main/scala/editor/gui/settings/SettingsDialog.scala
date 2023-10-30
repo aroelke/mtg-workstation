@@ -12,11 +12,13 @@ import editor.gui.deck.CategoryEditorPanel
 import editor.gui.display.CardTable
 import editor.gui.display.CategoryList
 import editor.gui.generic.ComponentUtils
+import editor.gui.generic.DrawingPanel
 import editor.gui.generic.ScrollablePanel
 import editor.gui.generic.VerticalButtonList
 import editor.serialization
 import editor.serialization.given
 import editor.unicode.{_, given}
+import editor.util.extensions._
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.axis.CategoryAxis
@@ -115,7 +117,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   editorNode.add(handAppearanceNode)
   private val formatsNode = DefaultMutableTreeNode("Formats")
   editorNode.add(formatsNode)
-  private val manaAnalysisNode = DefaultMutableTreeNode("Mana Analysis")
+  private val manaAnalysisNode = DefaultMutableTreeNode("Analysis")
   editorNode.add(manaAnalysisNode)
   root.add(editorNode)
 
@@ -491,7 +493,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   private val sections = Array(
     "Nothing",
     "Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored",
-    "Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"
+    "Creature", "Artifact", "Enchantment", "Planeswalker", "Battle", "Instant", "Sorcery", "Land", "Tribal"
   )
   private val sectionChoosers = sections.map(_ -> JColorChooser()).toMap
   for ((_, chooser) <- sectionChoosers) {
@@ -506,7 +508,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     nothingRenderer.setDrawBarOutline(true)
     nothingRenderer.setDefaultOutlinePaint(Color.BLACK)
     nothingRenderer.setShadowVisible(false)
-    sectionChoosers("Nothing").getSelectionModel.addChangeListener((e) => nothingRenderer.setSeriesPaint(0, sectionChoosers("Nothing").getColor))
+    sectionChoosers("Nothing").getSelectionModel.addChangeListener(_ => nothingRenderer.setSeriesPaint(0, sectionChoosers("Nothing").getColor))
     val nothingX = CategoryAxis()
     val nothingY = NumberAxis()
     val nothingPlot = CategoryPlot(nothingDataset, nothingX, nothingY, nothingRenderer)
@@ -528,13 +530,13 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     colorsRenderer.setDrawBarOutline(true)
     colorsRenderer.setDefaultOutlinePaint(Color.BLACK)
     colorsRenderer.setShadowVisible(false)
-    sectionChoosers("Colorless").getSelectionModel.addChangeListener((e) => colorsRenderer.setSeriesPaint(0, sectionChoosers("Colorless").getColor))
-    sectionChoosers("White").getSelectionModel.addChangeListener((e) => colorsRenderer.setSeriesPaint(1, sectionChoosers("White").getColor))
-    sectionChoosers("Blue").getSelectionModel.addChangeListener((e) => colorsRenderer.setSeriesPaint(2, sectionChoosers("Blue").getColor))
-    sectionChoosers("Black").getSelectionModel.addChangeListener((e) => colorsRenderer.setSeriesPaint(3, sectionChoosers("Black").getColor))
-    sectionChoosers("Red").getSelectionModel.addChangeListener((e) => colorsRenderer.setSeriesPaint(4, sectionChoosers("Red").getColor))
-    sectionChoosers("Green").getSelectionModel.addChangeListener((e) => colorsRenderer.setSeriesPaint(5, sectionChoosers("Green").getColor))
-    sectionChoosers("Multicolored").getSelectionModel.addChangeListener((e) => colorsRenderer.setSeriesPaint(6, sectionChoosers("Multicolored").getColor))
+    sectionChoosers("Colorless").getSelectionModel.addChangeListener(_ => colorsRenderer.setSeriesPaint(0, sectionChoosers("Colorless").getColor))
+    sectionChoosers("White").getSelectionModel.addChangeListener(_ => colorsRenderer.setSeriesPaint(1, sectionChoosers("White").getColor))
+    sectionChoosers("Blue").getSelectionModel.addChangeListener(_ => colorsRenderer.setSeriesPaint(2, sectionChoosers("Blue").getColor))
+    sectionChoosers("Black").getSelectionModel.addChangeListener(_ => colorsRenderer.setSeriesPaint(3, sectionChoosers("Black").getColor))
+    sectionChoosers("Red").getSelectionModel.addChangeListener(_ => colorsRenderer.setSeriesPaint(4, sectionChoosers("Red").getColor))
+    sectionChoosers("Green").getSelectionModel.addChangeListener(_ => colorsRenderer.setSeriesPaint(5, sectionChoosers("Green").getColor))
+    sectionChoosers("Multicolored").getSelectionModel.addChangeListener(_ => colorsRenderer.setSeriesPaint(6, sectionChoosers("Multicolored").getColor))
     val colorsX = CategoryAxis()
     val colorsY = NumberAxis()
     val colorsPlot = CategoryPlot(colorsDataset, colorsX, colorsY, colorsRenderer)
@@ -548,19 +550,25 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     typesDataset.addValue(2, "Artifact", "3")
     typesDataset.addValue(2, "Enchantment", "3")
     typesDataset.addValue(2, "Planeswalker", "3")
+    typesDataset.addValue(1, "Battle", "3")
     typesDataset.addValue(2, "Instant", "4")
     typesDataset.addValue(2, "Sorcery", "4")
+    typesDataset.addValue(1, "Land", "2")
+    typesDataset.addValue(1, "Tribal", "4")
     val typesRenderer = StackedBarRenderer()
     typesRenderer.setBarPainter(StandardBarPainter())
     typesRenderer.setDrawBarOutline(true)
     typesRenderer.setDefaultOutlinePaint(Color.BLACK)
     typesRenderer.setShadowVisible(false)
-    sectionChoosers("Creature").getSelectionModel.addChangeListener((e) => typesRenderer.setSeriesPaint(0, sectionChoosers("Creature").getColor))
-    sectionChoosers("Artifact").getSelectionModel.addChangeListener((e) => typesRenderer.setSeriesPaint(1, sectionChoosers("Artifact").getColor))
-    sectionChoosers("Enchantment").getSelectionModel.addChangeListener((e) => typesRenderer.setSeriesPaint(2, sectionChoosers("Enchantment").getColor))
-    sectionChoosers("Planeswalker").getSelectionModel.addChangeListener((e) => typesRenderer.setSeriesPaint(3, sectionChoosers("Planeswalker").getColor))
-    sectionChoosers("Instant").getSelectionModel.addChangeListener((e) => typesRenderer.setSeriesPaint(4, sectionChoosers("Instant").getColor))
-    sectionChoosers("Sorcery").getSelectionModel.addChangeListener((e) => typesRenderer.setSeriesPaint(5, sectionChoosers("Sorcery").getColor))
+    sectionChoosers("Creature").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(0, sectionChoosers("Creature").getColor))
+    sectionChoosers("Artifact").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(1, sectionChoosers("Artifact").getColor))
+    sectionChoosers("Enchantment").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(2, sectionChoosers("Enchantment").getColor))
+    sectionChoosers("Planeswalker").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(3, sectionChoosers("Planeswalker").getColor))
+    sectionChoosers("Battle").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(4, sectionChoosers("Battle").getColor))
+    sectionChoosers("Instant").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(5, sectionChoosers("Instant").getColor))
+    sectionChoosers("Sorcery").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(6, sectionChoosers("Sorcery").getColor))
+    sectionChoosers("Land").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(7, sectionChoosers("Land").getColor))
+    sectionChoosers("Tribal").getSelectionModel.addChangeListener(_ => typesRenderer.setSeriesPaint(8, sectionChoosers("Tribal").getColor))
     val typesX = CategoryAxis()
     val typesY = NumberAxis()
     val typesPlot = CategoryPlot(typesDataset, typesX, typesY, typesRenderer)
@@ -584,15 +592,12 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     panel.setForeground(label.getForeground())
     panel.setBackground(label.getBackground())
     panel.add(label, BorderLayout.CENTER)
-    val color = new JPanel {
-      override def paintComponent(g: Graphics): Unit = {
-        super.paintComponent(g)
-        g.setColor(sectionChoosers(value).getColor)
-        g.fillRect(1, 1, getWidth - 3, getHeight - 3)
-        g.setColor(Color.BLACK)
-        g.drawRect(1, 1, getWidth - 3, getHeight - 3)
-      }
-    }
+    val color = DrawingPanel((g, p) => {
+      g.setColor(sectionChoosers(value).getColor)
+      g.fillRect(1, 1, p.getWidth - 3, p.getHeight - 3)
+      g.setColor(Color.BLACK)
+      g.drawRect(1, 1, p.getWidth - 3, p.getHeight - 3)
+    })
     color.setPreferredSize(Dimension(label.getPreferredSize.height, label.getPreferredSize.height))
     color.setForeground(label.getForeground)
     color.setBackground(label.getBackground)
@@ -607,7 +612,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   private val chooserLayout = CardLayout()
   private val sectionChooserPanel = JPanel(chooserLayout)
   sections.foreach(s => sectionChooserPanel.add(sectionChoosers(s), s))
-  sectionsBox.addItemListener((e) => chooserLayout.show(sectionChooserPanel, sectionsBox.getItemAt(sectionsBox.getSelectedIndex)))
+  sectionsBox.addItemListener((e) => chooserLayout.show(sectionChooserPanel, sectionsBox.getCurrentItem))
   manaAnalysisColorPanel.add(sectionChooserPanel)
   manaAnalysisPanel.add(manaAnalysisColorPanel)
 
@@ -634,6 +639,13 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   private val linePanel = ChartPanel(nothingChart)
   linePanel.setPreferredSize(Dimension(landLineChooser.getPreviewPanel.getPreferredSize.width, landLineChooser.getPreviewPanel.getPreferredSize.height*5/2))
   landLineChooser.setPreviewPanel(linePanel)
+
+  // Mana Production Filtering
+  private val produceConsumedPanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
+  produceConsumedPanel.setBorder(BorderFactory.createTitledBorder("Mana Production"))
+  private val produceConsumedBox = JCheckBox("Only show produced mana for types in mana costs")
+  produceConsumedPanel.add(produceConsumedBox)
+  manaAnalysisPanel.add(produceConsumedPanel)
 
   // Default options for legality panel
   private val legalityDefaultsBox = Box.createHorizontalBox
@@ -739,10 +751,10 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
           file = inventoryFileField.getText,
           location = inventoryDirField.getText,
           scans = scansDirField.getText,
-          imageSource = imgSourceBox.getItemAt(imgSourceBox.getSelectedIndex),
+          imageSource = imgSourceBox.getCurrentItem,
           imageLimitEnable = limitImageBox.isSelected,
           imageLimit = limitImageSpinner.getValue.asInstanceOf[Int],
-          update = updateBox.getItemAt(updateBox.getSelectedIndex),
+          update = updateBox.getCurrentItem,
           warn = suppressCheckBox.isSelected,
           columns = inventoryColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toIndexedSeq.sortBy(_.ordinal),
           background = scanBGChooser.getColor,
@@ -766,10 +778,10 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
             list = cmdrListName.getText,
             sideboard = if (sideCheck.isSelected) sideField.getText else ""
           ),
-          manaAnalysis = ManaAnalysisSettings(sectionChoosers.map{ case (s, c) => s -> c.getColor }.toMap).copy(line = landLineChooser.getColor),
+          manaAnalysis = ManaAnalysisSettings(sectionChoosers.map{ case (s, c) => s -> c.getColor }.toMap).copy(line = landLineChooser.getColor, produceConsumed = produceConsumedBox.isSelected),
           columns = editorColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toIndexedSeq.sortBy(_.ordinal),
           stripe = editorStripeColor.getColor,
-          manaValue = manaValueBox.getItemAt(manaValueBox.getSelectedIndex),
+          manaValue = manaValueBox.getCurrentItem,
           backFaceLands = landsCheckBoxes.filter(_.isSelected).map(b => editor.database.card.CardLayout.values.find(_.toString == b.getText).get).toSet
         )
       )
@@ -855,6 +867,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     }
     sections.foreach(s => sectionChoosers(s).setColor(settings.editor.manaAnalysis(s)))
     landLineChooser.setColor(settings.editor.manaAnalysis.line)
+    produceConsumedBox.setSelected(settings.editor.manaAnalysis.produceConsumed)
 
     setVisible(true)
   }

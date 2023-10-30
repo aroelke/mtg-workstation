@@ -3,7 +3,7 @@ package editor.database.card
 import editor.database.attributes.CombatStat
 import editor.database.attributes.Expansion
 import editor.database.attributes.Legality
-import editor.database.attributes.Loyalty
+import editor.database.attributes.CounterStat
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
@@ -20,6 +20,9 @@ import javax.swing.text.StyleConstants
 import javax.swing.text.StyledDocument
 import scala.collection.immutable.ListSet
 import scala.collection.immutable.TreeMap
+import scala.util.matching._
+import editor.database.symbol.ColorSymbol
+import editor.database.symbol.ManaSymbolInstances
 
 /**
  * A single-faced [[Card]], or a single face of a [[MultiCard]].
@@ -47,6 +50,7 @@ import scala.collection.immutable.TreeMap
  * @param power power of the card, if it's a creature
  * @param toughness toughness of the card, if it's a creature
  * @param loyalty loyalty of the card, if it's a planeswalker
+ * @param defense defense of the card, if it's a battle
  * @param rulings clarifications on how the card works and when they were made
  * @param legality which formats the card is legal (or restricted) in
  * @param commandFormats formats in which the card can be commander
@@ -72,7 +76,8 @@ case class SingleCard(
   number: String,
   power: Option[CombatStat],
   toughness: Option[CombatStat],
-  loyalty: Option[Loyalty],
+  loyalty: Option[CounterStat],
+  defense: Option[CounterStat],
   rulings: TreeMap[Date, Seq[String]],
   legality: Map[String, Legality],
   commandFormats: Seq[String]
@@ -86,6 +91,27 @@ case class SingleCard(
   override lazy val typeLine = TypeLine(cardts, subts, superts)
   override lazy val isLand = types.exists(_.equalsIgnoreCase("land"))
   override lazy val imageNames = Seq(name.toLowerCase)
+
+  private val specificPattern = raw"adds? (?:an amount of |\w+ |an additional (?:amount of |\w+ )?)?((?:(?:, |,? or )?${ManaCost.Pattern.regex})+)".r
+  private val anyPattern = raw"(?s).*add (?:\w+|an amount of) mana (?:of any|of any one|in any combination of) (type|color).*".r
+
+  override lazy val produces = normalizedOracle.head match {
+    case anyPattern("color") => ManaType.colors.toSet
+    case anyPattern("type")  => ManaType.values.toSet
+    case _ =>
+      val matches = specificPattern.findAllIn(normalizedOracle.head).matchData
+      if (matches.isEmpty) {
+        Set.empty
+      } else {
+        matches.flatMap((m) => ManaCost.parse(m.group(1).replaceAll("( |,|or)", ""))).map(_.intensity.keys).flatten.toSet
+      } ++ Map(
+        "plains" -> ManaType.White,
+        "island" -> ManaType.Blue,
+        "swamp" -> ManaType.Black,
+        "mountain" -> ManaType.Red,
+        "forest" -> ManaType.Green
+      ).collect{ case (word, color) if subtypes.exists(_.equalsIgnoreCase(word)) => color }.toSet
+  }
 
   override def formatDocument(document: StyledDocument, printed: Boolean) = {
     val textStyle = document.getStyle("text")
@@ -213,10 +239,13 @@ case class SingleCard(
         document.insertString(document.getLength, "\n", reminderStyle)
       }
 
-      if (power.isDefined && toughness.isDefined)
-        document.insertString(document.getLength, s"${power.get}/${toughness.get}\n", textStyle)
-      else if (loyalty.isDefined)
-          document.insertString(document.getLength, s"${loyalty.get}\n", textStyle)
+      (power, toughness, loyalty, defense) match {
+        case (Some(p), Some(t), None, None) => document.insertString(document.getLength, s"$p/$t\n", textStyle)
+        case (None, None, Some(l), None)    => document.insertString(document.getLength, s"[$l]\n", textStyle)
+        case (None, None, None, Some(d))    => document.insertString(document.getLength, s"{$d}\n", textStyle)
+        case (None, None, None, None)       => // don't add anything
+        case _ => throw IllegalArgumentException(s"Illegal combination of power/toughness, loyalty, defense: $power/$toughness, $loyalty, $defense")
+      }
 
       document.insertString(document.getLength, s"$artist $number/${expansion.count}", textStyle)
     } catch case e: BadLocationException => e.printStackTrace()

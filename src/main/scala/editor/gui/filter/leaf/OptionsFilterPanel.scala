@@ -1,4 +1,4 @@
-package editor.gui.filter.editor
+package editor.gui.filter.leaf
 
 import editor.database.attributes.CardAttribute
 import editor.filter.leaf.FilterLeaf
@@ -13,6 +13,7 @@ import editor.unicode.{_, given}
 import editor.util.Containment
 import editor.util.MouseListenerFactory
 import editor.util.PopupMenuListenerFactory
+import editor.util.extensions._
 
 import java.awt.BorderLayout
 import java.awt.Color
@@ -137,8 +138,8 @@ class OptionsFilterPanel[T <: AnyRef : ClassTag, F <: OptionsFilter[T, F] : Clas
   }
 
   override def filter = attribute.filter match {
-    case s: SingletonOptionsFilter[?] => s.copy(contain = contain.getSelectedItem, selected = boxes.map((b) => b.getItemAt(b.getSelectedIndex)).toSet)
-    case m: MultiOptionsFilter[?] => m.copy(contain = contain.getSelectedItem, selected = boxes.map((b) => b.getItemAt(b.getSelectedIndex)).toSet)
+    case s: SingletonOptionsFilter[?] => s.copy(contain = contain.getSelectedItem, selected = boxes.map((b) => b.getCurrentItem).toSet)
+    case m: MultiOptionsFilter[?] => m.copy(contain = contain.getSelectedItem, selected = boxes.map((b) => b.getCurrentItem).toSet)
   }
 
   override def setFields(filter: F) = if (filter.attribute == attribute) {

@@ -1,6 +1,7 @@
 package editor.gui.deck
 
 import editor.collection.Categorization
+import editor.gui.ElementAttribute
 import editor.gui.display.CardTable
 import editor.util.MouseListenerFactory
 
@@ -15,6 +16,7 @@ import javax.swing.JScrollPane
 import javax.swing.JTable
 import javax.swing.UIManager
 import javax.swing.table.TableCellEditor
+import scala.collection.immutable.ListSet
 import scala.jdk.CollectionConverters._
 
 /**
@@ -30,19 +32,7 @@ class InclusionCellEditor(frame: EditorFrame) extends AbstractCellEditor with Ta
   private var included = Seq.empty[Categorization]
   private var iePanel: Option[IncludeExcludePanel] = None
 
-  private val editor = new JPanel {
-    override def paintComponent(g: Graphics) = {
-      super.paintComponent(g)
-      included.zipWithIndex.foreach{ case (include, i) =>
-        val x = i*(getHeight + 1) + 1
-        val y = 1
-        g.setColor(include.color)
-        g.fillRect(x, y, getHeight - 3, getHeight - 3)
-        g.setColor(Color.BLACK)
-        g.drawRect(x, y, getHeight - 3, getHeight - 3)
-      }
-    }
-  }
+  private val editor = ElementAttribute.CategoriesElement.render(ListSet(included:_*))
   editor.addMouseListener(MouseListenerFactory.createMouseListener(pressed = _ => {
     if (JOptionPane.showConfirmDialog(frame, JScrollPane(iePanel.get), "Set Categories", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION)
       fireEditingStopped()

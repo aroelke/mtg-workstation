@@ -215,8 +215,13 @@ case class LegalitySettings(searchForCommander: Boolean = true, main: Boolean = 
  * @param artifact color of histogram bar sections for artifact cards
  * @param enchantment color of histogram bar sections for enchantment cards
  * @param planeswalker color of histogram bar sections for planeswalker cards
+ * @param battle color of the histogram bar sections for battle cards
  * @param instant color of histogram bar sections for instant cards
  * @param sorcery color of histogram bar sections for sorcery cards
+ * @param land color of the histogram bar sections for land cards
+ * @param tribal color of the histogram bar sections for tribal cards
+ * @param line color of the line showing land probabilities
+ * @param produceConsumed only show mana production for types of mana in costs in mana analysis
  * 
  * @author Alec Roelke
  */
@@ -235,41 +240,68 @@ case class ManaAnalysisSettings(
   artifact: Color = Color(203, 198, 193),
   enchantment: Color = Color(248, 246, 216),
   planeswalker: Color = Color(215, 181, 215),
+  battle: Color = Color(255, 198, 114),
   instant: Color = Color(193, 215, 233),
   sorcery: Color = Color(228, 153, 119),
+  land: Color = Color(153, 120, 55),
+  tribal: Color = Color(163, 192, 149),
 
-  line: Color = Color.BLACK
+  line: Color = Color.BLACK,
+
+  produceConsumed: Boolean = false
 ) {
+  private lazy val colormap = Map(
+    "none" -> none, "nothing" -> none,
+
+    "colorless" -> colorless, "c" -> colorless,
+    "white"     -> white,     "w" -> white,
+    "blue"      -> blue,      "u" -> blue,
+    "black"     -> black,     "b" -> black,
+    "red"       -> red,       "r" -> red,
+    "green"     -> green,     "g" -> green,
+    "multicolored" -> multi, "multi" -> multi, "m" -> multi,
+
+    "creature"     -> creature,
+    "artifact"     -> artifact,
+    "enchantment"  -> enchantment,
+    "planeswalker" -> planeswalker,
+    "battle"       -> battle,
+    "instant"      -> instant,
+    "sorcery"      -> sorcery,
+    "land"         -> land,
+    "tribal"       -> tribal
+  )
+
   /**
    * Get the color associated with a histogram bar section by name.
    * 
    * @param key name of the section
    * @return the color of the section
    */
-  def apply(key: String) = key.toLowerCase match {
-    case "none" | "nothing" => none
+  def apply(key: String) = colormap(key.toLowerCase)
 
-    case "colorless" | "c" => colorless
-    case "white"     | "w" => white
-    case "blue"      | "u" => blue
-    case "black"     | "b" => black
-    case "red"       | "r" => red
-    case "green"     | "g" => green
-    case "multicolored" | "multi" | "m" => multi
+  /**
+   * Get the color associated with a histogram bar section by name.
+   * 
+   * @param key name of the section
+   * @return the color of the section, or None if there isn't one
+   */
+  def get(key: String) = colormap.get(key.toLowerCase)
 
-    case "creature"     => creature
-    case "artifact"     => artifact
-    case "enchantment"  => enchantment
-    case "planeswalker" => planeswalker
-    case "instant"      => instant
-    case "sorcery"      => sorcery
-  }
+  /**
+   * Get the color associated with a histogram bar section by name, or a default color if there isn't one.
+   * 
+   * @param key name of the section
+   * @param default color to use if there is no section by that name
+   * @return the color of the section, or the default value if there isn't one
+   */
+  def getOrElse(key: String, default: => Color = none) = colormap.getOrElse(key.toLowerCase, default)
 
   /** List of bar colors when dividing by color */
   val colorColors = Seq(colorless, white, blue, black, red, green, multi)
   
   /** List of bar colors when dividing by card type */
-  val typeColors = Seq(creature, artifact, enchantment, planeswalker, instant, sorcery)
+  val typeColors = Seq(creature, artifact, enchantment, planeswalker, battle, instant, sorcery, land, tribal)
 }
 
 /**

@@ -5,23 +5,14 @@ import editor.collection.Categorization
 import editor.database.FormatConstraints
 import editor.database.card.Card
 import editor.database.card.CardLayout
-import editor.filter.leaf.BinaryFilter
-import editor.filter.leaf.ColorFilter
-import editor.filter.leaf.FilterLeaf
-import editor.filter.leaf.LegalityFilter
-import editor.filter.leaf.ManaCostFilter
-import editor.filter.leaf.MultiOptionsFilter
-import editor.filter.leaf.NumberFilter
-import editor.filter.leaf.OptionsFilter
-import editor.filter.leaf.SingletonOptionsFilter
-import editor.filter.leaf.TextFilter
-import editor.filter.leaf.TypeLineFilter
+import editor.filter.leaf._
 import editor.math.{_, given}
 
 import java.text.Collator
 import java.time.LocalDate
-import scala.reflect.ClassTag
 import java.time.format.DateTimeFormatter
+import scala.reflect.ClassTag
+import scala.util.Try
 
 /**
  * An attribute of a Magic: The Gathering card that can be used for filtering or display in a GUI. Generally corresponds to a field of [[Card]].
@@ -156,6 +147,8 @@ sealed trait HasColorFilter(colors: (Card) => Set[ManaType]) { this: CardAttribu
 trait HasOptions[T, F <: OptionsFilter[T, F]] { this: CardAttribute[?, F] =>
   /** List of options for the value of the attribute. */
   def options: Seq[T]
+  /** Convert a string into one of the options available for this attribute. */
+  def parse(s: String): Option[T]
 }
 
 /**
@@ -236,6 +229,13 @@ object CardAttribute {
     override def filter = ManaCostFilter()
   }
 
+  /** Devotion to some set of colors for each face. */
+  case object Devotion extends CardAttribute[Seq[(Set[ManaType]) => Int], DevotionFilter]("Devotion", "Devotion to a set of colors")
+      with CantCompare[Seq[(Set[ManaType]) => Int]] {
+    override def apply(e: CardListEntry) = e.card.faces.map(_.manaCost.devotionTo)
+    override def filter = DevotionFilter()
+  }
+
   /** "Real" mana value.  Corresponds to the mana value of the entire card as defined by the rules. */
   case object RealManaValue extends CardAttribute[Double, NumberFilter]("Real Mana Value", "Card mana value as defined by the rules")
       with ComparesOrdered[Double]
@@ -283,6 +283,7 @@ object CardAttribute {
       with HasMultiOptionsFilter[String]
       with HasAssignableOptions[String, MultiOptionsFilter[String]] {
     override def apply(e: CardListEntry) = e.card.types
+    override def parse(s: String) = options.find(_.equalsIgnoreCase(s)).headOption
   }
 
   /** All subtypes across all faces. */
@@ -291,6 +292,7 @@ object CardAttribute {
       with HasMultiOptionsFilter[String]
       with HasAssignableOptions[String, MultiOptionsFilter[String]] {
     override def apply(e: CardListEntry) = e.card.subtypes
+    override def parse(s: String) = options.find(_.equalsIgnoreCase(s)).headOption
   }
 
   /** All supertypes across all faces. */
@@ -299,6 +301,7 @@ object CardAttribute {
       with HasMultiOptionsFilter[String]
       with HasAssignableOptions[String, MultiOptionsFilter[String]] {
     override def apply(e: CardListEntry) = e.card.supertypes
+    override def parse(s: String) = options.find(_.equalsIgnoreCase(s)).headOption
   }
 
   /** Power of each face, if it's a creature. */
@@ -316,10 +319,17 @@ object CardAttribute {
   }
 
   /** Loyalty of each face, if it's a planeswalker. */
-  case object Loyalty extends CardAttribute[Seq[Option[Loyalty]], NumberFilter]("Loyalty", "Planeswalker starting loyalty")
-      with ComparesOrdered[Seq[Option[Loyalty]]]
+  case object Loyalty extends CardAttribute[Seq[Option[CounterStat]], NumberFilter]("Loyalty", "Planeswalker starting loyalty")
+      with ComparesOrdered[Seq[Option[CounterStat]]]
       with HasNumberFilter(false, _.loyalty.map(_.value).getOrElse(Double.NaN), Some(_.loyaltyVariable)) {
     override def apply(e: CardListEntry) = e.card.faces.map(_.loyalty)
+  }
+
+  /** Defense of each face, if it's a battle. */
+  case object Defense extends CardAttribute[Seq[Option[CounterStat]], NumberFilter]("Defense", "Battle starting defense")
+      with ComparesOrdered[Seq[Option[CounterStat]]]
+      with HasNumberFilter(false, _.defense.map(_.value).getOrElse(Double.NaN), Some(_.defenseVariable)) {
+    override def apply(e: CardListEntry) = e.card.faces.map(_.defense)
   }
 
   /** Overall layout of the card, or how faces are arranged if there are multiple faces. */
@@ -327,6 +337,7 @@ object CardAttribute {
       with ComparesOrdered[CardLayout]
       with HasSingletonOptionsFilter[CardLayout] {
     override def apply(e: CardListEntry) = e.card.layout
+    override def parse(s: String) = Try(CardLayout.valueOf(s.replace(' ', '_').toUpperCase)).toOption
     override def options = CardLayout.values
   }
 
@@ -335,6 +346,7 @@ object CardAttribute {
       with ComparesCollator[editor.database.attributes.Expansion](_.name)
       with HasSingletonOptionsFilter[editor.database.attributes.Expansion] {
     override def apply(e: CardListEntry) = e.card.expansion
+    override def parse(s: String) = editor.database.attributes.Expansion.expansions.find(_.name == s)
     override def options = editor.database.attributes.Expansion.expansions
   }
 
@@ -343,6 +355,7 @@ object CardAttribute {
       with ComparesCollator[String](identity)
       with HasSingletonOptionsFilter[String] {
     override def apply(e: CardListEntry) = e.card.expansion.block
+    override def parse(s: String) = options.find(_.equalsIgnoreCase(s)).headOption
     override def options = editor.database.attributes.Expansion.blocks
   }
 
@@ -351,6 +364,7 @@ object CardAttribute {
       with ComparesOrdered[Rarity]
       with HasSingletonOptionsFilter[editor.database.attributes.Rarity] {
     override def apply(e: CardListEntry) = e.card.rarity
+    override def parse(s: String) = editor.database.attributes.Rarity.parse(s)
     override def options = editor.database.attributes.Rarity.values
   }
 
@@ -377,8 +391,19 @@ object CardAttribute {
       with ComparesCollator[Set[String]](_.toSeq.sorted.mkString)
       with HasOptions[String, LegalityFilter] {
     override def apply(e: CardListEntry) = e.card.legalIn
+    override def parse(s: String) = options.find(_.equalsIgnoreCase(s)).headOption
     override def options = FormatConstraints.FormatNames
     override def filter = LegalityFilter()
+  }
+
+  /** Type(s) of mana a card might be able to produce */
+  case object ProducesMana extends CardAttribute[Set[ManaType], ColorFilter]("Produces Mana", "Types of mana a card can produce")
+      with ComparesColors
+      with HasColorFilter(_.produces) {
+    override def apply(e: CardListEntry) = e.card.produces
+
+    /** Set of filters that filter cards by each mana type, for convenience. */
+    lazy val ofType = ManaType.values.map((t) => t -> filter.copy(colors = Set(t))).toMap
   }
 
   /** User-assigned tags. */
@@ -411,6 +436,7 @@ object CardAttribute {
     }
 
     override def apply(e: CardListEntry) = tags.get(e.card).map(_.toSet).getOrElse(Set.empty)
+    override def parse(s: String) = options.find(_.equalsIgnoreCase(s)).headOption
     override def options = tags.flatMap{ case (_, s) => s }.toSeq.sorted
   }
 
@@ -464,7 +490,42 @@ object CardAttribute {
       with CantCompare[Unit]
 
   /** Array of all card attributes. */
-  val values: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(Name, RulesText, FlavorText, PrintedText, ManaCost, RealManaValue, EffManaValue, Colors, ColorIdentity, TypeLine, PrintedTypes, CardType, Subtype, Supertype, Power, Toughness, Loyalty, Layout, Expansion, Block, Rarity, Artist, CardNumber, LegalIn, Tags, Categories, Count, DateAdded, AnyCard, NoCard, Group)
+  val values: IndexedSeq[CardAttribute[?, ?]] = IndexedSeq(
+    Name,
+    RulesText,
+    FlavorText,
+    PrintedText,
+    ManaCost,
+    RealManaValue,
+    EffManaValue,
+    Colors,
+    ColorIdentity,
+    Devotion,
+    TypeLine,
+    PrintedTypes,
+    CardType,
+    Subtype,
+    Supertype,
+    Power,
+    Toughness,
+    Loyalty,
+    Defense,
+    Layout,
+    Expansion,
+    Block,
+    Rarity,
+    Artist,
+    CardNumber,
+    LegalIn,
+    ProducesMana,
+    Tags,
+    Categories,
+    Count,
+    DateAdded,
+    AnyCard,
+    NoCard,
+    Group
+  )
 
   /** Array of all card attributes that can be displayed in a GUI. */
   lazy val displayableValues = values.filter(!_.isInstanceOf[CantCompare[?]])

@@ -1,5 +1,7 @@
 package editor.gui.generic
 
+import editor.util.extensions._
+
 import java.awt.event.ItemListener
 import javax.swing.Box
 import javax.swing.BoxLayout
@@ -30,7 +32,7 @@ class ComboBoxPanel[E <: AnyRef](items: Array[E]) extends JPanel {
   def addItemListener(l: ItemListener) = options.addItemListener(l)
 
   /** @return the currently-selected item in the combo box */
-  def getSelectedItem = options.getItemAt(options.getSelectedIndex)
+  def getSelectedItem = options.getCurrentItem
 
   /** @param item new selected value of the combo box */
   def setSelectedItem(item: E) = options.setSelectedItem(item)

@@ -76,7 +76,7 @@ object Symbol extends SymbolParser[Symbol] {
  */
 abstract class Symbol(val name: String, private val text: String) {
   val icon = try {
-    ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/icons/$name")))
+    ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/symbols/$name.png")))
   } catch case e: IOException => { e.printStackTrace(); ImageIcon() }
 
   def scaled(size: Int) = ImageIcon(icon.getImage.getScaledInstance(-1, size, Image.SCALE_SMOOTH))

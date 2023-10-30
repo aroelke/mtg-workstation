@@ -22,9 +22,6 @@ abstract class MultiCard(layout: CardLayout, override val faces: IndexedSeq[Card
 
   override lazy val name = faces.map(_.name).mkString(Card.FaceSeparator)
   override def manaCost = throw UnsupportedOperationException("only individual faces have mana costs")
-  override def minManaValue = faces.map(_.manaValue).min
-  override def maxManaValue = faces.map(_.manaValue).max
-  override def avgManaValue = faces.map(_.manaValue).sum/faces.size
   override lazy val colors = faces.flatMap(_.colors).toSet
   override lazy val colorIdentity = faces.flatMap(_.colorIdentity).toSet
   override lazy val typeLine = faces.map(_.typeLine).reduce(_ ++ _)
@@ -35,6 +32,7 @@ abstract class MultiCard(layout: CardLayout, override val faces: IndexedSeq[Card
   override def power = throw UnsupportedOperationException("only individual faces can have power values")
   override def toughness = throw UnsupportedOperationException("only individual faces can have toughness values")
   override def loyalty = throw UnsupportedOperationException("only individual faces can have loyalty values")
+  override def defense = throw UnsupportedOperationException("only individual faces can have defense values")
   override def number = throw UnsupportedOperationException("only individual faces can have card numbers")
   override def artist = throw UnsupportedOperationException("only individual faces can have artists")
   override lazy val rulings = TreeMap.from(faces.flatMap(_.rulings))
@@ -44,6 +42,7 @@ abstract class MultiCard(layout: CardLayout, override val faces: IndexedSeq[Card
   override def rarity = faces(0).rarity
   override def legality = faces(0).legality
   override def isLand = throw UnsupportedOperationException(s"look at individual faces to determine if $name is a land")
+  override lazy val produces = faces.flatMap(_.produces).toSet
 
   override def formatDocument(document: StyledDocument, printed: Boolean) = {
     val textStyle = document.getStyle("text")
