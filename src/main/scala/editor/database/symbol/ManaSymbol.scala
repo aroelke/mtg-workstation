@@ -113,7 +113,7 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
 
   /** All possible [[HybridSymbol]]s except for colorless ones. */
   case HybridSymbol extends ManaSymbolInstances(
-    map = (for (c1 <- ManaType.colors; c2 <- ManaType.colors if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new HybridSymbol(c1, c2) else new HybridSymbol(c2, c1))).toMap,
+    map = (for (c1 <- ManaType.values; c2 <- ManaType.values if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new HybridSymbol(c1, c2) else new HybridSymbol(c2, c1))).toMap,
     keygen = (s) => {
       val tokens = s.split("/")
       if (tokens.size == 2) {
