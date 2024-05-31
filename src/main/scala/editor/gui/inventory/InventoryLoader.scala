@@ -314,7 +314,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             val c = SingleCard(
               layout,
               name,
-              costs.getOrElseUpdate(raw.manaCost, ManaCost.parse(raw.manaCost).get),
+              costs.getOrElseUpdate(raw.manaCost, ManaCost.parse(raw.manaCost).getOrElse(throw ParseException(s"can't parse mana cost ${raw.manaCost}", 0))),
               colorSets.getOrElseUpdate(raw.colors.toString, raw.colors.map(ManaType.parse(_).get).toSet),
               colorSets.getOrElseUpdate(raw.colorIdentity.toString, raw.colorIdentity.map(ManaType.parse(_).get).toSet),
               supertypeSets.getOrElseUpdate(raw.supertypes.toString, ListSet.from(raw.supertypes.map((s) => allSupertypes.getOrElseUpdate(s, s)))),
