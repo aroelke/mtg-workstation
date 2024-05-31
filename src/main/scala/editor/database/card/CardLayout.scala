@@ -59,6 +59,8 @@ enum CardLayout(name: String, val faces: Int = 1, combine: (singles: Seq[Card]) 
   case ADVENTURE extends CardLayout("Adventure", 2, (f) => Set(SplitCard(f)))
   /** Special double-faced card that can be played as either side, but can't transform after. */
   case MODAL_DFC extends CardLayout("Modal DFC", 2, _ match { case Seq(front, back) => Set(ModalCard(front, back)) })
+  /** Single-faced card, usually an enchantment, with multiple text boxes including an initial one, a solve condition, and a solution reward. */
+  case CASE extends CardLayout("Case")
   /** Special double-faced card where both faces are the same, but one is full-art. Treated as a single-faced card. */
   case REVERSIBLE_CARD extends CardLayout("Reversible")
   /** Special single-faced card that can host an [[AUGMENT]]. */
