@@ -69,6 +69,8 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
       OneHalf -> new StaticSymbol("half_mana", "1/2", 0.5),
       Infinity -> new StaticSymbol("infinity_mana", Infinity.toString, Double.PositiveInfinity),
       "S" -> new StaticSymbol("snow_mana", "S", 1, 1),
+      "L" -> new StaticSymbol("legendary_mana", "L", 1, 1),
+      "D" -> new StaticSymbol("land_drop", "D", 0, 0.75),
       "M" -> new StaticSymbol("multicolored", "M", 0)
     ),
     keygen = Some(_),
@@ -128,7 +130,7 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
 
   /** All possible [[PhyrexianSymbol]]s: only colors, not colorless. */
   case PhyrexianSymbol extends ManaSymbolInstances(
-    map = ManaType.colors.map(s => s -> new PhyrexianSymbol(s)).toMap,
+    map = ManaType.values.map(s => s -> new PhyrexianSymbol(s)).toMap,
     keygen = (s) => if (s.size == 3 && s.toUpperCase.endsWith("/P")) ManaType.parse(s(0).toString) else None,
     comparator = { case (pa: PhyrexianSymbol, pb: PhyrexianSymbol) => pa.color.compare(pb.color) }
   )

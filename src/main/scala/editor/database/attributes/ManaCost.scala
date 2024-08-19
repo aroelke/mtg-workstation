@@ -6,7 +6,7 @@ import scala.util.matching._
 import editor.database.symbol.ManaSymbolInstances
 
 object ManaCost {
-  private val pattern = raw"\{([cwubrgCWUBRG\/phPH\dsSxXyYzZ]+)\}".r
+  private val pattern = raw"\{([cwubrgCWUBRG\/phPH\ddDlLsSxXyYzZ]+)\}".r
 
   /** Regular expression that can be used to extract a mana cost from a string, along with [[parse]]. */
   val Pattern = raw"(?:${pattern.regex})+".r

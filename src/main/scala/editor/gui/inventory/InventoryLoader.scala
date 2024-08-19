@@ -314,7 +314,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             val c = SingleCard(
               layout,
               name,
-              costs.getOrElseUpdate(raw.manaCost, ManaCost.parse(raw.manaCost).getOrElse(throw ParseException(s"can't parse mana cost ${raw.manaCost}", 0))),
+              costs.getOrElseUpdate(raw.manaCost, ManaCost.parse(raw.manaCost).getOrElse(throw CardLoadException(name, set, s"can't parse mana cost ${raw.manaCost}"))),
               colorSets.getOrElseUpdate(raw.colors.toString, raw.colors.map(ManaType.parse(_).get).toSet),
               colorSets.getOrElseUpdate(raw.colorIdentity.toString, raw.colorIdentity.map(ManaType.parse(_).get).toSet),
               supertypeSets.getOrElseUpdate(raw.supertypes.toString, ListSet.from(raw.supertypes.map((s) => allSupertypes.getOrElseUpdate(s, s)))),
@@ -368,7 +368,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
         publish("Processing multi-faced cards...")
         cards --= facesNames.keys
         facesNames.foreach{ case (face, names) =>
-          if (otherFaceIds.contains(face)) {
+          if (otherFaceIds.contains(face) && otherFaceIds(face).exists(multiUUIDs.contains)) {
             val cardFaces = (otherFaceIds(face).map(multiUUIDs(_)).toSeq :+ face).sortBy((c) => names.indexOf(c.name))
             if (face.layout != CardLayout.MELD || cardFaces.size == 3)
               cards ++= createMultiFacedCard(face.layout, cardFaces)
