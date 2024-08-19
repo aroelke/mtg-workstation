@@ -128,7 +128,7 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
 
   /** All possible [[PhyrexianSymbol]]s: only colors, not colorless. */
   case PhyrexianSymbol extends ManaSymbolInstances(
-    map = ManaType.colors.map(s => s -> new PhyrexianSymbol(s)).toMap,
+    map = ManaType.values.map(s => s -> new PhyrexianSymbol(s)).toMap,
     keygen = (s) => if (s.size == 3 && s.toUpperCase.endsWith("/P")) ManaType.parse(s(0).toString) else None,
     comparator = { case (pa: PhyrexianSymbol, pb: PhyrexianSymbol) => pa.color.compare(pb.color) }
   )
