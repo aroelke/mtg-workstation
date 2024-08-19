@@ -69,6 +69,7 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
       OneHalf -> new StaticSymbol("half_mana", "1/2", 0.5),
       Infinity -> new StaticSymbol("infinity_mana", Infinity.toString, Double.PositiveInfinity),
       "S" -> new StaticSymbol("snow_mana", "S", 1, 1),
+      "D" -> new StaticSymbol("land_drop", "D", 0, 0.75),
       "M" -> new StaticSymbol("multicolored", "M", 0)
     ),
     keygen = Some(_),
