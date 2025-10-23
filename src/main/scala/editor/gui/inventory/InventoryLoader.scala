@@ -193,6 +193,7 @@ private case class RawCard(
   rulings: Option[Seq[Ruling]] = None,
   legalities: Map[String, String] = Map.empty,
   leadershipSkills: Option[LeadershipSkills] = None,
+  isGameChanger: Boolean = false,
   manaCost: String = "",
   colors: Seq[String] = Seq.empty,
   colorIdentity: Seq[String] = Seq.empty,
@@ -336,7 +337,8 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               raw.defense.map((d) => counters.getOrElseUpdate(d, CounterStat(d))),
               TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
               raw.legalities.map{ case (format, legality) => formatNames.getOrElseUpdate(format, format) -> Legality.parse(legality).get }.toMap,
-              raw.leadershipSkills.toSeq.flatMap(_.commands.collect{ case (format, legal) if legal => formatNames.getOrElseUpdate(format, format) }).sorted
+              raw.leadershipSkills.toSeq.flatMap(_.commands.collect{ case (format, legal) if legal => formatNames.getOrElseUpdate(format, format) }).sorted,
+              raw.isGameChanger
             )
 
             // Collect unexpected card values

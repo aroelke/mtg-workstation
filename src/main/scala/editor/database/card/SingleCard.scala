@@ -54,6 +54,7 @@ import editor.database.symbol.ManaSymbolInstances
  * @param rulings clarifications on how the card works and when they were made
  * @param legality which formats the card is legal (or restricted) in
  * @param commandFormats formats in which the card can be commander
+ * @param changer whether or not this card is a "Game Changer" in Commander
  */
 case class SingleCard(
   override val layout: CardLayout,
@@ -80,7 +81,8 @@ case class SingleCard(
   defense: Option[CounterStat],
   rulings: TreeMap[Date, Seq[String]],
   legality: Map[String, Legality],
-  commandFormats: Seq[String]
+  commandFormats: Seq[String],
+  changer: Boolean
 ) extends Card(set, layout) {
   override def faces = Seq(this)
 
@@ -90,6 +92,7 @@ case class SingleCard(
   override def avgManaValue = manaCost.manaValue
   override lazy val typeLine = TypeLine(cardts, subts, superts)
   override lazy val isLand = types.exists(_.equalsIgnoreCase("land"))
+  override lazy val isGameChanger = changer
   override lazy val imageNames = Seq(name.toLowerCase)
 
   private val specificPattern = raw"adds? (?:an amount of |\w+ |an additional (?:amount of |\w+ )?)?((?:(?:, |,? or )?${ManaCost.Pattern.regex})+)".r

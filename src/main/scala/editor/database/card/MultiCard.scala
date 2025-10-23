@@ -42,6 +42,7 @@ abstract class MultiCard(layout: CardLayout, override val faces: IndexedSeq[Card
   override def rarity = faces(0).rarity
   override def legality = faces(0).legality
   override def isLand = throw UnsupportedOperationException(s"look at individual faces to determine if $name is a land")
+  override def isGameChanger = faces.exists(_.isGameChanger)
   override lazy val produces = faces.flatMap(_.produces).toSet
 
   override def formatDocument(document: StyledDocument, printed: Boolean) = {

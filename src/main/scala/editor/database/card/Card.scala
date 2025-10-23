@@ -19,6 +19,7 @@ import scala.collection.immutable.AbstractSet
 import scala.collection.immutable.TreeMap
 import scala.collection.mutable.Growable
 import scala.collection.mutable.Shrinkable
+import scala.runtime.LazyBoolean
 
 /**
  * Object containing global card data and data to aid with displaying card information.
@@ -201,6 +202,9 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
 
   /** @return true if this card is a land, or false otherwise. */
   def isLand: Boolean
+
+  /** @return true if this card is a "Game Changer" in Commander, or false otherwise. */
+  def isGameChanger: Boolean
 
   /** @return the set of [[ManaType]]s this card can produce, or an empty set if it can't produce mana. */
   def produces: Set[ManaType]
