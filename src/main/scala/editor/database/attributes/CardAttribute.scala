@@ -406,6 +406,12 @@ object CardAttribute {
     lazy val ofType = ManaType.values.map((t) => t -> filter.copy(colors = Set(t))).toMap
   }
 
+  /** Whether or not a card is on the Commander "Game Changers" list. */
+  case object IsGameChanger extends CardAttribute[Boolean, BooleanFilter]("Is Game Changer", "Is considered a \"Game Changer\" in Commander") with ComparesOrdered[Boolean] {
+    override def filter = BooleanFilter(this, _.isGameChanger)
+    override def apply(e: CardListEntry): Boolean = e.card.isGameChanger
+  }
+
   /** User-assigned tags. */
   case object Tags extends CardAttribute[Set[String], MultiOptionsFilter[String]]("Tags", "Tags you have created and assigned")
       with ComparesCollator[Set[String]](_.toSeq.sorted.mkString)
@@ -518,6 +524,7 @@ object CardAttribute {
     CardNumber,
     LegalIn,
     ProducesMana,
+    IsGameChanger,
     Tags,
     Categories,
     Count,

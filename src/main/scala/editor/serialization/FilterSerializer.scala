@@ -53,6 +53,7 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
       }, operation = Comparison.valueOf((v \ "operation").extract[String].apply(0)), operand = (v \ "operand").extract[Int])
       case CardAttribute.TypeLine => CardAttribute.TypeLine.filter.copy(faces = faces, contain = contain.get, line = (v \ "pattern").extract[String])
       case CardAttribute.LegalIn => CardAttribute.LegalIn.filter.copy(selected = selected.get, restricted = (v \ "restricted").extract[Boolean])
+      case CardAttribute.IsGameChanger => CardAttribute.IsGameChanger.filter.copy(yes = (v \ "yes").extract[Boolean])
       case CardAttribute.AnyCard => CardAttribute.AnyCard.filter
       case CardAttribute.NoCard => CardAttribute.NoCard.filter
       case CardAttribute.Group => FilterGroup(
@@ -100,6 +101,7 @@ object FilterSerializer extends CustomSerializer[Filter](implicit format => (
       JField("operation", JString(d.operation.toString)),
       JField("operand", JInt(d.operand))
     )
+    case b: BooleanFilter => List(JField("yes", JBool(b.yes)))
     case _: BinaryFilter => Nil // Nothing additional actually needs to be serialized
     case o: OptionsFilter[?, ?] => List(JField("selected", JArray(o.selected.map((e) => JString(e.toString)).toList)))
     case _ => Nil

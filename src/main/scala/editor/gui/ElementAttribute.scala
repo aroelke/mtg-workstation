@@ -39,6 +39,8 @@ import javax.swing.JPanel
 import javax.swing.table.TableCellEditor
 import scala.collection.immutable.ListSet
 import scala.reflect.ClassTag
+import javax.swing.JCheckBox
+import java.awt.BorderLayout
 
 /**
  * Acts as an extension to [[CardAttribute]] used for generating GUI elements corresponding to the attribute.
@@ -441,6 +443,18 @@ object ElementAttribute {
     override def attribute = CardAttribute.ProducesMana
   }
 
+  /** Element for filtering by and rendering whether or not a card is a game changer. */
+  case object IsGameChangerElement extends ElementAttribute[Boolean, BooleanFilter] with CantBeEdited {
+    override def attribute = CardAttribute.IsGameChanger
+    override def filter(selector: FilterSelectorPanel) = BooleanFilterPanel(attribute.filter, selector)
+    override def render(value: Boolean) = {
+      val panel = JPanel(BorderLayout())
+      panel.add(JCheckBox(""))
+      panel
+    }
+    override def tooltip(value: Boolean) = ""
+  }
+
   /** Element for filtering by and rendering user-defined tags. Tags are sorted alphabetically for rendering. */
   case object TagsElement extends ElementAttribute[Set[String], MultiOptionsFilter[String]]
       with MultiOptionsElement[String, MultiOptionsFilter[String]]
@@ -526,6 +540,7 @@ object ElementAttribute {
     CardNumberElement,
     LegalInElement,
     ProducesManaElement,
+    IsGameChangerElement,
     TagsElement,
     AnyCardElement,
     NoCardElement,
