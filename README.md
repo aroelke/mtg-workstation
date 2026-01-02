@@ -6,7 +6,7 @@ Magic: the Gathering is owned by Wizards of the Coast, to which I have no affili
 This depends on MTGJSON (http://www.mtgjson.com/) for its card list.
 
 ### Prerequisites
- - `sbt`: https://www.bing.com/search?PC=U523&q=sbt&pglt=299&FORM=ANNTA1
+ - `sbt`: https://www.scala-sbt.org/
  - JDK 16 or newer: https://www.oracle.com/java/technologies/downloads/
 
 ### Running
