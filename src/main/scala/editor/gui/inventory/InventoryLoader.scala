@@ -371,7 +371,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
         cards --= facesNames.keys
         facesNames.foreach{ case (face, names) =>
           if (otherFaceIds.contains(face) && otherFaceIds(face).exists(multiUUIDs.contains)) {
-            val cardFaces = (otherFaceIds(face).map(multiUUIDs(_)).toSeq :+ face).sortBy((c) => names.indexOf(c.name))
+            val cardFaces = (otherFaceIds(face).collect{ case id: String if multiUUIDs.contains(id) => multiUUIDs(id) }.toSeq :+ face).sortBy((c) => names.indexOf(c.name))
             if (face.layout != CardLayout.MELD || cardFaces.size == 3)
               cards ++= createMultiFacedCard(face.layout, cardFaces)
           } else
