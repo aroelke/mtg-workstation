@@ -57,6 +57,8 @@ enum CardLayout(name: String, val faces: Int = 1, combine: (singles: Seq[Card]) 
   case PROTOTYPE extends CardLayout("Prototype")
   /** Special split card with a "main" permanent face and an "adventure" non-permanent face that can later be cast as the permanent. */
   case ADVENTURE extends CardLayout("Adventure", 2, (f) => Set(SplitCard(f)))
+  /** Special split card with a "main" permanent face and a non-permanent face that can be cast while the permanent is prepared. */
+  case PREPARE extends CardLayout("Prepare", 2, (f) => Set(SplitCard(f)))
   /** Special double-faced card that can be played as either side, but can't transform after. */
   case MODAL_DFC extends CardLayout("Modal DFC", 2, _ match { case Seq(front, back) => Set(ModalCard(front, back)) })
   /** Single-faced card, usually an enchantment, with multiple text boxes including an initial one, a solve condition, and a solution reward. */
