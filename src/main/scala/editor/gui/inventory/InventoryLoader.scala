@@ -301,7 +301,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
           try {
             val layout = try {
               CardLayout.valueOf(raw.layout.toUpperCase.replaceAll("[^A-Z]", "_"))
-            } catch case _ => CardLayout.values.find(_.toString.equalsIgnoreCase(raw.layout)).getOrElse(throw CardLoadException(name, set, "no valid layout"))
+            } catch case _ => CardLayout.values.find(_.toString.equalsIgnoreCase(raw.layout)).getOrElse(throw CardLoadException(name, set, s"no valid layout for ${raw.layout}"))
 
             // Rulings
             val rulings = raw.rulings.toSeq.flatMap(_.flatMap((r) => {

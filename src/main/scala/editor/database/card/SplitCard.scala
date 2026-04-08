@@ -19,7 +19,7 @@ class SplitCard(faces: Seq[Card]) extends MultiCard(faces(0).layout, faces.toInd
   
   override lazy val manaValue = layout match {
     case SPLIT | AFTERMATH => faces.map(_.manaValue).sum
-    case ADVENTURE => faces(0).manaValue
+    case ADVENTURE | PREPARE => faces(0).manaValue
     case _ => throw IllegalStateException(s"$layout isn't a split layout")
   }
   override def minManaValue = faces.map(_.manaValue).min
