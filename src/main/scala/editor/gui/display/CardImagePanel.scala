@@ -59,7 +59,6 @@ object CardImagePanel {
   /** String to format for generating the link to a card's image on Gatherer. */
   val GathererFormat = "https://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%d&type=card%s"
 
-  private val progressBars = collection.mutable.ArrayBuffer[JProgressBar]()
   private val progressLabels = collection.mutable.ArrayBuffer[JLabel]()
 
   /** @return the list of file names that will contain the image(s) to display for a card */
@@ -94,14 +93,9 @@ object CardImagePanel {
   def createStatusBar = {
     val panel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
     panel.setBorder(BorderFactory.createEtchedBorder())
-    val bar = JProgressBar()
-    bar.setEnabled(false)
-    panel.add(bar)
-    panel.add(Box.createHorizontalStrut(5))
     val label = JLabel()
     panel.add(label)
 
-    progressBars += bar
     progressLabels += label
     panel
   }
@@ -132,10 +126,6 @@ object CardImagePanel {
 //                size = connection.getContentLength
                 var downloaded = 0
                 SwingUtilities.invokeLater(() => {
-                  progressBars.foreach{ bar =>
-                    bar.setEnabled(true)
-                    bar.setMaximum(1)
-                  }
                   progressLabels.foreach(_.setText(s"Downloading image of ${req.card.name} ..."))
                 })
 
@@ -184,7 +174,6 @@ object CardImagePanel {
         publish(0)
         if (toDownload.isEmpty) {
           SwingUtilities.invokeLater(() => {
-            progressBars.foreach(_.setEnabled(false))
             progressLabels.foreach(_.setText(""))
           })
         }
@@ -192,9 +181,7 @@ object CardImagePanel {
     }
 
     override protected def process(chunks: java.util.List[Integer]) = {
-      println(s"process ${chunks.asScala.mkString(" ")}")
-      progressBars.foreach(_.setValue(chunks.asScala.last))
-      println("done processing")
+
     }
 
     execute()
