@@ -44,6 +44,8 @@ import scala.util.Using
 import com.sksamuel.scrimage.ImmutableImage
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.Channels
+import com.sksamuel.scrimage.webp.WebpWriter
+import com.sksamuel.scrimage.nio.JpegWriter
 
 /**
  * Structure containing information about card images and where to get them and downloads missing card images when they are
@@ -135,10 +137,13 @@ object CardImagePanel {
         }
         if (req.card.layout == CardLayout.FLIP && files(0).exists) {
           try {
-            val original = ImageIO.read(files(0))
-            val flipped = BufferedImage(original.getWidth, original.getHeight, original.getType)
-            val op = AffineTransformOp(AffineTransform.getRotateInstance(math.Pi, flipped.getWidth/2, flipped.getHeight/2), AffineTransformOp.TYPE_BILINEAR)
-            ImageIO.write(op.filter(original, flipped), "jpg", files(1))
+            val original = ImmutableImage.loader().fromFile(files(0))
+            val flipped = original.rotateRight().rotateRight()
+            SettingsDialog.settings.inventory.imageSource match {
+              case "Scryfall" => flipped.output(WebpWriter.DEFAULT, files(1))
+              case "Gatherer" => flipped.output(JpegWriter.Default, files(1))
+              case _ =>
+            }
           } catch case e: Exception => e.printStackTrace()
         }
         if (SettingsDialog.settings.inventory.imageLimitEnable) {
