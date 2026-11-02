@@ -32,7 +32,7 @@ import javax.swing.ListSelectionModel
 class CategoryList(hint: String, c: Seq[Categorization] = Seq.empty) extends JList[String] {
   setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
 
-  private val _categories = collection.mutable.ArrayBuffer[Categorization](c:_*)
+  private val _categories = collection.mutable.ArrayBuffer[Categorization](c*)
 
   /** @return the categorizations being displayed */
   def categories = _categories.toSeq

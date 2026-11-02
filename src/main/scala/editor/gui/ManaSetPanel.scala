@@ -17,7 +17,7 @@ import collection.immutable.ListSet
  * 
  * @author Alec Roelke
  */
-class ManaSetPanel(types: Set[ManaType] = Set.empty, available: ListSet[ManaType] = ListSet(ManaType.colors:_*)) extends JPanel() {
+class ManaSetPanel(types: Set[ManaType] = Set.empty, available: ListSet[ManaType] = ListSet(ManaType.colors*)) extends JPanel() {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
   private val buttons = available.map((m) => {

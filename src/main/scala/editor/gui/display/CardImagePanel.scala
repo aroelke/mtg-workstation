@@ -41,6 +41,10 @@ import javax.swing.text.StyledDocument
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
+import com.sksamuel.scrimage.ImmutableImage
+import java.nio.channels.ReadableByteChannel
+import java.nio.channels.Channels
+
 /**
  * Structure containing information about card images and where to get them and downloads missing card images when they are
  * set to be displayed in a [[CardImagePanel]].
@@ -60,7 +64,7 @@ object CardImagePanel {
 
   /** @return the list of file names that will contain the image(s) to display for a card */
   def getFiles(card: Card): Seq[File] = SettingsDialog.settings.inventory.imageSource match {
-    case "Scryfall" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card(i).scryfallid}$i.jpg").toFile).toSeq
+    case "Scryfall" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card(i).scryfallid}$i.webp").toFile).toSeq
     case "Gatherer" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card(i).multiverseid}$i.jpg").toFile).toSeq
     case _ => Seq.empty
   }
@@ -124,26 +128,37 @@ object CardImagePanel {
             urls(i).foreach{ site =>
               files(i).getParentFile.mkdirs()
               try {
-                val connection = site.openConnection()
-                size = connection.getContentLength
+//                val connection = site.openConnection()
+//                size = connection.getContentLength
                 var downloaded = 0
                 SwingUtilities.invokeLater(() => {
                   progressBars.foreach{ bar =>
                     bar.setEnabled(true)
-                    bar.setMaximum(size)
+                    bar.setMaximum(1)
                   }
                   progressLabels.foreach(_.setText(s"Downloading image of ${req.card.name} ..."))
                 })
 
+                val channel = Channels.newChannel(site.openStream())
+                Using(new FileOutputStream(files(i))) { f =>
+                  val fc = f.getChannel()
+                  fc.transferFrom(channel, 0, Long.MaxValue)
+                }
+//                publish(1)
+/*
+                val image = new collection.mutable.ArrayBuffer[Byte]()
                 Using.resources(BufferedInputStream(connection.getInputStream), BufferedOutputStream(FileOutputStream(files(i)))){ (in, out) =>
-                  val data = new Array[Byte](1024)
+                  val data = new Array[Byte](131072)
                   var x = 0
-                  while ({ x = in.read(data); x } > 0) {
-                    out.write(data, 0, x)
+                  while ({ x = in.read(data); x } != -1) {
+                    println(s"read $x bytes")
+                    image ++= data
                     downloaded += x
                     publish(downloaded)
                   }
+                  out.write(image.toArray, 0, size)
                 }
+*/
               } catch case e: Exception => System.err.println(s"Error downloading ${files(i)}: ${e.getMessage}")
             }
           }
@@ -176,7 +191,11 @@ object CardImagePanel {
       }
     }
 
-    override protected def process(chunks: java.util.List[Integer]) = progressBars.foreach(_.setValue(chunks.asScala.last))
+    override protected def process(chunks: java.util.List[Integer]) = {
+      println(s"process ${chunks.asScala.mkString(" ")}")
+      progressBars.foreach(_.setValue(chunks.asScala.last))
+      println("done processing")
+    }
 
     execute()
   }
@@ -239,7 +258,7 @@ class CardImagePanel(private var card: Option[Card] = None) extends JPanel {
     card.foreach{ c =>
       faceImages = getFiles(c).map{ file => if (file.exists) {
         try {
-          Some(ImageIO.read(file))
+          Some(ImmutableImage.loader().fromFile(file).awt())
         } catch case e: IOException => None
       } else None }
       Option(getParent).foreach{ p => SwingUtilities.invokeLater(() => {

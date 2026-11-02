@@ -41,9 +41,9 @@ object WizardDialog {
    * @return a new wizard dialog with the given title and steps
    */
   def apply(owner: Dialog | Frame | Window, title: String, panels: Component*) = owner match {
-    case d: Dialog => new JDialog(d, title, true) with WizardDialog(panels:_*)
-    case f: Frame  => new JDialog(f, title, true) with WizardDialog(panels:_*)
-    case w: Window => new JDialog(w, title, Dialog.ModalityType.APPLICATION_MODAL) with WizardDialog(panels:_*)
+    case d: Dialog => new JDialog(d, title, true) with WizardDialog(panels*)
+    case f: Frame  => new JDialog(f, title, true) with WizardDialog(panels*)
+    case w: Window => new JDialog(w, title, Dialog.ModalityType.APPLICATION_MODAL) with WizardDialog(panels*)
   }
 
   /**
@@ -61,7 +61,7 @@ object WizardDialog {
       case w: Window => w
       case _ => SwingUtilities.getWindowAncestor(owner)
     }
-    val dialog = apply(window, title, panels:_*)
+    val dialog = apply(window, title, panels*)
     dialog.setLocationRelativeTo(owner)
     dialog.showWizard()
   }

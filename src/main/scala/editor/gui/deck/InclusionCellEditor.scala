@@ -32,7 +32,7 @@ class InclusionCellEditor(frame: EditorFrame) extends AbstractCellEditor with Ta
   private var included = Seq.empty[Categorization]
   private var iePanel: Option[IncludeExcludePanel] = None
 
-  private val editor = ElementAttribute.CategoriesElement.render(ListSet(included:_*))
+  private val editor = ElementAttribute.CategoriesElement.render(ListSet(included*))
   editor.addMouseListener(MouseListenerFactory.createMouseListener(pressed = _ => {
     if (JOptionPane.showConfirmDialog(frame, JScrollPane(iePanel.get), "Set Categories", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION)
       fireEditingStopped()

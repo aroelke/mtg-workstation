@@ -28,7 +28,7 @@ package object stats {
       def !*(m: BigInt) = factorial(n)*m
 
       /** @return the number of combinations of this number items out of k possible items. */
-      def choose(k: BigInt) = nchoosek(n, k)
+      infix def choose(k: BigInt) = nchoosek(n, k)
     }
   }
   import extensions._
