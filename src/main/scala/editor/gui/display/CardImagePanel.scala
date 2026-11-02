@@ -41,6 +41,12 @@ import javax.swing.text.StyledDocument
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
+import com.sksamuel.scrimage.ImmutableImage
+import java.nio.channels.ReadableByteChannel
+import java.nio.channels.Channels
+import com.sksamuel.scrimage.webp.WebpWriter
+import com.sksamuel.scrimage.nio.JpegWriter
+
 /**
  * Structure containing information about card images and where to get them and downloads missing card images when they are
  * set to be displayed in a [[CardImagePanel]].
@@ -55,12 +61,11 @@ object CardImagePanel {
   /** String to format for generating the link to a card's image on Gatherer. */
   val GathererFormat = "https://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%d&type=card%s"
 
-  private val progressBars = collection.mutable.ArrayBuffer[JProgressBar]()
   private val progressLabels = collection.mutable.ArrayBuffer[JLabel]()
 
   /** @return the list of file names that will contain the image(s) to display for a card */
   def getFiles(card: Card): Seq[File] = SettingsDialog.settings.inventory.imageSource match {
-    case "Scryfall" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card(i).scryfallid}$i.jpg").toFile).toSeq
+    case "Scryfall" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card(i).scryfallid}$i.webp").toFile).toSeq
     case "Gatherer" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card(i).multiverseid}$i.jpg").toFile).toSeq
     case _ => Seq.empty
   }
@@ -90,21 +95,16 @@ object CardImagePanel {
   def createStatusBar = {
     val panel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
     panel.setBorder(BorderFactory.createEtchedBorder())
-    val bar = JProgressBar()
-    bar.setEnabled(false)
-    panel.add(bar)
-    panel.add(Box.createHorizontalStrut(5))
     val label = JLabel()
     panel.add(label)
 
-    progressBars += bar
     progressLabels += label
     panel
   }
 
   private case class DownloadRequest(source: CardImagePanel, card: Card)
 
-  private object ImageDownloadWorker extends SwingWorker[Unit, Integer] {
+  private object ImageDownloadWorker extends SwingWorker[Unit, Unit] { // publish() hangs for this class, so SwingUtilities.invokeLater is used instead
     private val toDownload = java.util.concurrent.LinkedBlockingQueue[DownloadRequest]
     private var size = 0
 
@@ -124,25 +124,12 @@ object CardImagePanel {
             urls(i).foreach{ site =>
               files(i).getParentFile.mkdirs()
               try {
-                val connection = site.openConnection()
-                size = connection.getContentLength
-                var downloaded = 0
-                SwingUtilities.invokeLater(() => {
-                  progressBars.foreach{ bar =>
-                    bar.setEnabled(true)
-                    bar.setMaximum(size)
-                  }
-                  progressLabels.foreach(_.setText(s"Downloading image of ${req.card.name} ..."))
-                })
+                SwingUtilities.invokeLater(() => progressLabels.foreach(_.setText(s"Downloading image of ${req.card.name} ...")))
 
-                Using.resources(BufferedInputStream(connection.getInputStream), BufferedOutputStream(FileOutputStream(files(i)))){ (in, out) =>
-                  val data = new Array[Byte](1024)
-                  var x = 0
-                  while ({ x = in.read(data); x } > 0) {
-                    out.write(data, 0, x)
-                    downloaded += x
-                    publish(downloaded)
-                  }
+                val channel = Channels.newChannel(site.openStream())
+                Using(new FileOutputStream(files(i))) { f =>
+                  val fc = f.getChannel()
+                  fc.transferFrom(channel, 0, Long.MaxValue)
                 }
               } catch case e: Exception => System.err.println(s"Error downloading ${files(i)}: ${e.getMessage}")
             }
@@ -150,10 +137,13 @@ object CardImagePanel {
         }
         if (req.card.layout == CardLayout.FLIP && files(0).exists) {
           try {
-            val original = ImageIO.read(files(0))
-            val flipped = BufferedImage(original.getWidth, original.getHeight, original.getType)
-            val op = AffineTransformOp(AffineTransform.getRotateInstance(math.Pi, flipped.getWidth/2, flipped.getHeight/2), AffineTransformOp.TYPE_BILINEAR)
-            ImageIO.write(op.filter(original, flipped), "jpg", files(1))
+            val original = ImmutableImage.loader().fromFile(files(0))
+            val flipped = original.rotateRight().rotateRight()
+            SettingsDialog.settings.inventory.imageSource match {
+              case "Scryfall" => flipped.output(WebpWriter.DEFAULT, files(1))
+              case "Gatherer" => flipped.output(JpegWriter.Default, files(1))
+              case _ =>
+            }
           } catch case e: Exception => e.printStackTrace()
         }
         if (SettingsDialog.settings.inventory.imageLimitEnable) {
@@ -166,17 +156,11 @@ object CardImagePanel {
           if (req.source.card.exists(_ == req.card))
             req.source.loadImages()
         })
-        publish(0)
         if (toDownload.isEmpty) {
-          SwingUtilities.invokeLater(() => {
-            progressBars.foreach(_.setEnabled(false))
-            progressLabels.foreach(_.setText(""))
-          })
+          SwingUtilities.invokeLater(() => progressLabels.foreach(_.setText("")))
         }
       }
     }
-
-    override protected def process(chunks: java.util.List[Integer]) = progressBars.foreach(_.setValue(chunks.asScala.last))
 
     execute()
   }
@@ -239,7 +223,7 @@ class CardImagePanel(private var card: Option[Card] = None) extends JPanel {
     card.foreach{ c =>
       faceImages = getFiles(c).map{ file => if (file.exists) {
         try {
-          Some(ImageIO.read(file))
+          Some(ImmutableImage.loader().fromFile(file).awt())
         } catch case e: IOException => None
       } else None }
       Option(getParent).foreach{ p => SwingUtilities.invokeLater(() => {

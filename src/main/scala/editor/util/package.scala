@@ -22,7 +22,7 @@ package object util {
 
     extension (r: Random) {
       /** @return a random color. */
-      def nextColor = Color(r.nextFloat, r.nextFloat, r.nextFloat)
+      def nextColor = Color(r.nextFloat(), r.nextFloat(), r.nextFloat())
     }
 
     extension (dataset: CategoryDataset) {

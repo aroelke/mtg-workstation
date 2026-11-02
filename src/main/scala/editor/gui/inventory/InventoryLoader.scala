@@ -286,7 +286,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       val cards = tryBreakable { collection.mutable.Set.from(entries.flatMap((rawSet) =>
         if (isCancelled) {
           expansions.clear()
-          break
+          break()
         }
 
         val set = rawSet.toExpansion

@@ -362,7 +362,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
         if (had < e.count)
           changes ++= s"+${e.count - had}x ${e.card.name} (${e.card.expansion.name})\n"
       })
-      changes.result
+      changes.result()
     }
 
     private[EditorFrame] lazy val model = CardTableModel(this, SettingsDialog.settings.editor.columns, EditorFrame.this)
@@ -1153,7 +1153,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
           }
           true
         }, () => {
-          notes.pop
+          notes.pop()
           undoing = true
           notesArea.setText(notes.top)
           listTabs.setSelectedIndex(Notes.ordinal)
@@ -1724,7 +1724,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       def write(d: CardList, n: Option[String] = None) = {
         n.foreach(wr.println(_))
         val copy = Deck()
-        copy ++= d.sorted(comp)
+        copy ++= d.sorted(using comp)
         wr.print(format.format(copy))
       }
 
@@ -1837,7 +1837,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       switchCategoryBox.setEnabled(false)
     else {
       switchCategoryBox.setEnabled(true)
-      deck.current.categories.map(_.categorization).toSeq.sorted(sortCategoriesBox.getCurrentItem(deck.current)).foreach((c) => {
+      deck.current.categories.map(_.categorization).toSeq.sorted(using sortCategoriesBox.getCurrentItem(deck.current)).foreach((c) => {
         categoriesContainer.add(getCategoryPanel(c.name).get)
         switchCategoryModel.addElement(c.name)
       })
@@ -1909,7 +1909,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
 
     manaCurve.clear()
     landDrops.clear()
-    val colorSets = ListMap((1 to ManaType.colors.size).flatMap(ManaType.colors.combinations(_).map((c) => ManaType.sorted(c).map(_.toString) -> c.toSet)):_*)
+    val colorSets = ListMap((1 to ManaType.colors.size).flatMap(ManaType.colors.combinations(_).map((c) => ManaType.sorted(c).map(_.toString) -> c.toSet))*)
     val sections = sectionsBox.getCurrentItem match {
       case ManaCurveSection.ByNothing    => Seq(Seq(if (manaAnalyzeCategoryBox.isSelected) manaAnalyzeCategoryCombo.getCurrentItem else "Main Deck"))
       case ManaCurveSection.ByColorGroup => Seq(Seq("Colorless")) ++ ManaType.colors.map((m) => Seq(m.toString)) ++ Seq(Seq("Multicolored"))

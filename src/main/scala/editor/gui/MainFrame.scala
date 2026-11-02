@@ -462,7 +462,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           sortCheck.addItemListener(_ => sortBox.setEnabled(sortCheck.isSelected))
           sortPanel.add(sortBox)
 
-          val extras = collection.mutable.LinkedHashMap(f.extras.map(_.name -> true):_*)
+          val extras = collection.mutable.LinkedHashMap(f.extras.map(_.name -> true)*)
           val extrasPanel = JPanel(BorderLayout())
           extrasPanel.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, extrasPanel.getBackground))
           val includeExtras = TristateCheckBox("Include additional lists:", TristateCheckBoxState.Selected)
@@ -635,7 +635,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             if (!extras.isEmpty)
                 panels += extrasPanel
 
-            if (WizardDialog.showWizardDialog(this, "Export Wizard", panels.toSeq:_*) == WizardResult.FinishOption) {
+            if (WizardDialog.showWizardDialog(this, "Export Wizard", panels.toSeq*) == WizardResult.FinishOption) {
               val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt)
               Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, if (includeCheckBox.isSelected) selected else Seq.empty))
             } else None
@@ -711,7 +711,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   editMenu.add(JSeparator())
 
   // Preferences menu item
-  private val settings = Future{ SettingsDialog(this) }(ExecutionContext.global)
+  private val settings = Future{ SettingsDialog(this) }(using ExecutionContext.global)
   private val preferencesItem = JMenuItem("Preferences...")
   preferencesItem.addActionListener(_ => try {
       val s = Await.result(settings, 0.nanos)
@@ -1281,7 +1281,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    *
    * @return true if all open editors were successfully closed, and false otherwise.
    */
-  def closeAll() = Seq(editors.toArray:_*).foldLeft(true)(_ & close(_))
+  def closeAll() = Seq(editors.toArray*).foldLeft(true)(_ & close(_))
 
   /** Exit the application if all open editors successfully close. */
   def exit() = if (closeAll()) {
@@ -1568,7 +1568,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   def updateRecents(f: File) = if (!recents.exists(_._2 == f)) {
     recentsMenu.setEnabled(true)
     if (recentItems.size >= SettingsDialog.settings.editor.recents.count){
-      val eldest = recentItems.dequeue
+      val eldest = recentItems.dequeue()
       recents.remove(eldest)
       recentsMenu.remove(eldest)
     }

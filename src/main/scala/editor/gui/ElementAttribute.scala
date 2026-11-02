@@ -142,7 +142,7 @@ sealed trait ColorElement(available: Seq[ManaType]) { this: ElementAttribute[Set
  * @author Alec Roelke
  */
 sealed trait SingletonOptionsElement[T <: AnyRef : ClassTag] { this: ElementAttribute[T, SingletonOptionsFilter[T]] =>
-  override def attribute: CardAttribute[T, SingletonOptionsFilter[T]] with HasSingletonOptionsFilter[T]
+  override def attribute: CardAttribute[T, SingletonOptionsFilter[T]] & HasSingletonOptionsFilter[T]
   override def filter(selector: FilterSelectorPanel) = OptionsFilterPanel(attribute.filter, attribute.options, selector)
 }
 
@@ -152,7 +152,7 @@ sealed trait SingletonOptionsElement[T <: AnyRef : ClassTag] { this: ElementAttr
  * @author Alec Roelke
  */
 sealed trait MultiOptionsElement[T <: AnyRef : ClassTag, F <: MultiOptionsFilter[T] : ClassTag] { this: ElementAttribute[Set[T], F] =>
-  override def attribute: CardAttribute[Set[T], F] with HasMultiOptionsFilter[T]
+  override def attribute: CardAttribute[Set[T], F] & HasMultiOptionsFilter[T]
   override def filter(selector: FilterSelectorPanel) = OptionsFilterPanel(attribute.filter, attribute.options, selector)
 }
 
@@ -216,7 +216,7 @@ sealed trait OptionIterableRenderer[T, I <: Iterable[Option[T]]](toSeq: (I) => S
  * @author Alec Roelke
  */
 sealed trait CantBeRendered[T] { this: ElementAttribute[T, ?] =>
-  override def attribute: CardAttribute[T, ?] with CantCompare[T]
+  override def attribute: CardAttribute[T, ?] & CantCompare[T]
   override def render(value: T) = throw UnsupportedOperationException(s"$attribute can't be rendered")
   override def tooltip(value: T) = throw UnsupportedOperationException(s"$attribute can't be rendered")
 }

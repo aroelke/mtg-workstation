@@ -11,17 +11,19 @@ appProperties := {
 name := "mtg-workstation"
 version := appProperties.value.getProperty("version")
 
-scalaVersion := "3.3.1"
+scalaVersion := "3.10.0"
 libraryDependencies ++= Seq(
+  "com.sksamuel.scrimage" % "scrimage-core" % "4.6.11",
+  "com.sksamuel.scrimage" % "scrimage-webp" % "4.6.11",
   "org.json4s" % "json4s-native_3" % "4.1.0-M1",
   "com.rubiconproject.oss" % "jchronic" % "0.2.8",
   "org.jfree" % "jfreechart" % "1.5.4"
 )
 
 fork := true
-javaOptions ++= Seq("-Dsun.java2d.d3d=false", "-Dfile.encoding=UTF-8")
+javaOptions ++= Seq("-Dsun.java2d.d3d=false", "-Dfile.encoding=UTF-8", "-Xmx8G")
 semanticdbEnabled := true
-
+/*
 assembly / assemblyJarName := s"${name.value}-${version.value}.jar"
 
 lazy val jpackage = taskKey[Unit]("Generates a full Windows installer.")
@@ -37,3 +39,4 @@ jpackage := {
     "--dest", assembly.value.getParent()
   ) !
 }
+*/

@@ -26,7 +26,7 @@ import scala.collection.immutable.ListSet
  */
 object ColorFilterPanel {
   /** @return an empty [[ColorFilterPanel]] set to filter by color */
-  def apply(selector: FilterSelectorPanel): ColorFilterPanel = new ColorFilterPanel(selector, ListSet(ManaType.colors:_*))
+  def apply(selector: FilterSelectorPanel): ColorFilterPanel = new ColorFilterPanel(selector, ListSet(ManaType.colors*))
 
   /**
    * Create a new [[ColorFilterPanel]], set its filter attribute, and set its contents.
@@ -48,7 +48,7 @@ object ColorFilterPanel {
    * @param available list of mana types available to choose from
    * @return a new [[ColorFilterPanel]] with the given filter's attribute and contents
    */
-  def apply(filter: ColorFilter, available: Seq[ManaType], selector: FilterSelectorPanel): ColorFilterPanel = apply(filter, ListSet(available:_*), selector)
+  def apply(filter: ColorFilter, available: Seq[ManaType], selector: FilterSelectorPanel): ColorFilterPanel = apply(filter, ListSet(available*), selector)
 }
 
 /**
