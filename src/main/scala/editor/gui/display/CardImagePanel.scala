@@ -102,7 +102,7 @@ object CardImagePanel {
 
   private case class DownloadRequest(source: CardImagePanel, card: Card)
 
-  private object ImageDownloadWorker extends SwingWorker[Unit, Integer] {
+  private object ImageDownloadWorker extends SwingWorker[Unit, Unit] { // publish() hangs for this class, so SwingUtilities.invokeLater is used instead
     private val toDownload = java.util.concurrent.LinkedBlockingQueue[DownloadRequest]
     private var size = 0
 
@@ -122,33 +122,13 @@ object CardImagePanel {
             urls(i).foreach{ site =>
               files(i).getParentFile.mkdirs()
               try {
-//                val connection = site.openConnection()
-//                size = connection.getContentLength
-                var downloaded = 0
-                SwingUtilities.invokeLater(() => {
-                  progressLabels.foreach(_.setText(s"Downloading image of ${req.card.name} ..."))
-                })
+                SwingUtilities.invokeLater(() => progressLabels.foreach(_.setText(s"Downloading image of ${req.card.name} ...")))
 
                 val channel = Channels.newChannel(site.openStream())
                 Using(new FileOutputStream(files(i))) { f =>
                   val fc = f.getChannel()
                   fc.transferFrom(channel, 0, Long.MaxValue)
                 }
-//                publish(1)
-/*
-                val image = new collection.mutable.ArrayBuffer[Byte]()
-                Using.resources(BufferedInputStream(connection.getInputStream), BufferedOutputStream(FileOutputStream(files(i)))){ (in, out) =>
-                  val data = new Array[Byte](131072)
-                  var x = 0
-                  while ({ x = in.read(data); x } != -1) {
-                    println(s"read $x bytes")
-                    image ++= data
-                    downloaded += x
-                    publish(downloaded)
-                  }
-                  out.write(image.toArray, 0, size)
-                }
-*/
               } catch case e: Exception => System.err.println(s"Error downloading ${files(i)}: ${e.getMessage}")
             }
           }
@@ -171,17 +151,10 @@ object CardImagePanel {
           if (req.source.card.exists(_ == req.card))
             req.source.loadImages()
         })
-        publish(0)
         if (toDownload.isEmpty) {
-          SwingUtilities.invokeLater(() => {
-            progressLabels.foreach(_.setText(""))
-          })
+          SwingUtilities.invokeLater(() => progressLabels.foreach(_.setText("")))
         }
       }
-    }
-
-    override protected def process(chunks: java.util.List[Integer]) = {
-
     }
 
     execute()
