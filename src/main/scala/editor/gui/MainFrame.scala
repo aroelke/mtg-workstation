@@ -711,7 +711,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   editMenu.add(JSeparator())
 
   // Preferences menu item
-  private val settings = Future{ SettingsDialog(this) }(ExecutionContext.global)
+  private val settings = Future{ SettingsDialog(this) }(using ExecutionContext.global)
   private val preferencesItem = JMenuItem("Preferences...")
   preferencesItem.addActionListener(_ => try {
       val s = Await.result(settings, 0.nanos)

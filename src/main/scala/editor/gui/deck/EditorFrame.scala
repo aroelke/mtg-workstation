@@ -1724,7 +1724,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       def write(d: CardList, n: Option[String] = None) = {
         n.foreach(wr.println(_))
         val copy = Deck()
-        copy ++= d.sorted(comp)
+        copy ++= d.sorted(using comp)
         wr.print(format.format(copy))
       }
 
@@ -1837,7 +1837,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DesignSerializer = DesignS
       switchCategoryBox.setEnabled(false)
     else {
       switchCategoryBox.setEnabled(true)
-      deck.current.categories.map(_.categorization).toSeq.sorted(sortCategoriesBox.getCurrentItem(deck.current)).foreach((c) => {
+      deck.current.categories.map(_.categorization).toSeq.sorted(using sortCategoriesBox.getCurrentItem(deck.current)).foreach((c) => {
         categoriesContainer.add(getCategoryPanel(c.name).get)
         switchCategoryModel.addElement(c.name)
       })

@@ -59,7 +59,10 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
   case VariableSymbol extends ManaSymbolInstances[Char, editor.database.symbol.VariableSymbol](
     map = Seq('X', 'Y', 'Z').map((v) => v -> new VariableSymbol(v)).toMap,
     keygen = (s) => Option.when(s.size == 1)(s(0).toUpper),
-    comparator = { case (va: VariableSymbol, vb: VariableSymbol) => va.variable.toUpper - vb.variable.toUpper }
+    comparator = {
+      case (va: VariableSymbol, vb: VariableSymbol) => va.variable.toUpper - vb.variable.toUpper
+      case (_, _) => 0
+    }
   )
 
   /** All possible [[StaticSymbol]]s: 1/2, infinity, snow, and multicolored. */
@@ -74,28 +77,40 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
       "M" -> new StaticSymbol("multicolored", "M", 0)
     ),
     keygen = Some(_),
-    comparator = { case (sa: StaticSymbol, sb: StaticSymbol) => (sa.value - sb.value).toInt }
+    comparator = {
+      case (sa: StaticSymbol, sb: StaticSymbol) => (sa.value - sb.value).toInt
+      case (_, _) => 0
+    }
   )
 
   /** All used [[GenericSymbol]]s: 0-20, 100, and one million. */
   case GenericSymbol extends ManaSymbolInstances(
     map = ((0 to 20).toSeq ++ Seq(100, 1000000)).map((n) => n -> new GenericSymbol(n)).toMap,
     keygen = (s) => try Some(s.toInt) catch case _: NumberFormatException => None,
-    comparator = { case (ga: GenericSymbol, gb: GenericSymbol) => (ga.value - gb.value).toInt }
+    comparator = {
+      case (ga: GenericSymbol, gb: GenericSymbol) => (ga.value - gb.value).toInt
+      case (_, _) => 0
+    }
   )
 
   /** All used [[HalfColorSymbol]]s. */
   case HalfColorSymbol extends ManaSymbolInstances(
     map = ManaType.values.map(s => s -> new HalfColorSymbol(s)).toMap,
     keygen = (s) => if (s.size == 2 && s.startsWith("H")) ManaType.parse(s(1).toString) else None,
-    comparator = { case (ha: HalfColorSymbol, hb: HalfColorSymbol) => ha.color.compare(hb.color) }
+    comparator = {
+      case (ha: HalfColorSymbol, hb: HalfColorSymbol) => ha.color.compare(hb.color)
+      case (_, _) => 0
+    }
   )
 
   /** All used [[TwobridSymbol]]s: only colors, not colorless. */
   case TwobridSymbol extends ManaSymbolInstances(
     map = ManaType.colors.map(s => s -> new TwobridSymbol(s)).toMap,
     keygen = (s) => if (s.size == 3 && s.startsWith("2/")) ManaType.parse(s(2).toString) else None,
-    comparator = { case (ta: TwobridSymbol, tb: TwobridSymbol) => ta.color.compare(tb.color) }
+    comparator = {
+      case (ta: TwobridSymbol, tb: TwobridSymbol) => ta.color.compare(tb.color)
+      case (_, _) => 0
+    }
   )
 
   /** All possible [[PhyrexianHybridSymbol]]s except for colorless ones. */
@@ -110,7 +125,10 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
         }
       } else None
     },
-    comparator = { case (pa: PhyrexianHybridSymbol, pb: PhyrexianHybridSymbol) => pa.first.compare(pb.first)*10 + pa.second.compare(pb.second) }
+    comparator = {
+      case (pa: PhyrexianHybridSymbol, pb: PhyrexianHybridSymbol) => pa.first.compare(pb.first)*10 + pa.second.compare(pb.second)
+      case (_, _) => 0
+    }
   )
 
   /** All possible [[HybridSymbol]]s except for colorless ones. */
@@ -125,21 +143,30 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
         }
       } else None
     },
-    comparator = { case (ha: HybridSymbol, hb: HybridSymbol) => ha.first.compare(hb.first)*10 + ha.second.compare(hb.second) }
+    comparator = {
+      case (ha: HybridSymbol, hb: HybridSymbol) => ha.first.compare(hb.first)*10 + ha.second.compare(hb.second)
+      case (_, _) => 0
+    }
   )
 
   /** All possible [[PhyrexianSymbol]]s: only colors, not colorless. */
   case PhyrexianSymbol extends ManaSymbolInstances(
     map = ManaType.values.map(s => s -> new PhyrexianSymbol(s)).toMap,
     keygen = (s) => if (s.size == 3 && s.toUpperCase.endsWith("/P")) ManaType.parse(s(0).toString) else None,
-    comparator = { case (pa: PhyrexianSymbol, pb: PhyrexianSymbol) => pa.color.compare(pb.color) }
+    comparator = {
+      case (pa: PhyrexianSymbol, pb: PhyrexianSymbol) => pa.color.compare(pb.color)
+      case (_, _) => 0
+    }
   )
   
   /** All possible [[ColorSymbol]]s. */
   case ColorSymbol extends ManaSymbolInstances(
     map = ManaType.values.map(s => s -> new ColorSymbol(s)).toMap,
     keygen = ManaType.parse,
-    comparator = { case (ca: ColorSymbol, cb: ColorSymbol) => ca.color.compare(cb.color) }
+    comparator = {
+      case (ca: ColorSymbol, cb: ColorSymbol) => ca.color.compare(cb.color)
+      case (_, _) => 0
+    }
   )
 }
 
